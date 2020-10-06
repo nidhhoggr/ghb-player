@@ -1,17 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <title>Athlon / Front-end Boilerplate Template</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    <title>FolkTabs.com</title>
+    <style>
+      main {
+        max-width: 770px;
+        margin: 0 auto;
+      }
+      .feedback {
+        height: 600px;
+        font-family: Arial, "sans-serif";
+      }
+      .highlight {
+        fill: #0a9ecc;
+      }
+      .abcjs-cursor {
+        stroke: red;
+      }
+      .audio-error {
+        color: red;
+        border: 2px solid red;
+        padding: 10px;
+      }
+      .click-explanation {
+        color: red;
+        font-style: italic;
+      }
+      .beat {
+        font-weight: bold;
+      }
+      .label {
+        color: #888888;
+      }
+    </style>
   </head>
   <body>
-    <header>
-      Hello, world!
-      <img src="images/content/logoa.svg" alt="Logo of Athlon" class="logo">
-    </header>
     <main>
-      <p>Demo page illustrating building SASS, JS, Fonts, Background Images and Inline Images.</p>
-      <address>Documentation avaialable on the official <a href="https://github.com/WeAreAthlon/frontend-webpack-boilerplate/" target="_blank">GitHub Repository</a>.</address>
+      <button class="next">Next Tune</button>
+      <button class="start">Start/Pause</button>
+      <div class="midi">MIDI</div>
+      <div id="paper"></div>
+      <div id="audio"></div>
+      <p class="beat"></p>
+      <p class="click-explanation" style="display:none;">Click on a note to play that note.</p>
+      <pre class="clicked-info"></pre>
+      <pre class="feedback"></pre>
+      <div id="warnings"></div>
     </main>
   </body>
 </html>

@@ -10,7 +10,7 @@ const serverConfiguration = {
     port: 3000,
   },
   external: {
-    proxy: 'http://localhost:9000/path/to/project/',
+    proxy: 'http://localhost:3000/',
   },
 };
 
@@ -44,6 +44,10 @@ const config = function(env, args) {
         {
           test: /\.scss$/,
           use: ['style-loader', MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
+        },
+        {
+          test: /\.css$/i,
+          use: ['style-loader', 'css-loader'],
         },
         {
           test: /\.js$/,
