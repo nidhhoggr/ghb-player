@@ -106,9 +106,12 @@ address {
     }
   }
 
+  .controls {
+    display: flex;
+    justify-content: space-evenly;
+  }
+
   .transposition {
-    span {
-    }
     span.currentTransposition {
       font-size: 64px;
       text-align: right;
@@ -128,29 +131,42 @@ address {
       display: flex;
       flex-direction: column;
     }
-
   }
+
+  .chanterControls {
+    span.currentChanter {
+      font-size: 64px;
+      text-align: right;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
 }
 
-.playercontainer {
-  float: left;
-  width: 74%;
-  background-color: #ebefff;
-  min-height: 600px;
-  min-width: 400px;
-  padding: 15px;
-}
+.playernotes {
 
-.noteDiagram {
-  float: right;
-  width: 25%;
-  text-align: left;
-  background-color: #fff1eb;
-  padding: 15px;
+  display: flex;
+  justify-content: space-evenly;
 
-  h1 {
-    text-align: center;
-    font-size: 64px;
+  .playercontainer {
+    background-color: #ebefff;
+    min-height: 600px;
+    min-width: 75%;
+    padding: 15px;
+  }
+
+  .noteDiagram {
+    text-align: left;
+    background-color: #fff1eb;
+    padding: 15px;
+
+    h1 {
+      text-align: center;
+      font-size: 64px;
+    }
   }
 }
 
@@ -164,7 +180,7 @@ address {
   color: red;
 }
 
-.playable_chanter-ae {
+.playable_chanter-ea {
   @mixin playable-note {
     background-image: url("../images/content/fingering_flat_EA.png");
     color: #000;
@@ -245,6 +261,181 @@ address {
   }
   @for $i from 1 through 7 {
     &.playable_note-Db#{$i} {
+      @include playable-note;
+      background-position: -1098px 65px;
+    }
+  }
+}
+
+
+.playable_chanter-dg {
+  @mixin playable-note {
+    background-image: url("../images/content/fingering_flat_DG.png");
+    color: #000;
+  }
+
+  background-image: none;
+  @include unplayable-note;
+  background-repeat: no-repeat;
+  min-height: 600px;
+  line-height: 50px;
+  color: #000;
+  font-weight: bold;
+  font-size: 32px;
+  width: 120px;
+  display: inline-block;
+
+
+  //["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"]
+  @for $i from 1 through 4 {
+    &.playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -20px 65px;
+    }
+  }
+  @for $i from 1 through 4 {
+    &.playable_note-D#{$i} {
+      @include playable-note;
+      background-position: -154px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    &.playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -1232px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    &.playable_note-Db#{$i} {
+      @include playable-note;
+      background-position: -1366px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-E#{$i} {
+      @include playable-note;
+      background-position: -289px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-F#{$i} {
+      @include playable-note;
+      background-position: -423px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-Gb#{$i} {
+      @include playable-note;
+      background-position: -557px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-G#{$i} {
+      @include playable-note;
+      background-position: -691px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-A#{$i} {
+      @include playable-note;
+      background-position: -830px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -963px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-B#{$i} {
+      @include playable-note;
+      background-position: -1098px 65px;
+    }
+  }
+}
+
+.playable_chanter-cf {
+  @mixin playable-note {
+    background-image: url("../images/content/fingering_flat_CF.png");
+    color: #000;
+  }
+
+  background-image: none;
+  @include unplayable-note;
+  background-repeat: no-repeat;
+  min-height: 600px;
+  line-height: 50px;
+  color: #000;
+  font-weight: bold;
+  font-size: 32px;
+  width: 120px;
+  display: inline-block;
+
+
+  //["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"]
+  @for $i from 1 through 4 {
+    &.playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -20px 65px;
+    }
+  }
+  @for $i from 1 through 4 {
+    &.playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -154px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    &.playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -1232px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    &.playable_note-B#{$i} {
+      @include playable-note;
+      background-position: -1366px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-D#{$i} {
+      @include playable-note;
+      background-position: -289px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-Eb#{$i} {
+      @include playable-note;
+      background-position: -423px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-E#{$i} {
+      @include playable-note;
+      background-position: -557px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-F#{$i} {
+      @include playable-note;
+      background-position: -691px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-G#{$i} {
+      @include playable-note;
+      background-position: -830px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-Ab#{$i} {
+      @include playable-note;
+      background-position: -963px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    &.playable_note-A#{$i} {
       @include playable-note;
       background-position: -1098px 65px;
     }

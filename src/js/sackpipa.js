@@ -22,12 +22,22 @@ function Sackpipa({
 
 export default Sackpipa;
 
+Sackpipa.prototype.getChanterKeyAbbr = function getChanterKeyAbbr() {
+  switch (this.chanterKey) {
+    case "E/A": 
+    case "D/G": 
+    case "C/F":
+      return _.replace(_.lowerCase(this.chanterKey)," ","");
+    default:
+      return "invalidChanterKey";
+  }
+}
+
 Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey} = {}) {
   if (!chanterKey) chanterKey = this.chanterKey;
   let notes = [];
   switch (chanterKey) {
     case "E/A": {
-      //not accounting for the next e in the octave
             // D    E    ^F    G    ^G    A    B    C'   ^C' 
             // D'   E'
       notes = ["D", "E", "Gb", "G", "Ab", "A", "B", "C", "Db"];

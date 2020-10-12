@@ -26,9 +26,12 @@ function ABCPlayer({
     'transposeDown',
     'tempoUp',
     'tempoDown',
+    'chanterUp',
+    'chanterDown',
     'currentTransposition',
     'currentTempo',
     'currentSong',
+    'currentChanter',
     'audio',
     'noteDiagram',
   ];
@@ -184,6 +187,8 @@ ABCPlayer.prototype.load = function() {
     "transposeDown",
     "tempoUp",
     "tempoDown",
+    "chanterUp",
+    "chanterDown",
   ].map((elName) => {
     clickBinder({el: this.domBinding[elName], eventCb: this[elName].bind(this)});
   });
@@ -210,6 +215,7 @@ ABCPlayer.prototype.load = function() {
     this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
   }
 
+  this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.setTune({userAction: false, onSuccess: ({synth}) => {
     /*
      * Was attempting to load a bass done here
@@ -235,8 +241,6 @@ ABCPlayer.prototype.load = function() {
       return buffer.start();
     });
     */
-    this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
-    console.log(this.sackpipa);
   }});
 }
 
@@ -245,7 +249,8 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
     currentNote = this.abcjs.synth.pitchToNoteName[pitchIndex];
   }
   console.log({currentNote});
-  this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-ae playable_note-${currentNote}"><h1>${currentNote}</h1></div>`;
+  const chanterKey = this.sackpipa.getChanterKeyAbbr();
+  this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} playable_note-${currentNote}"><h1>${currentNote}</h1></div>`;
 }
 
 ABCPlayer.prototype.start = function() {
@@ -270,6 +275,22 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function() {
     })
   });
 }
+
+ABCPlayer.prototype.songPrev = function() {
+  if (this.currentTune > 0)
+    this.currentTune--
+  else
+    this.currentTune = this.songs.length - 1;
+  this.setTune({userAction: true});
+}
+
+ABCPlayer.prototype.songNext = function() {
+  this.currentTune++;
+  if (this.currentTune >= this.songs.length)
+    this.currentTune = 0;
+  this.setTune({userAction: true});
+}
+
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
@@ -301,19 +322,58 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
   }
 }
 
+ABCPlayer.prototype.chanterDown = function() {
+  const { chanterKey, possibleChanters } = this.sackpipa;
+  const currentIndex = _.indexOf(possibleChanters, chanterKey);
+  let nextIndex;
+  if (currentIndex >= possibleChanters.length) {
+    nextIndex = 0;
+  }
+  else if (currentIndex === 0 || currentIndex) {
+    nextIndex = currentIndex + 1;
+  }
+  this._updateChanter(possibleChanters[nextIndex]);
+}
 
-ABCPlayer.prototype.updateControlStats = function() {
+ABCPlayer.prototype.chanterUp = function() {
+  const { chanterKey, possibleChanters } = this.sackpipa;
+  const currentIndex = _.indexOf(possibleChanters, chanterKey);
+  let nextIndex;
+  if (currentIndex <= 0) {
+    nextIndex = possibleChanters.length - 1;
+  }
+  else if (currentIndex)  {
+    this.sackpipa.setChanterKey(possibleChanters[currentIndex - 1]);
+    nextIndex = currentIndex - 1;
+  }
+  this._updateChanter(possibleChanters[nextIndex]);
+}
+
+ABCPlayer.prototype._updateChanter = function updateChanter(chanterKey) {
+  this.sackpipa.setChanterKey(chanterKey);
+  this.setTune({
+    userAction: true,
+    isSameSong: true,
+    currentSong: this.currentSong,
+    abcOptions: {
+      visualTranspose: this.transposition
+    },
+    onSuccess: () => {
+      console.log(`Updated the chanter to ${chanterKey}`);
+    }
+  });
+}
+
+ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   this.domBinding.currentTransposition.innerText = this.transposition;
   this.domBinding.currentTempo.innerText = this.tempo;
   this.domBinding.currentSong.innerText = this.currentSong.name;
+  this.domBinding.currentChanter.innerText = _.get(this.sackpipa, "chanterKey", "");
 }
 
 ABCPlayer.prototype.setTransposition = function(semitones) {
   if (!semitones) semitones = this.transposition;
-  console.log(semitones);
-  console.log(this.currentSong.abc);
   this.currentSong.setTransposition(semitones, ({isSet}) => {
-    console.log(this.currentSong.abc);
     if (!isSet) {
       console.error(`Could not set transposition by ${semitones}`)
       return;
@@ -391,20 +451,6 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
   });
 }
 
-ABCPlayer.prototype.songPrev = function() {
-  if (this.currentTune > 0)
-    this.currentTune--
-  else
-    this.currentTune = this.songs.length - 1;
-  this.setTune({userAction: true});
-}
-
-ABCPlayer.prototype.songNext = function() {
-  this.currentTune++;
-  if (this.currentTune >= this.songs.length)
-    this.currentTune = 0;
-  this.setTune({userAction: true});
-}
 
 function CursorControl({
   onNoteChange, 

@@ -12,37 +12,55 @@
       <div class="playercontrols">
         <div class="songControls">
           <span class="title">Song</span>
-          <div class="buttons">
-            <span class="songPrev">&#x23EE;</span>
-            <span class="start">&#x23EF;</span>
-            <span class="songNext">&#x23ED;</span>
+          <div class="controls">
+            <div class="buttons">
+              <span class="songPrev">&#x23EE;</span>
+              <span class="start">&#x23EF;</span>
+              <span class="songNext">&#x23ED;</span>
+            </div>
+            <span class="currentSong"></span>
           </div>
-          <span class="currentSong"></span>
         </div>
         <div class="transposition">
           <span class="title">Transposition</span>
-          <div class="buttons">
-            <span class="transposeUp">&#8679;</span>
-            <span class="transposeDown">&#8681;</span>
+          <div class="controls">
+            <div class="buttons">
+              <span class="transposeUp">&#8679;</span>
+              <span class="transposeDown">&#8681;</span>
+            </div>
+            <span class="currentTransposition"></span>
           </div>
-          <span class="currentTransposition"></span>
         </div>
         <div class="tempo">
           <span class="title">Tempo</span>
-          <div class="buttons">
-            <span class="tempoUp">&#8679;</span>
-            <span class="tempoDown">&#8681;</span>
+          <div class="controls">
+            <div class="buttons">
+              <span class="tempoUp">&#8679;</span>
+              <span class="tempoDown">&#8681;</span>
+            </div>
+            <span class="currentTempo"></span>
           </div>
-          <span class="currentTempo"></span>
+        </div>
+        <div class="chanterControls">
+          <span class="title">Chanter</span>
+          <div class="controls">
+            <div class="buttons">
+              <span class="chanterUp">&#8679;</span>
+              <span class="chanterDown">&#8681;</span>
+            </div>
+            <span class="currentChanter"></span>
+          </div>
         </div>
       </div>
-      <div class="playercontainer">
-        <div id="paper"></div>
-        <div id="audio"></div>
-        <p class="click-explanation" style="display:none;">Click on a note to play that note.</p>
-        <p class="beat"></p>
-      </div>
+      <div class="playernotes">
+        <div class="playercontainer">
+          <div id="paper"></div>
+          <div id="audio"></div>
+          <p class="click-explanation" style="display:none;">Click on a note to play that note.</p>
+          <p class="beat"></p>
+        </div>
       <div class="noteDiagram"></div>
+      </div>
       <div class="metaData">
         <pre class="clicked-info"></pre>
         <pre class="feedback"></pre>
