@@ -32,7 +32,7 @@ export default [
       "T:D/G Chanter scale\n" +
       "M:C|\n" +
       "L:1/8\n" +
-      "K:Gm\n" +
+      "K:Dm\n" +
       "| C D E F ^F G A _B =B C' ^C' D' |"
   },
   {
@@ -43,7 +43,7 @@ export default [
       "T:C/F Chanter scale\n" +
       "M:C|\n" +
       "L:1/8\n" +
-      "K:Fm\n" +
+      "K:Cm\n" +
       "| _B, C D _E =E F G _A =A _B =B C' |"
   },
 ];

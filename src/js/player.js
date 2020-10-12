@@ -109,13 +109,15 @@ function ABCPlayer({
     displayProgress: true
   };
 
-  this.sackPipaDroneSynth = null; 
+  this.sackpipaDroneSynth = null; 
 
-  this.sackPipaOptions = {
+  this.sackpipaOptions = {
     chanterKey: "E/A",
-    dronesEnabled: ["E'"],
-    isSecondHoldPlugged: true,
-    dronesSynth: this.sackPipaDroneSynth
+    dronesEnabled: ["E4","A3"],
+    isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A chanter
+    isSecondGroupPlugged: true,//only on D/G and C/F chanters
+    dronesSynth: null,//should be an instance of the sackpipaDroneSynth above,
+    playableNotes: [],//["F"]
   }
 }
 
@@ -233,7 +235,8 @@ ABCPlayer.prototype.load = function() {
       return buffer.start();
     });
     */
-    this.currentSong.sackPipa = new this.Sackpipa(this.sackPipaOptions);
+    this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+    console.log(this.sackpipa);
   }});
 }
 
@@ -371,7 +374,10 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
       this.synthControl.setTune(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
         this.setCurrentSongNoteSequence();
         setTimeout(() => {
-          console.log({playableNotes: this.currentSong.getPlayableNotes()});
+          console.log({
+            playableNotes: this.currentSong.getPlayableNotes(),
+            compatibleNotes: this.sackpipa && this.sackpipa.getCompatibleNotes({abcSong: this.currentSong})
+          });
           this.updateControlStats();
         });
         onSuccess && onSuccess({response, synth: midiBuffer});
