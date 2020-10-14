@@ -1,6 +1,6 @@
 import "../scss/app.scss";
 import abcjs from "./abcjs";
-import "abcjs/abcjs-audio.css";
+import "./abcjs/abcjs-audio.css";
 import "../scss/audio.css";
 import ABCSong from "./song";
 import songs from "./songs";
@@ -10,7 +10,8 @@ import HPS from "./hps";
 import utils from "./utils";
 const noteScroller = new HPS('.scrollingNotesWrapper', {
   ease: 0.08,
-  sectionWidth: 100
+  sectionWidth: 58,
+  sectionOffset: 420
 });
 
 const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, utils, noteScroller});

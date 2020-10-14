@@ -1,6 +1,8 @@
 @mixin unplayable-note {
   background-image: none;
-  color: red;
+  background-color: red;
+  width: 48px;
+  height: 150px;
 }
 
 @mixin pn {
@@ -12,9 +14,17 @@
   background-size: auto 100%;
 }
 
+.firstScrollingNote {
+  height: 150px;
+  width: 400px;
+  background-color: #3e3e3e;
+}
+
 .scrollingNotesWrapper {
   overflow-y: hidden;
   max-height: 200px;
+  height: 170px;
+  padding-top: 10px;
   text-align: left;
   line-break: unset;
   white-space: nowrap;
@@ -26,13 +36,24 @@
     @include pn;
   }
 
-  @include unplayable-note;
   background-image: none;
   background-repeat: no-repeat;
   background-color: #7e9fb58a;
+  height: 170px;
 
   section {
     margin: 0px 5px 0px 5px;
+  }
+
+  .currentNote {
+    top: -5px;
+    border-left: 3px solid #fbc500;
+    border-right: 3px solid #fbc500;
+    width: 53px !important;
+  }
+
+  .playable_note-Eb4 {
+    @include unplayable-note;
   }
 
   //#["D", "E", "F#", "G", "Ab", "A", "B", "C", "Db"]

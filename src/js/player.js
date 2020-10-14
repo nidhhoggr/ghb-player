@@ -17,6 +17,8 @@ function ABCPlayer({
 
   this.currentTune = 0;
 
+  this.currentNoteIndex = 1;
+
   this.domBinding = {};
 
   this.noteScroller = noteScroller;
@@ -41,6 +43,7 @@ function ABCPlayer({
   ];
     
 
+  this.firstScrollingNoteSection = `<section class="firstScrollingNote"></section>`;
   /*
    * @TODO look into abctune.formatting.bagpipe
    */
@@ -200,7 +203,7 @@ ABCPlayer.prototype.load = function() {
   if (this.abcjs.synth.supportsAudio()) {
     this.synthControl = new this.abcjs.synth.SynthController();
     const cursorControl = new CursorControl({
-      onNoteChange: ({
+      onNoteChange: ({event, midiPitch: {
         cmd,
         pitch,
         //volume,
@@ -209,9 +212,31 @@ ABCPlayer.prototype.load = function() {
         //instrument,
         //endType,
         //gap,
-      }) => {
-        console.log("onNoteChange:", pitch);
+      }}) => {
+        console.log("onNoteChange:", pitch, cmd, event, this.currentNoteIndex);
+        this.noteScroller.setScrollerXPos({xpos: (58 * (this.currentNoteIndex - 1)) * -1});
+        if (_.get(this.domBinding, "scrollingNotesWrapper")) {
+          const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
+          const currEl = scrollingNoteDivs[this.currentNoteIndex];
+          let i, snd;
+          if (currEl) currEl.className = currEl.className.concat(" currentNote");
+          for (i in scrollingNoteDivs) {
+            if (i == this.currentNoteIndex) continue;
+            snd = scrollingNoteDivs[i];
+            if (snd.className && snd.className.includes("currentNote")) {
+              snd.className = snd.className.replace("currentNote","");
+              break;
+            }
+          }
+        }
+        this.currentNoteIndex++;
         return this.setNoteDiagram({pitchIndex: pitch, duration});
+      },
+      onBeatChange: ({beatNumber}) => {
+        if(beatNumber == 0 && this.currentNoteIndex > 5) {
+          this.currentNoteIndex = 1;
+          this.noteScroller.setScrollerXPos({xpos: 0});
+        }
       }
     });
     this.synthControl.load("#audio", cursorControl, this.visualOptions);
@@ -265,6 +290,7 @@ ABCPlayer.prototype.start = function() {
 
 ABCPlayer.prototype.setCurrentSongNoteSequence = function() {
   this.currentSong.entireNoteSequence = [];
+  this.currentSong.pitchReached = false;
   const lines = this.audioParams.visualObj.lines;
   const linesLength = lines.length;
   lines.map((line, lKey) => {
@@ -275,6 +301,18 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function() {
       if (note && note.midiPitches) {
         const pitchIndex = note.midiPitches[0].pitch;
         const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
+        if (!this.currentSong.pitchReached) {
+          this.currentSong.pitchReached = {
+            highest: pitchIndex,
+            lowest: pitchIndex,
+          };
+        }
+        else if (pitchIndex > this.currentSong.pitchReached.highest) {
+          this.currentSong.pitchReached.highest = pitchIndex;
+        }
+        else if (pitchIndex < this.currentSong.pitchReached.lowest) {
+          this.currentSong.pitchReached.lowest = pitchIndex;
+        }
         this.currentSong.entireNoteSequence.push(noteName);
       }
     })
@@ -410,9 +448,11 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
   else {
     this.currentSong = currentSong;
   }
-  
+ 
   if (!isSameSong) {
     this.transposition = 0;
+    this.currentNoteIndex = 1;
+    if (this.noteScroller) this.noteScroller.setScrollerXPos({xpos: 0});
     const { tempo } = this.currentSong;
     this.setTempo(tempo);
     this.domBinding.currentSong.innerText = this.currentSong.name;
@@ -481,6 +521,7 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
 
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {
   this.noteScroller && this.noteScroller.addItems({
+    firstEl: this.firstScrollingNoteSection,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: ({section, item}) => {
       console.log({section, item});
@@ -499,7 +540,8 @@ function updateClasses(domBinding, elClassName, classes = []) {
 }
 
 function CursorControl({
-  onNoteChange, 
+  onNoteChange,
+  onBeatChange,
 }) {
   var self = this;
 
@@ -522,14 +564,14 @@ function CursorControl({
   self.onBeat = function(beatNumber, totalBeats, totalTime) {
     if (!self.beatDiv)
       self.beatDiv = document.querySelector(".beat");
+    if (onBeatChange) onBeatChange({beatNumber});
     self.beatDiv.innerText = "Beat: " + beatNumber + " Total: " + totalBeats + " Total time: " + totalTime;
   };
   self.onEvent = function(ev) {
     if (ev.measureStart && ev.left === null)
       return; // abcPlayer was the second part of a tie across a measure line. Just ignore it.
-    
     if(ev.midiPitches && ev.midiPitches.length && ev.midiPitches[0].cmd == "note") {
-      onNoteChange(ev.midiPitches[0]);
+      onNoteChange({event: ev, midiPitch: ev.midiPitches[0]});
     }
 
     var lastSelection = document.querySelectorAll("#paper svg .highlight");
