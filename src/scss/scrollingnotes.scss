@@ -1,0 +1,266 @@
+@mixin unplayable-note {
+  background-image: none;
+  color: red;
+}
+
+@mixin pn {
+  color: #000;
+  max-height: 200px;
+  min-height: 150px;
+  width: 48px;
+  display: inline-block;
+  background-size: auto 100%;
+}
+
+.scrollingNotesWrapper {
+  overflow-y: hidden;
+  max-height: 200px;
+  text-align: left;
+  line-break: unset;
+  white-space: nowrap;
+}
+
+.scrolling_notes-playable_chanter-ea {
+  @mixin playable-note {
+    background-image: url("../images/content/fingering_flat_EA.png");
+    @include pn;
+  }
+
+  @include unplayable-note;
+  background-image: none;
+  background-repeat: no-repeat;
+  background-color: #7e9fb58a;
+
+  section {
+    margin: 0px 5px 0px 5px;
+  }
+
+  //#["D", "E", "F#", "G", "Ab", "A", "B", "C", "Db"]
+  @for $i from 1 through 4 {
+    .playable_note-D#{$i} {
+      @include playable-note;
+      background-position: 3px 0px;
+    }
+  }
+  @for $i from 1 through 4 {
+    .playable_note-E#{$i} {
+      @include playable-note;
+      //background-position: -154px 0px;
+      background-position: -38px 0px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-D#{$i} {
+      @include playable-note;
+      background-position: -351px 0px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-E#{$i} {//E5
+      @include playable-note;
+      background-position: -390px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Gb#{$i} {
+      @include playable-note;
+      background-position: -78px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-G#{$i} {
+      @include playable-note;
+      background-position: -117px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Ab#{$i} {
+      @include playable-note;
+      background-position: -155px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-A#{$i} {
+      @include playable-note;
+      background-position: -193px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-B#{$i} {
+      @include playable-note;
+      background-position: -233px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -1141px 0px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Db#{$i} {
+      @include playable-note;
+      background-position: -313px 0px;
+    }
+  }
+}
+
+
+.playable_chanter-dg {
+  @mixin playable-note {
+    background-image: url("../images/content/fingering_flat_DG.png");
+    color: #000;
+  }
+
+  @include unplayable-note;
+  background-image: none;
+  background-repeat: no-repeat;
+
+
+  //["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"]
+  @for $i from 1 through 4 {
+    .playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -20px 65px;
+    }
+  }
+  @for $i from 1 through 4 {
+    .playable_note-D#{$i} {
+      @include playable-note;
+      background-position: -154px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -1232px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-Db#{$i} {
+      @include playable-note;
+      background-position: -1366px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-E#{$i} {
+      @include playable-note;
+      background-position: -289px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-F#{$i} {
+      @include playable-note;
+      background-position: -423px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Gb#{$i} {
+      @include playable-note;
+      background-position: -557px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-G#{$i} {
+      @include playable-note;
+      background-position: -691px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-A#{$i} {
+      @include playable-note;
+      background-position: -830px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -963px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-B#{$i} {
+      @include playable-note;
+      background-position: -1098px 65px;
+    }
+  }
+}
+
+.scrolling_notes-playable_chanter-cf {
+  @mixin playable-note {
+    background-image: url("../images/content/fingering_flat_CF.png");
+    @include pn;
+  }
+
+  @include unplayable-note;
+  background-image: none;
+  background-repeat: no-repeat;
+
+  //["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"]
+  @for $i from 1 through 4 {
+    .playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -20px 65px;
+    }
+  }
+  @for $i from 1 through 4 {
+    .playable_note-C#{$i} {
+      @include playable-note;
+      background-position: -154px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-Bb#{$i} {
+      @include playable-note;
+      background-position: -1232px 65px;
+    }
+  }
+  @for $i from 5 through 7 {
+    .playable_note-B#{$i} {
+      @include playable-note;
+      background-position: -1366px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-D#{$i} {
+      @include playable-note;
+      background-position: -289px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Eb#{$i} {
+      @include playable-note;
+      background-position: -423px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-E#{$i} {
+      @include playable-note;
+      background-position: -557px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-F#{$i} {
+      @include playable-note;
+      background-position: -691px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-G#{$i} {
+      @include playable-note;
+      background-position: -830px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-Ab#{$i} {
+      @include playable-note;
+      background-position: -963px 65px;
+    }
+  }
+  @for $i from 1 through 7 {
+    .playable_note-A#{$i} {
+      @include playable-note;
+      background-position: -1098px 65px;
+    }
+  }
+}

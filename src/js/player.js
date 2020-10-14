@@ -3,7 +3,8 @@ function ABCPlayer({
   songs,
   ABCSong,
   Sackpipa,
-  domBinding
+  utils,
+  noteScroller,
 }) {
 
   this.abcjs = abcjs;
@@ -14,9 +15,11 @@ function ABCPlayer({
 
   this.Sackpipa = Sackpipa;
 
-  this.currentTune = 1;
+  this.currentTune = 0;
 
   this.domBinding = {};
+
+  this.noteScroller = noteScroller;
 
   this.domBindingKeys = [
     'start',
@@ -34,6 +37,7 @@ function ABCPlayer({
     'currentChanter',
     'audio',
     'noteDiagram',
+    'scrollingNotesWrapper',
   ];
     
 
@@ -260,6 +264,7 @@ ABCPlayer.prototype.start = function() {
 }
 
 ABCPlayer.prototype.setCurrentSongNoteSequence = function() {
+  this.currentSong.entireNoteSequence = [];
   const lines = this.audioParams.visualObj.lines;
   const linesLength = lines.length;
   lines.map((line, lKey) => {
@@ -426,6 +431,7 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
     console.error(err);
     console.log("Couldn't get midi file", {err});
   }
+  this.updateControlStats();
   //set it to bagpipes
   this.audioParams.visualObj.formatting.bagpipes = true;
   const midiBuffer = new this.abcjs.synth.CreateSynth();
@@ -439,6 +445,28 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
             compatibleNotes: this.sackpipa && this.sackpipa.getCompatibleNotes({abcSong: this.currentSong})
           });
           this.updateControlStats();
+          if (_.get(this.domBinding, "scrollingNotesWrapper") && this.currentSong && this.currentSong.entireNoteSequence) {
+            const cK = this.sackpipa.getChanterKeyAbbr();
+            updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
+            const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
+            let i, noteDiv;
+            console.log(scrollingNoteDivs, scrollingNoteDivs.length);
+            if (scrollingNoteDivs.length) {
+              for (i in scrollingNoteDivs) {
+                noteDiv = scrollingNoteDivs[i];
+                const firstChild = _.get(this.domBinding,"scrollingNotesWrapper.firstChild");
+                if (firstChild) {
+                  this.domBinding.scrollingNotesWrapper.removeChild(firstChild);
+                } 
+                if (i === scrollingNoteDivs.length - 1) {
+                  this.noteScrollerAddItems();
+                }
+              }
+            }
+            else {
+              this.noteScrollerAddItems();
+            }
+          }
         });
         onSuccess && onSuccess({response, synth: midiBuffer});
         console.log("Audio successfully loaded.", this.synthControl)
@@ -451,6 +479,24 @@ ABCPlayer.prototype.setTune = function({userAction, onSuccess, abcOptions, curre
   });
 }
 
+ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {
+  this.noteScroller && this.noteScroller.addItems({
+    items: this.currentSong.entireNoteSequence, 
+    itemIterator: ({section, item}) => {
+      console.log({section, item});
+      section.classList.add(`playable_note-${item}`); 
+    }, 
+    onFinish: () => {
+      console.log(`finished`); 
+      this.noteScroller && this.noteScroller.init();
+    }
+  });
+}
+
+
+function updateClasses(domBinding, elClassName, classes = []) {
+  domBinding[elClassName].className = `${elClassName} `.concat(classes.join(" "));
+}
 
 function CursorControl({
   onNoteChange, 

@@ -23,6 +23,7 @@
 @import 'dirty/hacks';
 
 /* Demo styles */
+@import 'scrollingnotes';
 
 body {
   background: $body-background-color;
@@ -46,6 +47,7 @@ main {
   text-align: center;
   padding: 10px;
   max-width: 770px;
+  min-width: 420px;
   margin: 0 auto;
 }
 
@@ -87,6 +89,10 @@ address {
 .logo {
   margin: 0 auto;
   display: block;
+}
+
+.cleaner {
+  clear: both;
 }
 
 .playercontrols {
@@ -441,4 +447,3 @@ address {
     }
   }
 }
-
