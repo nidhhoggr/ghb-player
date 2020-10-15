@@ -353,14 +353,48 @@ HPS.prototype.animate = function animate(e) {
 
 HPS.prototype.setScrollerXPos = function setScrollerXPos({xpos}) {
   const self = this;
-  var t = 'translateX(' + xpos + 'px) translateZ(0)';
-  var s = self.wrapper.style;
-  s["transform"] = t;
-  s["webkitTransform"] = t;
-  s["mozTransform"] = t;
-  s["msTransform"] = t;
+  const t = 'translateX(' + xpos + 'px) translateZ(0)';
+  const styling = self.wrapper.style;
+  const c = self.wrapper.children;
+  if (styling.width) {
+    //get width of the noteScroller wrapper
+    const width = parseInt(styling.width.replace("px",""));
+    //get the direction of scrolling
+    let isDirectionLtr;
+    if (xpos < self.lastXpos) {
+      isDirectionLtr = true;
+    }
+    else {
+      isDirectionLtr = false;
+    }
+    console.log({width});
+    const wouldExceedWidth = (xpos * -1) >= (width - 800);
+    console.log({wouldExceedWidth, isDirectionLtr});
+    if (!wouldExceedWidth) {
+      setElTransformStyle({styling, xpos});
+    }
+    else if (wouldExceedWidth && !isDirectionLtr) {//would exceed but scrolling left
+      console.log({width, xpos}, width - (self.lastXpos - xpos));
+      const nextX = ((width - 1000) * -1); 
+      self.currentX = nextX;
+      self.targetX = nextX;
+      setElTransformStyle({styling, xpos: nextX });
+    }
+    else {//would exceed width
+      console.log(`${width} is less than ${xpos}`);
+      setElTransformStyle({styling, xpos: (width - 800) * -1});
+    }
+  }
+  self.lastXpos = xpos;
 }
 
+function setElTransformStyle({styling, xpos}) {
+  xpos = `translateX(${xpos}px) translateZ(0)`;
+  styling["transform"] = xpos;
+  styling["webkitTransform"] = xpos;
+  styling["mozTransform"] = xpos;
+  styling["msTransform"] = xpos;
+}
 
 HPS.prototype.init = function() {
   const self = this;
@@ -392,3 +426,4 @@ HPS.prototype.isHoveringWithinWrapper = function(e) {
 
   return found;
 }
+

@@ -3,8 +3,8 @@ function ABCPlayer({
   songs,
   ABCSong,
   Sackpipa,
-  utils,
-  noteScroller,
+  HPS,
+  utils
 }) {
 
   this.abcjs = abcjs;
@@ -15,13 +15,13 @@ function ABCPlayer({
 
   this.Sackpipa = Sackpipa;
 
+  this.HPS = HPS;
+
   this.currentTune = 0;
 
   this.currentNoteIndex = 1;
 
   this.domBinding = {};
-
-  this.noteScroller = noteScroller;
 
   this.domBindingKeys = [
     'start',
@@ -128,7 +128,14 @@ function ABCPlayer({
     isSecondGroupPlugged: true,//only on D/G and C/F chanters
     dronesSynth: null,//should be an instance of the sackpipaDroneSynth above,
     playableNotes: [],//["F"]
-  }
+  };
+
+  this.hpsOptions = {
+    ease: 0.08,
+    sectionWidth: 58,
+    sectionOffset: 420,
+    wrapperName: ".scrollingNotesWrapper"
+  };
 }
 
 export default ABCPlayer;
@@ -213,9 +220,13 @@ ABCPlayer.prototype.load = function() {
         //endType,
         //gap,
       }}) => {
+        const scrollingNotesWrapper = _.get(this.domBinding, "scrollingNotesWrapper");
         console.log("onNoteChange:", pitch, cmd, event, this.currentNoteIndex);
-        this.noteScroller.setScrollerXPos({xpos: (58 * (this.currentNoteIndex - 1)) * -1});
-        if (_.get(this.domBinding, "scrollingNotesWrapper")) {
+        if (scrollingNotesWrapper) {
+          if (scrollingNotesWrapper) {
+            const targetXPos = (this.hpsOptions.sectionWidth * (this.currentNoteIndex - 1) * -1);
+            this.noteScroller.setScrollerXPos({xpos: targetXPos});
+          }
           const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
           const currEl = scrollingNoteDivs[this.currentNoteIndex];
           let i, snd;
@@ -245,6 +256,7 @@ ABCPlayer.prototype.load = function() {
   }
 
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+  this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
   this.setTune({userAction: false, onSuccess: ({synth}) => {
     /*
      * Was attempting to load a bass done here

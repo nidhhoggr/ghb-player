@@ -6,13 +6,7 @@ import ABCSong from "./song";
 import songs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
-import HPS from "./hps";
 import utils from "./utils";
-const noteScroller = new HPS('.scrollingNotesWrapper', {
-  ease: 0.08,
-  sectionWidth: 58,
-  sectionOffset: 420
-});
-
-const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, utils, noteScroller});
+import HPS from "./hps";
+const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, utils});
 abcPlayer.load();
