@@ -1,7 +1,7 @@
 export default [
   {
     name: "Lördagsvisa",
-    tempo: 75,
+    tempo: 50,
     abc: "X:177\n" +
       "T:Lördagsvisa\n" +
       "T:(Sv. L. Sm. 177, 50 Sm. låtar nr 40)\n" +

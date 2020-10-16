@@ -12,13 +12,9 @@
   width: 48px;
   display: inline-block;
   background-size: auto 100%;
+  background-color: #fff;
 }
 
-.firstScrollingNote {
-  height: 150px;
-  width: 400px;
-  background-color: #3e3e3e;
-}
 
 .scrollingNotesWrapper {
   overflow-y: hidden;
@@ -29,6 +25,23 @@
   line-break: unset;
   white-space: nowrap;
 }
+
+/*
+
+.playable_duration-13 {
+  margin-right: 65px !important;
+}
+
+.playable_duration-25 {
+  margin-right: 125px !important;
+}
+
+.playable_duration-50 {
+  margin-right: 250px !important;
+}
+
+*/
+
 
 .scrolling_notes-playable_chanter-ea {
   @mixin playable-note {
@@ -43,13 +56,18 @@
 
   section {
     margin: 0px 5px 0px 5px;
+    @include unplayable-note;
+    &.firstScrollingNote {
+      height: 150px;
+      width: 400px;
+      background-color: #3e3e3e;
+    }
   }
 
   .currentNote {
-    top: -5px;
-    border-left: 3px solid #fbc500;
-    border-right: 3px solid #fbc500;
-    width: 53px !important;
+    border-left: 5px solid #fbc500;
+    border-right: 5px solid #fbc500;
+    width: 57px !important;
   }
 
   .playable_note-Eb4 {

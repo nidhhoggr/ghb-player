@@ -367,21 +367,20 @@ HPS.prototype.setScrollerXPos = function setScrollerXPos({xpos}) {
     else {
       isDirectionLtr = false;
     }
-    console.log({width});
     const wouldExceedWidth = (xpos * -1) >= (width - 800);
-    console.log({wouldExceedWidth, isDirectionLtr});
+    console.log({width, wouldExceedWidth, isDirectionLtr});
     if (!wouldExceedWidth) {
       setElTransformStyle({styling, xpos});
     }
     else if (wouldExceedWidth && !isDirectionLtr) {//would exceed but scrolling left
-      console.log({width, xpos}, width - (self.lastXpos - xpos));
+      //console.log({width, xpos}, width - (self.lastXpos - xpos));
       const nextX = ((width - 1000) * -1); 
       self.currentX = nextX;
       self.targetX = nextX;
       setElTransformStyle({styling, xpos: nextX });
     }
     else {//would exceed width
-      console.log(`${width} is less than ${xpos}`);
+      //console.log(`${width} is less than ${xpos}`);
       setElTransformStyle({styling, xpos: (width - 800) * -1});
     }
   }
