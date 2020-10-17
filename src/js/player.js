@@ -244,7 +244,7 @@ ABCPlayer.prototype.load = function() {
       onBeatChange: ({beatNumber}) => {
         if(beatNumber == 0) {
           console.log("set beat to one");
-          this.noteScroller.setScrollerXPos({xpos: 0});
+          //this.noteScroller.setScrollerXPos({xpos: 0});
         }
       }
     });
@@ -466,7 +466,6 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
  
   if (!isSameSong) {
     this.transposition = 0;
-    this.currentNoteIndex = 1;
     if (this.noteScroller) this.noteScroller.setScrollerXPos({xpos: 0});
     const { tempo } = this.currentSong;
     this.setTempo(tempo);
@@ -486,7 +485,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         ...this.abcOptions,
         ...abcOptions
       })[0];
-      console.log(`recreating visual obj`);
+      console.log(`recreating visual obj`, this.audioParams.visualObj);
     }
   } catch(err) {
     console.error(err);
@@ -498,8 +497,8 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     this._setTune(arguments[0]); 
   } 
   else {
-    console.log(`creating new midiBuffer instance`);
     this.createMidiBuffer().then((response) => {
+      console.log(`creating new midiBuffer instance`, this.midiBuffer);
       this._setTune(arguments[0]); 
     }).catch(console.error);
   }
