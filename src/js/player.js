@@ -303,6 +303,8 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
   this.currentSong.pitchReached = false;
   const lines = this.audioParams.visualObj.noteTimings;
   const linesLength = lines.length;
+  const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
+  let durationReached = 0;
   lines.map((line, lKey) => {
     if (_.get(line, "midiPitches[0].cmd") === "note") {
       const pitchIndex = line.midiPitches[0].pitch;
@@ -319,14 +321,19 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
       else if (pitchIndex < this.currentSong.pitchReached.lowest) {
         this.currentSong.pitchReached.lowest = pitchIndex;
       }
+      const duration = line.midiPitches[0].duration;
+      durationReached += duration;
+      const percentage = _.round((durationReached * 1000 / totalDuration), 5);
       const ensIndex = this.currentSong.entireNoteSequence.push({
         noteName,
         pitchIndex,
-        duration: line.midiPitches[0].duration,
+        duration,
+        durationReached,
+        _percentage: percentage,
+        percentage: percentage.toString().replace(".","_")
       }) - 1;
-      //this basically creates something like a lined list between two array because the
-      //current index is not always accurate
       this.audioParams.visualObj.noteTimings[lKey].ensIndex = ensIndex;
+      this.currentSong.entireNoteSequence[ensIndex].noteTimingIndex = lKey;
       this.currentSong.entireNoteSequence[ensIndex].ensIndex = ensIndex;
     }
   });
@@ -524,7 +531,10 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
           const cK = this.sackpipa.getChanterKeyAbbr();
           updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
           this.noteScrollerClear({
-            onFinish: this.noteScrollerAddItems.bind(this)
+            onFinish: () => {
+              console.log("clear onFinish");
+              this.noteScrollerAddItems();
+            }
           });
         }
       }
@@ -549,15 +559,24 @@ ABCPlayer.prototype.createMidiBuffer = function createMidiBuffer() {
   return this.midiBuffer.init(this.audioParams);
 }
 
-function itemIteratorSetChanterClass({section, item}) {
-  const { duration, noteName, pitchIndex, ensIndex} = item;
-  console.log(duration);
+//This is called whenever a note is added to the scroller
+function scrollingNoteItemIterator({section, item}) {
+  const { duration, noteName, pitchIndex, ensIndex, noteTimingIndex, percentage} = item;
   const dur = _.ceil(duration * 100);
   section.classList.add(`playable_note-${noteName}`);
   section.classList.add(`playable_duration-${dur}`);
   section.setAttribute("data-ensindex", ensIndex);
+  section.setAttribute("data-notetimingindex", noteTimingIndex);
+  section.setAttribute("data-percentage", percentage);
+
   section.addEventListener("click", (e) => {
     console.log(e);
+    const noteTimingIndex = _.get(e, "target.dataset.notetimingindex");
+    const percentage = _.get(e, "target.dataset.percentage", 0);
+    const noteEvent = _.get(this.audioParams, `visualObj.noteTimings[${noteTimingIndex}]`);
+    if (noteEvent) {
+      this.synthControl.randomAccessBy({percent: parseFloat(percentage.replace("_","."))});
+    }
     //set the current note in the visualObj
     //scroll to that part in the audio
   });
@@ -567,7 +586,7 @@ ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {
   this.noteScroller && this.noteScroller.addItems({
     firstEl: this.firstScrollingNoteSection,
     items: this.currentSong.entireNoteSequence, 
-    temIterator: itemIteratorSetChanterClass,
+    itemIterator: scrollingNoteItemIterator.bind(this),
     onFinish: () => {
       this.noteScroller && this.noteScroller.init();
     }
@@ -575,8 +594,9 @@ ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {
 }
 
 ABCPlayer.prototype.noteScrollerClear = function noteScrollerClear({onFinish}) {
-  const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
-  if (scrollingNoteDivs.length) {
+  const scrollingNoteDivs = Array.from(_.get(this.domBinding,"scrollingNotesWrapper.children", []));
+  const scrollingNoteDivsLength = scrollingNoteDivs.length;//declared to constantize
+  if (scrollingNoteDivsLength) {
     let i, noteDiv;
     for (i in scrollingNoteDivs) {
       noteDiv = scrollingNoteDivs[i];
@@ -584,20 +604,14 @@ ABCPlayer.prototype.noteScrollerClear = function noteScrollerClear({onFinish}) {
       if (firstChild) {
         this.domBinding.scrollingNotesWrapper.removeChild(firstChild);
       } 
-      if (i === scrollingNoteDivs.length - 1) {
+      if (parseInt(i) === scrollingNoteDivsLength - 1) {
         onFinish && onFinish();
       }
     }
   }
-
-  this.noteScroller && this.noteScroller.addItems({
-    firstEl: this.firstScrollingNoteSection,
-    items: this.currentSong.entireNoteSequence, 
-    itemIterator: itemIteratorSetChanterClass,
-    onFinish: () => {
-      this.noteScroller && this.noteScroller.init();
-    }
-  });
+  else {
+    onFinish && onFinish();
+  }
 }
 
 
