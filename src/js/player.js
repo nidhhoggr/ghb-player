@@ -230,15 +230,14 @@ ABCPlayer.prototype.load = function() {
           const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
           const currEl = scrollingNoteDivs[index];
           let i, snd;
-          if (currEl) currEl.className = currEl.className.concat(" currentNote");
-          for (i in scrollingNoteDivs) {
-            if (i == index) continue;
-            snd = scrollingNoteDivs[i];
-            if (snd.className && snd.className.includes("currentNote")) {
-              snd.className = snd.className.replace("currentNote","");
-              break;
-            }
+          if (currEl && !currEl.className.includes("currentNote")) {
+            currEl.className = currEl.className.concat(" currentNote");
           }
+          Array.from(scrollingNoteDivs).map((snd, i) => {
+            if (i !== index && snd.className && snd.className.includes("currentNote")) {
+              snd.className = snd.className.replace("currentNote","");
+            }
+          });
         }
         return this.setNoteDiagram({pitchIndex: pitch, duration});
       },
@@ -323,7 +322,6 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
         this.currentSong.pitchReached.lowest = pitchIndex;
       }
       const duration = line.midiPitches[0].duration;
-      durationReached += duration;
       const percentage = _.round((durationReached * 1000 / totalDuration), 5);
       const ensIndex = this.currentSong.entireNoteSequence.push({
         noteName,
@@ -336,6 +334,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
       this.audioParams.visualObj.noteTimings[lKey].ensIndex = ensIndex;
       this.currentSong.entireNoteSequence[ensIndex].noteTimingIndex = lKey;
       this.currentSong.entireNoteSequence[ensIndex].ensIndex = ensIndex;
+      durationReached += duration;
     }
   });
 }

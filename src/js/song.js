@@ -68,7 +68,8 @@ ABCSong.prototype.lineIterator = function(perform) {
 
 String.prototype.isInfoField = function() {
   const infoFieldPrefix = this.toString().substr(0, 2);
-  return (infoFieldPrefix && infoFieldPrefix[1] == ":");
+  const fieldMapping = getInfoFieldMapping();
+  return ((infoFieldPrefix && infoFieldPrefix[1] == ":") && fieldMapping[infoFieldPrefix[0]]);
 }
 
 String.prototype.containsPrefix = function(prefix) {
