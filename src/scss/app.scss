@@ -150,6 +150,18 @@ address {
     }
   }
 
+  .keySigControls {
+    span.currentKeySig {
+      font-size: 45px;
+      text-align: right;
+      padding-top: 10px;
+    }
+    .buttons {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
 }
 
 .playernotes {

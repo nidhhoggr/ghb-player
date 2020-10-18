@@ -35,6 +35,7 @@ function ABCPlayer({
     'currentTempo',
     'currentSong',
     'currentChanter',
+    'currentKeySig',
     'audio',
     'noteDiagram',
     'scrollingNotesWrapper',
@@ -433,6 +434,13 @@ ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   this.domBinding.currentTempo.innerText = this.tempo;
   this.domBinding.currentSong.innerText = this.currentSong.name;
   this.domBinding.currentChanter.innerText = _.get(this.sackpipa, "chanterKey", "");
+  if (this.audioParams.visualObj) {
+    const keySig = this.audioParams.visualObj.getKeySignature();
+    if (keySig) {
+      const { root, mode } = keySig;
+      this.domBinding.currentKeySig.innerText = `${root}${mode}`;
+    }
+  }
 }
 
 ABCPlayer.prototype.setTransposition = function(semitones) {
