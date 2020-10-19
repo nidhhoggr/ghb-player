@@ -20,3 +20,13 @@ npm-debug.log
 
 node_modules/
 dist/
+
+
+src/js/abcjs/bin
+src/js/abcjs/build-utils
+src/js/abcjs/deploy-docs.sh
+src/js/abcjs/dist
+src/js/abcjs/*.yml
+src/js/abcjs/docs
+src/js/abcjs/font_generator
+srs/js/abcjs/tests
