@@ -139,7 +139,7 @@ function ABCPlayer({
 
 export default ABCPlayer;
 
-ABCPlayer.prototype.setTempo = function(tempo) {
+ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true} = {}) {
   if (!tempo) {
     tempo = this.tempo;
   }
@@ -150,7 +150,7 @@ ABCPlayer.prototype.setTempo = function(tempo) {
   this.audioParams.options.qpm = tempo;
   this.audioParams.options.defaultQpm = tempo;
   this.currentSong.setTempo(tempo);
-  this.setTune({
+  shouldSetTune && this.setTune({
     userAction: true,
     isSameSong: true,
     currentSong: this.currentSong,
@@ -255,7 +255,7 @@ ABCPlayer.prototype.load = function() {
 
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
-  this.setTune({userAction: true, onSuccess: ({synth}) => {
+  this.setTune({userAction: true, onSuccess: ({}) => {
     /*
      * Was attempting to load a bass done here
     const noteNameToPitch = _.invert(this.abcjs.synth.pitchToNoteName);
@@ -287,9 +287,15 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   if (!currentNote) {
     currentNote = this.abcjs.synth.pitchToNoteName[pitchIndex];
   }
-  console.log({currentNote});
+  console.log({pitchIndex, currentNote});
   const chanterKey = this.sackpipa.getChanterKeyAbbr();
-  this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} playable_note-${currentNote}"><h1>${currentNote}</h1></div>`;
+  if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") ||
+    (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
+    this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} unplayable-note"><h1>${currentNote}</h1></div>`;
+  }
+  else {
+    this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} playable_pitch-${pitchIndex}"><h1>${currentNote}</h1></div>`;
+  }
 }
 
 ABCPlayer.prototype.start = function() {
@@ -298,9 +304,8 @@ ABCPlayer.prototype.start = function() {
   }
 }
 
-ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
+ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish}) {
   this.currentSong.entireNoteSequence = [];
-  this.currentSong.pitchReached = false;
   const lines = this.audioParams.visualObj.noteTimings;
   const linesLength = lines.length;
   const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
@@ -309,18 +314,6 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
     if (_.get(line, "midiPitches[0].cmd") === "note") {
       const pitchIndex = line.midiPitches[0].pitch;
       const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
-      if (!this.currentSong.pitchReached) {
-        this.currentSong.pitchReached = {
-          highest: pitchIndex,
-          lowest: pitchIndex,
-        };
-      }
-      else if (pitchIndex > this.currentSong.pitchReached.highest) {
-        this.currentSong.pitchReached.highest = pitchIndex;
-      }
-      else if (pitchIndex < this.currentSong.pitchReached.lowest) {
-        this.currentSong.pitchReached.lowest = pitchIndex;
-      }
       const duration = line.midiPitches[0].duration;
       const percentage = _.round((durationReached * 1000 / totalDuration), 5);
       const ensIndex = this.currentSong.entireNoteSequence.push({
@@ -336,6 +329,11 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj}) {
       this.currentSong.entireNoteSequence[ensIndex].ensIndex = ensIndex;
       durationReached += duration;
     }
+    else {
+      if (line.type == "end" && onFinish) {
+        onFinish();
+      }
+    }
   });
 }
 
@@ -344,21 +342,20 @@ ABCPlayer.prototype.songPrev = function() {
     this.currentTune--
   else
     this.currentTune = this.songs.length - 1;
-  this.setTune({userAction: true});
+  this.setTune({userAction: true, calledFrom: "song"});
 }
 
 ABCPlayer.prototype.songNext = function() {
   this.currentTune++;
   if (this.currentTune >= this.songs.length)
     this.currentTune = 0;
-  this.setTune({userAction: true});
+  this.setTune({userAction: true, calledFrom: "song"});
 }
 
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
     this.transposition += 1;
-    console.log(this.currentSong);
     this.setTransposition();
   }
 }
@@ -371,7 +368,6 @@ ABCPlayer.prototype.transposeDown = function() {
 }
 
 ABCPlayer.prototype.tempoUp = function(by = 1) {
-  console.log(this.tempo, this.tempoLimits.max);
   if ((this.tempo + by) <= this.tempoLimits.max) {
     this.tempo += by;
     this.setTempo();
@@ -482,7 +478,8 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     this.transposition = 0;
     if (this.noteScroller) this.noteScroller.setScrollerXPos({xpos: 0});
     const { tempo } = this.currentSong;
-    this.setTempo(tempo);
+    //the shouldSetTune flag ensures that it will not call setTune, were already here!
+    this.setTempo(tempo, {shouldSetTune: false});
     this.domBinding.currentSong.innerText = this.currentSong.name;
   }
   
@@ -506,54 +503,66 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     return console.log("Couldn't get midi file", {err});
   }
   this.updateControlStats();
+  const tuneArgs = arguments[0];
+  const _onSuccess = onSuccess;
+  tuneArgs.onSuccess = (response) => {
+    this.setNoteScroller({calledFrom});
+    this.updateControlStats();
+    console.log("Audio successfully loaded.", this.synthControl);
+    _onSuccess && _onSuccess(response);
+  }
   if (shouldReuseInstances(calledFrom) && this.midiBuffer) { 
     console.log(`resuing midiBuffer instance`);
-    this._setTune(arguments[0]); 
+    this._setTune(tuneArgs); 
   } 
   else {
     this.createMidiBuffer().then((response) => {
       console.log(`creating new midiBuffer instance`, this.midiBuffer);
-      this._setTune(arguments[0]); 
+      this._setTune(tuneArgs); 
     }).catch(console.error);
   }
 }
 
-/*
-console.log({
-  playableNotes: this.currentSong.getPlayableNotes(),
-  compatibleNotes: this.sackpipa && this.sackpipa.getCompatibleNotes({abcSong: this.currentSong})
-});
- */
-
-
 ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSuccess, onError} = {}) {
   this.synthControl && this.synthControl.setTune(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
-    if(!shouldReuseInstances(calledFrom)) {
-      this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj});
-    }
-    setTimeout(() => {
-      if (!shouldReuseInstances(calledFrom, ["tempo"])) {
-        //set the current scrolling chanter css and html element if eniteNoteSequence 
-        if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
-          const cK = this.sackpipa.getChanterKeyAbbr();
-          updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
-          this.noteScrollerClear({
-            onFinish: () => {
-              console.log("clear onFinish");
-              this.noteScrollerAddItems();
-            }
-          });
+    //if its called by anything other than  tempo
+    this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj, onFinish: () => {
+      console.log("Set current note sequence");
+      const compatiblePitches = this.sackpipa && this.sackpipa.getCompatiblePitches({abcSong: this.currentSong});
+      const pitches = this.currentSong.getDistinctPitches();
+      this.currentSong.compatibility = {
+        playableNotes: this.currentSong.getDistinctNotes(),
+        playablePitches: this.currentSong.getDistinctPitches(),
+        compatibleNotes: this.sackpipa && this.sackpipa.getCompatibleNotes({abcSong: this.currentSong}),
+        compatiblePitches,
+        pitchReached: {
+          min: _.min(compatiblePitches.compatible),
+          max: _.max(compatiblePitches.compatible),
         }
-      }
-      this.updateControlStats();
-    });
-    onSuccess && onSuccess({response});
-    console.log("Audio successfully loaded.", this.synthControl)
+      };
+      onSuccess && onSuccess({response});
+    }});
   })
   .catch((error) => {
     onError && onError(error); 
     console.warn("Audio problem:", error);
   });
+}
+
+ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
+  if (!["tempo"].includes(calledFrom)) {
+    //set the current scrolling chanter css and html element if eniteNoteSequence 
+    if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
+      const cK = this.sackpipa.getChanterKeyAbbr();
+      updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
+      this.noteScrollerClear({
+        onFinish: () => {
+          console.log("clear onFinish");
+          this.noteScrollerAddItems();
+        }
+      });
+    }
+  }
 }
 
 function shouldReuseInstances(calledFrom, from = ["tempo","chanter"]) {
@@ -570,8 +579,15 @@ ABCPlayer.prototype.createMidiBuffer = function createMidiBuffer() {
 function scrollingNoteItemIterator({section, item}) {
   const { duration, noteName, pitchIndex, ensIndex, noteTimingIndex, percentage} = item;
   const dur = _.ceil(duration * 100);
-  section.classList.add(`playable_note-${noteName}`);
-  section.classList.add(`playable_duration-${dur}`);
+  if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") || 
+  (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
+    section.classList.add(`unplayable_note`);
+    section.innerHTML = `<h4>${noteName}</h4>`;
+  }
+  else {
+    section.classList.add(`playable_pitch-${pitchIndex}`);
+    section.classList.add(`playable_duration-${dur}`);
+  }
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);

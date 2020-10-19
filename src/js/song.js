@@ -105,18 +105,30 @@ ABCSong.prototype.insertInformationField = function({line}) {
   return this.abc.includes(line);
 }
 
+/*
+   noteName,
+   pitchIndex,
+   duration,
+   durationReached,
+   _percentage: percentage,
+   percentage: percentage.toString().replace(".","_"*
+*/
+
+//@TODO MEmoize as an instance of currentSong
 ABCSong.prototype.getDistinctNotes = function() {
   if (!this.entireNoteSequence) return;
-
-  return _.uniq(this.entireNoteSequence.map((note) => {
-    const strippedPitchNote = note.match(/^[A-Za-z]+/);
+  return _.uniq(this.entireNoteSequence.map(({noteName}) => {
+    const strippedPitchNote = noteName.match(/^[A-Za-z]+/);
     return strippedPitchNote[0];
   }));
 }
 
-ABCSong.prototype.getPlayableNotes = function() {
+//@TODO MEmoize as an instance of currentSong
+ABCSong.prototype.getDistinctPitches = function() {
   if (!this.entireNoteSequence) return;
-  return this.getDistinctNotes();
+  return _.uniq(this.entireNoteSequence.map(({pitchIndex}) => {
+    return pitchIndex
+  }));
 }
 
 ABCSong.prototype.getInformationByFieldName = function({fieldName, flatten = true}) {

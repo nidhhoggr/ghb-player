@@ -33,15 +33,31 @@ Sackpipa.prototype.getChanterKeyAbbr = function getChanterKeyAbbr() {
   }
 }
 
-Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey} = {}) {
+Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, notesOnly, pitchesOnly} = {}) {
   if (!chanterKey) chanterKey = this.chanterKey;
-  let notes = [];
+  let notes = {};
+  let pitches = [];
   switch (chanterKey) {
     case "E/A": {
             // D    E    ^F    G    ^G    A    B    C'   ^C' 
             // D'   E'
-      notes = ["D", "E", "Gb", "G", "Ab", "A", "B", "C", "Db"];
-      
+      notes = {
+        "D": [62,74],
+        "E": [64,76],
+        "Gb": 66,
+        "G": 67, 
+        "Ab": 68, 
+        "A": 69,
+        "B": 71,
+        "C": 72,
+        "Db": 73,
+        //"D": 74,//Cannot have duplicate elements so we use the array above
+        //"E": 76
+      };
+      //E/A Chromaticism reached with the addition of Eb (63), F (65), Bb(70), and Eb (76)
+      //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
+      //62 63    64 65   66  67 68  69  70   71 72 73  74 75    76
+      //notes = ["D", "E", "Gb", "G", "Ab", "A", "B", "C", "Db"];
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["Db"]);
       }
@@ -53,8 +69,22 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey} = {
     case "D/G": {
       //      C      D   E    F    ^F    G    A    _B    =B 
       //      C' ^C' D'
-      notes = ["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"];
-      
+      notes = {
+        "C": [60, 72],
+        "D": [62, 74],
+        "E": 64,
+        "F": 65,
+        "Gb": 66,
+        "G": 67,
+        "A": 69,
+        "Bb": 70,
+        "B": 71,
+        "Db": 73,
+      };
+      // D/G Chromaticism reached with the addition of Db (61), Eb (63), Ab (68)
+      //C, [Db], D, [Eb], E, F, Gb, G, [Ab], A, Bb, B, C, Db, D
+      //60 61    62 63    64 65 66  67 68    69 70  71 72 73  74
+      //notes = ["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"];
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["B"]);
       }
@@ -65,14 +95,32 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey} = {
         notes = _.omit(notes, ["Db"]);
       }
       if (!this.canPlayUnpluggedGroupsIndividually) {
-        notes =  _.omit(notes, ["C"]);
+        notes["C"] = notes["C"].filter(n => n == notes["C"][1]);
       }
       break;
     }
     case "C/F": {
+      notes = {
+        "Bb": [58, 70],
+        "C": [60, 72],
+        "D": 62,
+        "Eb": 63, 
+        "E": 64,
+        "F": 65,
+        "G": 67,
+        "Ab": 68,
+        "A": 69,
+        //"Bb": 70,
+        "B": 71
+        //C": 72
+      };
+      // C/F Chromaticism reached with the addition of B (59), Db (61), Gb (66)
+      // Bb, [B], C, [Db], D, Eb, E, F, [Gb], G, Ab, A, Bb, B, C
+      // 58  59   60 61    62 63  64 65 66    67 68  69 70  71 72
       //      _B    C    D    _E   =E    F    G    _A    =A 
       //      _B =B C'
-      notes = ["Bb", "C", "Db", "Eb", "E", "F", "G", "Ab", "A", "B"];
+      //        
+      //notes = ["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"];
 
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["A"]);
@@ -84,17 +132,29 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey} = {
         notes = _.omit(notes, ["B"]);
       }
       if (!this.canPlayUnpluggedGroupsIndividually) {
-        notes =  _.omit(notes, ["Bb"]);
+        notes["Bb"] = notes["Bb"].filter(n => n == notes["Bb"][1]);
       }
       break;
     }
   }
-  return _.sortedUniq(_.concat(_.values(notes), this.playableNotes));
+  if (notesOnly) {
+    return _.keys(notes);
+  }
+  else if (pitchesOnly) {
+    return _.flatten(_.values(notes));
+  }
+  else {
+    return notes;
+  }
+  //@TODO Playablenote feature
+  //return _.sortedUniq(_.concat(_.values(notes), this.playableNotes));
 }
 
+
+//@TODO this need  to use pitch comparison, note string comparison by note name
 Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
-  const playableSong = abcSong.getPlayableNotes();
-  const playableChanter = this.getPlayableNotes();
+  const playableSong = abcSong.getDistinctNotes();
+  const playableChanter = this.getPlayableNotes({"notesOnly": true});
   console.log({playableSong, playableChanter});
   const compatible = _.intersection(playableSong, playableChanter);
   const _incompatible = _.xor(playableSong, playableChanter)
@@ -105,6 +165,22 @@ Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
     unplayable: _.difference(playableChanter, playableSong),//these are notes that exist in the chanter but not the song
   }
 }
+
+//@TODO this need  to use pitch comparison, note string comparison by note name
+Sackpipa.prototype.getCompatiblePitches = function getCompatiblePitches({abcSong}) {
+  const playableSong = abcSong.getDistinctPitches();
+  const playableChanter = this.getPlayableNotes({"pitchesOnly": true});
+  console.log({playableSong, playableChanter});
+  const compatible = _.intersection(playableSong, playableChanter);
+  const _incompatible = _.xor(playableSong, playableChanter)
+  return {
+    compatible,//notes in the song playable on the chnater
+    _incompatible,//notes only in the song OR the playlist
+    incompatible: _.difference(playableSong, playableChanter),
+    unplayable: _.difference(playableChanter, playableSong),//these are notes that exist in the chanter but not the song
+  }
+}
+
 
 Sackpipa.prototype.setChanterKey = function setChanterKey(chanterKey = null) {
   if (!chanterKey) {

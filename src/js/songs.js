@@ -34,7 +34,14 @@ export default [
       "M:C|\n" +
       "L:1/8\n" +
       "K:Am\n" +
-      "| A, D E ^F G ^G A B C' ^C' D' E' |"
+      "| A, D E ^F G ^G A B C' ^C' D' E' |\n" +
+      "| A2, D2 E2 ^F2 G2 ^G2 A2 B2 C2' ^C2' D2' E2' |\n" +
+      "| A3, D3 E3 ^F3 G3 ^G3 A3 B3 C3' ^C3' D3' E3' |\n" +
+      "| A4, D4 E4 ^F4 G4 ^G4 A4 B4 C4' ^C4' D4' E4' |\n" +
+      "| A5, D5 E5 ^F5 G5 ^G5 A5 B5 C5' ^C5' D5' E5' |\n" +
+      "| A5, D5 E5 ^F5 G5 ^G5 A5 B5 C5' ^C5' D5' E5' |\n" +
+      "| A6, D6 E6 ^F6 G6 ^G6 A6 B6 C6' ^C6' D6' E6' |\n" +
+      "| A7, D7 E7 ^F7 G7 ^G7 A7 B7 C7' ^C7' D7' E7' |"
   },
   {
     name: "D/G Chanter scale",
