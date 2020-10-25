@@ -17,12 +17,15 @@ function ABCPlayer({
 
   this.HPS = HPS;
 
+  this.utils = utils;
+
   this.currentTune = 0;
 
   this.domBinding = {};
 
   this.domBindingKeys = [
     'start',
+    'stop',
     'songNext',
     'songPrev',
     'transposeUp',
@@ -40,7 +43,29 @@ function ABCPlayer({
     'noteDiagram',
     'scrollingNotesWrapper',
   ];
-    
+
+  this.domButtonSelectors = [
+    "start",
+    "stop",
+    "songNext",
+    "songPrev",
+    "transposeUp",
+    "transposeDown",
+    "tempoUp",
+    "tempoDown",
+    "chanterUp",
+    "chanterDown"
+  ];
+
+  this.urlParamNames = [
+    "currentChanterIndex",
+    "currentTuneIndex",
+    "currentTransposition",
+    "currentTempo",
+    "currentNoteIndex"
+  ];
+
+  this.urlParams = {};
 
   this.firstScrollingNoteSection = `<section class="firstScrollingNote"></section>`;
   /*
@@ -114,8 +139,8 @@ function ABCPlayer({
     displayWarp: false,
     displayLoop: false,
     displayRestart: false,
-    displayPlay: true,
-    displayProgress: true
+    displayPlay: false,
+    displayProgress: false
   };
 
   this.sackpipaDroneSynth = null; 
@@ -192,19 +217,12 @@ ABCPlayer.prototype.load = function() {
     console.log(name, this.domBinding[name]);
   });
 
-
-  [
-    "start",
-    "songNext",
-    "songPrev",
-    "transposeUp",
-    "transposeDown",
-    "tempoUp",
-    "tempoDown",
-    "chanterUp",
-    "chanterDown",
-  ].map((elName) => {
+  this.domButtonSelectors.map((elName) => {
     clickBinder({el: this.domBinding[elName], eventCb: this[elName].bind(this)});
+  });
+
+  this.urlParamNames.map((urlParamName) => {
+    this.urlParams[urlParamName] = this.utils.location_getParameterByName(urlParamName);
   });
 
   if (this.abcjs.synth.supportsAudio()) {
@@ -242,10 +260,7 @@ ABCPlayer.prototype.load = function() {
         return this.setNoteDiagram({pitchIndex: pitch, duration});
       },
       onBeatChange: ({beatNumber}) => {
-        if(beatNumber == 0) {
-          console.log("set beat to one");
-          //this.noteScroller.setScrollerXPos({xpos: 0});
-        }
+        if(beatNumber == 0) {}
       }
     });
     this.synthControl.load("#audio", cursorControl, this.visualOptions);
@@ -253,9 +268,53 @@ ABCPlayer.prototype.load = function() {
     this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
   }
 
+  //an array of callbacks to be executed in the sequence they are inserted
+  let onSuccesses = [];
+
+  if (this.urlParams["currentChanterIndex"]) {
+    this.sackpipaOptions.chanterKeyIndex = parseInt(this.urlParams["currentChanterIndex"]);
+  }
+  if (this.urlParams["currentTuneIndex"]) {
+    const currentTuneIndex = parseInt(this.urlParams["currentTuneIndex"]);
+    if (this.songs[currentTuneIndex]) {
+      this.currentTune = currentTuneIndex;
+      parseInt(this.urlParams["currentTuneIndex"]);
+    }
+    else {
+      console.error(`Could not get song from index ${currentTuneIndex}`);
+    }
+  }
+  if (this.urlParams["currentTransposition"]) {
+    onSuccesses.push(() => {
+      const currentTransposition = parseInt(this.urlParams["currentTransposition"]);
+      this.setTransposition(currentTransposition);
+    });
+  }
+  if (this.urlParams["currentTempo"]) {
+    onSuccesses.push(() => {
+      const currentTempo = parseInt(this.urlParams["currentTempo"]);
+      this.setTempo(currentTempo);
+    });
+  }
+  if (this.urlParams["currentNoteIndex"]) {
+    onSuccesses.push(() => {
+      const currentNoteIndex = parseInt(this.urlParams["currentNoteIndex"]);
+      //needs to wait for the note scroller to finish
+      //this.synthControl.restart();
+      this.synthControl.go().then((res) => {
+        setTimeout(() => {
+          //this.synthControl._play();
+          this.noteScrollerItemOnClick(undefined, {currentNoteIndex});
+          //this.synthControl.pause();
+        }, 2000);
+      });
+    });
+  }
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
-  this.setTune({userAction: true, onSuccess: ({}) => {
+  this.setTune({userAction: true, onSuccess: onSuccesses});
+  /*
+  ({}) => {
     /*
      * Was attempting to load a bass done here
     const noteNameToPitch = _.invert(this.abcjs.synth.pitchToNoteName);
@@ -279,8 +338,8 @@ ABCPlayer.prototype.load = function() {
     }).then(function () {
       return buffer.start();
     });
-    */
   }});
+  */
 }
 
 ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
@@ -301,6 +360,12 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
 ABCPlayer.prototype.start = function() {
   if (this.synthControl) {
     this.synthControl.play();
+  }
+}
+
+ABCPlayer.prototype.stop = function() {
+  if (this.synthControl) {
+    this.setTune({userAction: true});
   }
 }
 
@@ -439,7 +504,12 @@ ABCPlayer.prototype.updateControlStats = function updateControlStats() {
 }
 
 ABCPlayer.prototype.setTransposition = function(semitones) {
-  if (!semitones) semitones = this.transposition;
+  if (!semitones) {
+    semitones = this.transposition;
+  }
+  else {
+    this.transposition = semitones;
+  }
   this.currentSong.setTransposition(semitones, ({isSet}) => {
     if (!isSet) {
       console.error(`Could not set transposition by ${semitones}`)
@@ -509,7 +579,21 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     this.setNoteScroller({calledFrom});
     this.updateControlStats();
     console.log("Audio successfully loaded.", this.synthControl);
-    _onSuccess && _onSuccess(response);
+    if (_onSuccess) {
+      if (_.isArray(_onSuccess)) {
+        _.each(_onSuccess, (onS) => {
+          try {
+            onS && onS();
+          }
+          catch(err) {
+            console.error(err);
+          }
+        });
+      }
+      else {
+        _onSuccess(response);
+      }
+    }
   }
   if (shouldReuseInstances(calledFrom) && this.midiBuffer) { 
     console.log(`resuing midiBuffer instance`);
@@ -549,7 +633,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
   });
 }
 
-ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
+  ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
   if (!["tempo"].includes(calledFrom)) {
     //set the current scrolling chanter css and html element if eniteNoteSequence 
     if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
@@ -591,18 +675,27 @@ function scrollingNoteItemIterator({section, item}) {
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);
+  section.addEventListener("click", this.noteScrollerItemOnClick);
+}
 
-  section.addEventListener("click", (e) => {
-    console.log(e);
-    const noteTimingIndex = _.get(e, "target.dataset.notetimingindex");
-    const percentage = _.get(e, "target.dataset.percentage", 0);
+ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e, {currentNoteIndex} = {}) {
+  if (!e && currentNoteIndex) {
+    e = {
+      target: document.querySelector(`[data-ensindex="${currentNoteIndex}"]`)
+    }
+  }
+  if (!e) return;
+  const noteTimingIndex = _.get(e, "target.dataset.notetimingindex");
+  const percentage = _.get(e, "target.dataset.percentage", 0);
+  if (noteTimingIndex && percentage) {
     const noteEvent = _.get(this.audioParams, `visualObj.noteTimings[${noteTimingIndex}]`);
     if (noteEvent) {
       this.synthControl.randomAccessBy({percent: parseFloat(percentage.replace("_","."))});
     }
-    //set the current note in the visualObj
-    //scroll to that part in the audio
-  });
+    else {
+      console.error(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`);
+    }
+  }
 }
 
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
 function Sackpipa({
-  chanterKey,//the key of the chanter, EA, DG, 
+  chanterKeyIndex = 0,//the key of the chanter, EA, DG, 
   dronesSynth,//an instance of CreateSynth that plays the drone
   playableNotes = [],//an array of playable notes because some instruments can play more notes,
   dronesEnabled = [],//an array of notes for the drones enabled, uses ABC for pitches
@@ -9,15 +9,14 @@ function Sackpipa({
   isFirstGroupPlugged = true,
   isSecondGroupPlugged = true,
 }) {
-  this.possibleChanters = ["E/A", "D/G","C/F"];
   this.dronesSynth = dronesSynth;
+  this.possibleChanters = ["E/A", "D/G","C/F"];
   this.playableNotes = playableNotes;
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
   this.isFirstGroupPlugged = isFirstGroupPlugged;
   this.isSecondGroupPlugged = isSecondGroupPlugged;
-  
-  this.chanterKey = chanterKey;
+  this.chanterKey = this.possibleChanters[chanterKeyIndex];
 }
 
 export default Sackpipa;
@@ -88,14 +87,14 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["B"]);
       }
-      else if (!this.canPlayUnpluggedGroupsIndividually) {
+      else if (!this.isFirstGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
         notes = _.omit(notes, ["Bb"]);
       }
       if (this.isSecondGroupPlugged) {
         notes = _.omit(notes, ["Db"]);
       }
-      if (!this.canPlayUnpluggedGroupsIndividually) {
-        notes["C"] = notes["C"].filter(n => n == notes["C"][1]);
+      else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
+        notes["C"] = _.omit(notes["C"], [72]);
       }
       break;
     }
@@ -125,14 +124,14 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["A"]);
       }
-      else if (!this.canPlayUnpluggedGroupsIndividually) {
+      else if (!this.isFirstGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
         notes = _.omit(notes, ["Ab"]);
       }
       if (this.isSecondGroupPlugged) {
         notes = _.omit(notes, ["B"]);
       }
-      if (!this.canPlayUnpluggedGroupsIndividually) {
-        notes["Bb"] = notes["Bb"].filter(n => n == notes["Bb"][1]);
+      else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
+        notes["Bb"] = _.omit(notes["Bb"], [70]);
       }
       break;
     }

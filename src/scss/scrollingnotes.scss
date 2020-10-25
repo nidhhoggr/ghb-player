@@ -56,7 +56,7 @@ section.unplayable_note {
 
 .scrolling_notes-playable_chanter-ea {
   @mixin playable-note {
-    background-image: url("../images/content/fingering_flat_EA.png");
+    background-image: url("../images/content/onescalloped.png");
     @include pn;
   }
 
@@ -74,12 +74,12 @@ section.unplayable_note {
       background-color: #3e3e3e;
     }
   }
-
   .currentNote {
     border-left: 5px solid #fbc500;
     border-right: 5px solid #fbc500;
     width: 57px !important;
   }
+
 
 
   //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
@@ -94,200 +94,202 @@ section.unplayable_note {
     //background-position: -154px 0px;
     background-position: -38px 0px;
   }
-  .playable_pitch-74 {
-    @include playable-note;
-    background-position: -351px 0px;
-  }
-  .playable_pitch-76 {//E5
-    @include playable-note;
-    background-position: -390px 0px;
-  }
   .playable_pitch-66 {
     @include playable-note;
-    background-position: -78px 0px;
+    background-position: -81px 0px;
   }
   .playable_pitch-67 {
     @include playable-note;
-    background-position: -117px 0px;
+    background-position: -123px 0px;
   }
   .playable_pitch-68 {
     @include playable-note;
-    background-position: -155px 0px;
+    background-position: -163px 0px;
   }
   .playable_pitch-69 {
     @include playable-note;
-    background-position: -193px 0px;
+    background-position: -204px 0px;
   }
   .playable_pitch-71 {
     @include playable-note;
-    background-position: -233px 0px;
+    background-position: -246px 0px;
   }
   .playable_pitch-72 {
     @include playable-note;
-    background-position: -1141px 0px;
+    background-position: -288px 0px;
   }
   .playable_pitch-73 {
     @include playable-note;
-    background-position: -313px 0px;
+    background-position: -328px 0px;
+  }
+  .playable_pitch-74 {
+    @include playable-note;
+    background-position: -370px 0px;
+  }
+  .playable_pitch-76 {//E5
+    @include playable-note;
+    background-position: -410px 0px;
   }
 }
 
 
-.playable_chanter-dg {
+.scrolling_notes-playable_chanter-dg {
+
   @mixin playable-note {
-    background-image: url("../images/content/fingering_flat_DG.png");
-    color: #000;
+    background-image: url("../images/content/twoscalloped.png");
+    @include pn;
   }
 
-  @include unplayable-note;
+
   background-image: none;
   background-repeat: no-repeat;
+  background-color: #7e9fb58a;
+  height: 170px;
+
+  section {
+    margin: 0px 5px 0px 5px;
+    @include unplayable-note;
+    &.firstScrollingNote {
+      height: 150px;
+      width: 400px;
+      background-color: #3e3e3e;
+    }
+  }
+  .currentNote {
+    border-left: 5px solid #fbc500;
+    border-right: 5px solid #fbc500;
+    width: 57px !important;
+  }
 
 
+  //C, [Db], D, [Eb], E, F, Gb, G, [Ab], A, Bb, B, C, Db, D
+  //60 61    62 63    64 65 66  67 68    69 70  71 72 73  74
   //["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"]
-  @for $i from 1 through 4 {
-    .playable_note-C#{$i} {
-      @include playable-note;
-      background-position: -20px 65px;
-    }
+  .playable_pitch-60 {
+    @include playable-note;
+    background-position: 3px 0px;
   }
-  @for $i from 1 through 4 {
-    .playable_note-D#{$i} {
-      @include playable-note;
-      background-position: -154px 65px;
-    }
+  .playable_pitch-62 {
+    @include playable-note;
+    background-position: -38px 0px;
   }
-  @for $i from 5 through 7 {
-    .playable_note-C#{$i} {
-      @include playable-note;
-      background-position: -1232px 65px;
-    }
+  .playable_pitch-64 {
+    @include playable-note;
+    background-position: -80px 0px;
   }
-  @for $i from 5 through 7 {
-    .playable_note-Db#{$i} {
-      @include playable-note;
-      background-position: -1366px 65px;
-    }
+  .playable_pitch-65 {
+    @include playable-note;
+    background-position: -122px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-E#{$i} {
-      @include playable-note;
-      background-position: -289px 65px;
-    }
+  .playable_pitch-66 {
+    @include playable-note;
+    background-position: -163px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-F#{$i} {
-      @include playable-note;
-      background-position: -423px 65px;
-    }
+  .playable_pitch-67 {
+    @include playable-note;
+    background-position: -205px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-Gb#{$i} {
-      @include playable-note;
-      background-position: -557px 65px;
-    }
+  .playable_pitch-69 {
+    @include playable-note;
+    background-position: -246px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-G#{$i} {
-      @include playable-note;
-      background-position: -691px 65px;
-    }
+  .playable_pitch-70 {
+    @include playable-note;
+    background-position: -288px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-A#{$i} {
-      @include playable-note;
-      background-position: -830px 65px;
-    }
+  .playable_pitch-71 {
+    @include playable-note;
+    background-position: -330px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-Bb#{$i} {
-      @include playable-note;
-      background-position: -963px 65px;
-    }
+  .playable_pitch-72 {
+    @include playable-note;
+    background-position: -372px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-B#{$i} {
-      @include playable-note;
-      background-position: -1098px 65px;
-    }
+  .playable_pitch-73 {
+    @include playable-note;
+    background-position: -412px 0px;
+  }
+  .playable_pitch-74 {//E5
+    @include playable-note;
+    background-position: -454px 0px;
   }
 }
 
 .scrolling_notes-playable_chanter-cf {
   @mixin playable-note {
-    background-image: url("../images/content/fingering_flat_CF.png");
+    background-image: url("../images/content/twoscalloped.png");
     @include pn;
   }
 
-  @include unplayable-note;
   background-image: none;
   background-repeat: no-repeat;
+  background-color: #7e9fb58a;
+  height: 170px;
 
+  section {
+    margin: 0px 5px 0px 5px;
+    @include unplayable-note;
+    &.firstScrollingNote {
+      height: 150px;
+      width: 400px;
+      background-color: #3e3e3e;
+    }
+  }
+  .currentNote {
+    border-left: 5px solid #fbc500;
+    border-right: 5px solid #fbc500;
+    width: 57px !important;
+  }
+
+  // Bb, [B], C, [Db], D, Eb, E, F, [Gb], G, Ab, A, Bb, B, C
+  // 58  59   60 61    62 63  64 65 66    67 68  69 70  71 72
   //["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"]
-  @for $i from 1 through 4 {
-    .playable_note-Bb#{$i} {
-      @include playable-note;
-      background-position: -20px 65px;
-    }
+  .playable_pitch-58 {
+    @include playable-note;
+    background-position: 3px 0px;
   }
-  @for $i from 1 through 4 {
-    .playable_note-C#{$i} {
-      @include playable-note;
-      background-position: -154px 65px;
-    }
+  .playable_pitch-60 {
+    @include playable-note;
+    background-position: -38px 0px;
   }
-  @for $i from 5 through 7 {
-    .playable_note-Bb#{$i} {
-      @include playable-note;
-      background-position: -1232px 65px;
-    }
+  .playable_pitch-62 {
+    @include playable-note;
+    background-position: -80px 0px;
   }
-  @for $i from 5 through 7 {
-    .playable_note-B#{$i} {
-      @include playable-note;
-      background-position: -1366px 65px;
-    }
+  .playable_pitch-63 {
+    @include playable-note;
+    background-position: -122px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-D#{$i} {
-      @include playable-note;
-      background-position: -289px 65px;
-    }
+  .playable_pitch-64 {
+    @include playable-note;
+    background-position: -163px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-Eb#{$i} {
-      @include playable-note;
-      background-position: -423px 65px;
-    }
+  .playable_pitch-65 {
+    @include playable-note;
+    background-position: -205px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-E#{$i} {
-      @include playable-note;
-      background-position: -557px 65px;
-    }
+  .playable_pitch-67 {
+    @include playable-note;
+    background-position: -246px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-F#{$i} {
-      @include playable-note;
-      background-position: -691px 65px;
-    }
+  .playable_pitch-68 {
+    @include playable-note;
+    background-position: -288px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-G#{$i} {
-      @include playable-note;
-      background-position: -830px 65px;
-    }
+  .playable_pitch-69 {
+    @include playable-note;
+    background-position: -330px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-Ab#{$i} {
-      @include playable-note;
-      background-position: -963px 65px;
-    }
+  .playable_pitch-70 {
+    @include playable-note;
+    background-position: -372px 0px;
   }
-  @for $i from 1 through 7 {
-    .playable_note-A#{$i} {
-      @include playable-note;
-      background-position: -1098px 65px;
-    }
+  .playable_pitch-71 {
+    @include playable-note;
+    background-position: -412px 0px;
+  }
+  .playable_pitch-72 {//E5
+    @include playable-note;
+    background-position: -454px 0px;
   }
 }
