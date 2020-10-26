@@ -27,24 +27,25 @@ function ABCPlayer({
   this.domBinding = {};
 
   this.domBindingKeys = [
-    'start',
-    'stop',
-    'songNext',
-    'songPrev',
-    'transposeUp',
-    'transposeDown',
-    'tempoUp',
-    'tempoDown',
-    'chanterUp',
-    'chanterDown',
-    'currentTransposition',
-    'currentTempo',
-    'currentSong',
-    'currentChanter',
-    'currentKeySig',
-    'audio',
-    'noteDiagram',
-    'scrollingNotesWrapper',
+    "start",
+    "stop",
+    "songNext",
+    "songPrev",
+    "transposeUp",
+    "transposeDown",
+    "tempoUp",
+    "tempoDown",
+    "chanterUp",
+    "chanterDown",
+    "currentTransposition",
+    "currentTempo",
+    "currentSong",
+    "currentBeat",
+    "currentChanter",
+    "currentKeySig",
+    "audio",
+    "noteDiagram",
+    "scrollingNotesWrapper",
   ];
 
   this.domButtonSelectors = [
@@ -275,8 +276,10 @@ ABCPlayer.prototype.load = function() {
     this.synthControl = new this.abcjs.synth.SynthController();
     const cursorControl = new CursorControl({
       onNoteChange: this.onNoteChange.bind(this),
-      onBeatChange: ({beatNumber}) => {
+      onBeatChange: ({beatNumber, totalBeats, totalTime}) => {
         if(beatNumber == 0) {}
+        totalTime = totalTime && _.round(totalTime / 60);
+        this.domBinding["currentBeat"].innerText = `Beat: ${beatNumber}/${totalBeats}`;
       }
     });
     this.synthControl.load("#audio", cursorControl, this.visualOptions);
@@ -780,11 +783,8 @@ function CursorControl({
 
   };
   self.beatSubdivisions = 2;
-  self.onBeat = function(beatNumber, totalBeats, totalTime) {
-    if (!self.beatDiv)
-      self.beatDiv = document.querySelector(".beat");
-    if (onBeatChange) onBeatChange({beatNumber});
-    self.beatDiv.innerText = "Beat: " + beatNumber + " Total: " + totalBeats + " Total time: " + totalTime;
+  self.onBeat = function(beatNumber = 0, totalBeats = 0, totalTime = 0) {
+    if (onBeatChange) onBeatChange({beatNumber, totalBeats, totalTime});
   };
   self.onEvent = function(ev) {
     if (ev.measureStart && ev.left === null)

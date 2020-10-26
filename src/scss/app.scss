@@ -120,6 +120,10 @@ address {
     .buttons {
       min-width: 170px;      
     }
+    span.currentBeat {
+      display: block;
+      text-align: left;
+    }
   }
 
   .controls {
