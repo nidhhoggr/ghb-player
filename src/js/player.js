@@ -603,7 +603,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       if (_.isArray(_onSuccess)) {
         _.each(_onSuccess, (onS) => {
           try {
-            onS && onS();
+            _.isFunction(onS) && onS();
           }
           catch(err) {
             console.error(err);
