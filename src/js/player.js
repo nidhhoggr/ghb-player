@@ -375,8 +375,8 @@ ABCPlayer.prototype.start = function() {
     this.synthControl.play();
     if (this.onStartCbQueue.length) {
       this.synthControl.pause();
-      _.each(this.onStartCbQueue, (cq,i) => {
-        cq && cq();
+      _.each(this.onStartCbQueue, (cq, i) => {
+        _.isFunction(cq) && cq();
         delete this.onStartCbQueue[i];
       });
     }
