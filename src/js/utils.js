@@ -10,6 +10,17 @@ export default {
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
-  }
+  },
+  simulateClick: function simulateClick(elem) {
+    // Create our event (with options)
+    const evt = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    // If cancelled, don't dispatch our event
+    const cancelled = !elem.dispatchEvent(evt);
+    return { cancelled, evt };
+  },
 }
 

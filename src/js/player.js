@@ -21,6 +21,9 @@ function ABCPlayer({
 
   this.currentTune = 0;
 
+  //used to store events to dispatch when play button is fired
+  this.onStartCbQueue = [];
+
   this.domBinding = {};
 
   this.domBindingKeys = [
@@ -210,6 +213,49 @@ function clickBinder({el, selector, eventCb, eventName = "click"}) {
 
 }
 
+ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
+  cmd,
+  pitch,
+  //volume,
+  //start,
+  duration,
+  //instrument,
+  //endType,
+  //gap,
+}}) {
+  const scrollingNotesWrapper = _.get(this.domBinding, "scrollingNotesWrapper");
+  console.log("onNoteChange:", {pitch, cmd, event});
+  if (scrollingNotesWrapper) {
+    const index = event.ensIndex + 1;
+    if (!index) return;
+    const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
+    try { 
+      const firstLeft = scrollingNotesWrapper.getBoundingClientRect();
+      const snItemRect = snItem.getBoundingClientRect();
+      const offset = (snItemRect.left - firstLeft.left - this.hpsOptions.sectionOffset) * -1;
+      const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
+      console.log({offset, targetXPos});
+      this.noteScroller.setScrollerXPos({xpos: offset});
+    }
+    catch (err) {
+      console.error(`Could not calculate offset`);
+    }
+    const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
+    const currEl = scrollingNoteDivs[index];
+    let i, snd;
+    if (currEl && !currEl.className.includes("currentNote")) {
+      currEl.className = currEl.className.concat(" currentNote");
+    }
+    Array.from(scrollingNoteDivs).map((snd, i) => {
+      if (i !== index && snd.className && snd.className.includes("currentNote")) {
+        snd.className = snd.className.replace("currentNote","");
+      }
+    });
+  }
+  return this.setNoteDiagram({pitchIndex: pitch, duration});
+}
+
+
 ABCPlayer.prototype.load = function() {
 
   this.domBindingKeys.map((name) => {
@@ -228,37 +274,7 @@ ABCPlayer.prototype.load = function() {
   if (this.abcjs.synth.supportsAudio()) {
     this.synthControl = new this.abcjs.synth.SynthController();
     const cursorControl = new CursorControl({
-      onNoteChange: ({event, midiPitch: {
-        cmd,
-        pitch,
-        //volume,
-        //start,
-        duration,
-        //instrument,
-        //endType,
-        //gap,
-      }}) => {
-        const scrollingNotesWrapper = _.get(this.domBinding, "scrollingNotesWrapper");
-        console.log("onNoteChange:", {pitch, cmd, event});
-        if (scrollingNotesWrapper) {
-          const index = event.ensIndex + 1;
-          if (!index) return;
-          const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
-          this.noteScroller.setScrollerXPos({xpos: targetXPos});
-          const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
-          const currEl = scrollingNoteDivs[index];
-          let i, snd;
-          if (currEl && !currEl.className.includes("currentNote")) {
-            currEl.className = currEl.className.concat(" currentNote");
-          }
-          Array.from(scrollingNoteDivs).map((snd, i) => {
-            if (i !== index && snd.className && snd.className.includes("currentNote")) {
-              snd.className = snd.className.replace("currentNote","");
-            }
-          });
-        }
-        return this.setNoteDiagram({pitchIndex: pitch, duration});
-      },
+      onNoteChange: this.onNoteChange.bind(this),
       onBeatChange: ({beatNumber}) => {
         if(beatNumber == 0) {}
       }
@@ -297,18 +313,15 @@ ABCPlayer.prototype.load = function() {
     });
   }
   if (this.urlParams["currentNoteIndex"]) {
-    onSuccesses.push(() => {
-      const currentNoteIndex = parseInt(this.urlParams["currentNoteIndex"]);
-      //needs to wait for the note scroller to finish
-      //this.synthControl.restart();
-      this.synthControl.go().then((res) => {
-        setTimeout(() => {
-          //this.synthControl._play();
-          this.noteScrollerItemOnClick(undefined, {currentNoteIndex});
-          //this.synthControl.pause();
-        }, 2000);
-      });
-    });
+    const currentNoteIndex = parseInt(this.urlParams["currentNoteIndex"]);
+    function clickItem() {
+      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
+      nsItem && this.utils.simulateClick(nsItem);
+    }
+    //this will be fired when the user clicks play is needed in addtion to the call below
+    this.onStartCbQueue.push(clickItem.bind(this));
+    //this will be fired first to set the note before clicking play
+    onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
   }
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
@@ -360,6 +373,13 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
 ABCPlayer.prototype.start = function() {
   if (this.synthControl) {
     this.synthControl.play();
+    if (this.onStartCbQueue.length) {
+      this.synthControl.pause();
+      _.each(this.onStartCbQueue, (cq,i) => {
+        cq && cq();
+        delete this.onStartCbQueue[i];
+      });
+    }
   }
 }
 
@@ -675,14 +695,17 @@ function scrollingNoteItemIterator({section, item}) {
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);
-  section.addEventListener("click", this.noteScrollerItemOnClick);
+  section.addEventListener("click", this.noteScrollerItemOnClick.bind(this));
+}
+
+ABCPlayer.prototype.getNoteScrollerItem = function getNoteScrollerItem({currentNoteIndex} = {}) {
+  return document.querySelector(`[data-ensindex="${currentNoteIndex}"]`);
 }
 
 ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e, {currentNoteIndex} = {}) {
   if (!e && currentNoteIndex) {
-    e = {
-      target: document.querySelector(`[data-ensindex="${currentNoteIndex}"]`)
-    }
+    const target = this.getNoteScrollerItem({currentNoteIndex});
+    e = {target};
   }
   if (!e) return;
   const noteTimingIndex = _.get(e, "target.dataset.notetimingindex");

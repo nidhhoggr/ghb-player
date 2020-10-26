@@ -116,6 +116,12 @@ address {
     }
   }
 
+  .songControls {
+    .buttons {
+      min-width: 170px;      
+    }
+  }
+
   .controls {
     display: flex;
     justify-content: space-evenly;
