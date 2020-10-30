@@ -55,10 +55,44 @@ export default [
       "T: Langdans fran Solleron\n" +
       //"M: 3/4\n" +
       "L: 1/8\n" +
-      "K:Dm transpose=-2\n" +
-      "|: \"E7\"A2 ^c2 \"Dm\"d2 | \"A7\"e3 g \"Dm\"f2 | d2 fe \"A7\"d^c |1,3 \"Dm\"d3 ^c \"A7\"A2 \\ \n" +
-      "                                                      :|2,4 \"Dm\"d6 :|\n" + 
-      "|: \"A7\".a2 .g2 .e3 | g3 e \"Dm\"f2 | .f2 \"A7\"a2 g2 | .e2 ge \"Dm\"f2 | \"A7\"d2 fe d^c | \"Dm\"d6 :|"
+      "K:Em transpose=0\n" +
+      "A2 ^c2 d2 | e3 g f2 | d2 (fe) d^c | d3 ^c A2- | A2 ^c2 d2 |\n" +
+      "e3 g f2 | d2 (fe) d^c | d6 :: .a2 .g2 .e2 | g3 e f2 |\n" +
+      ".f2 .a2 .g2 | e2 ge f2 | d2 fe d^c | d6 :|\n"
+      //"|: \"E7\"A2 ^c2 \"Dm\"d2 | \"A7\"e3 g \"Dm\"f2 | d2 fe \"A7\"d^c |1,3 \"Dm\"d3 ^c \"A7\"A2 \\ \n" +
+      //"                                                      :|2,4 \"Dm\"d6 :|\n" + 
+      //"|: \"A7\".a2 .g2 .e3 | g3 e \"Dm\"f2 | .f2 \"A7\"a2 g2 | .e2 ge \"Dm\"f2 | \"A7\"d2 fe d^c | \"Dm\"d6 :|"
+  },
+  {
+    name: "Langdans fran Solleron",
+    tempo: 80,
+    tuning: "E/A",
+    abc: "X:179\n" +
+    "C:Långdans från Sollerön\n" +
+    "L:1/8\n" +
+    "M:3/4\n" +
+    "K:C\n" +
+    "\"E:7\"E2 ^G2 A2 | B3d c2 | A2 cB A^G | A3^G E2 | E2 ^G2 A2 | B3d c2 | A2 cB A^G |\n" +
+    "A6 | E2 ^G2 A2 | B3d c2 | A2 cB A^G | A3^G E2 | E2 ^G2 A2 | B3d c2 |\n" +
+    "A2 cB A^G | A6 | e2 d2 B2 | d3B c2 | c2 e2 d2 | B2 dB c2 | A2 cB A^G |\n" +
+    "A6 | e2 d2 B2 | d3B c2 | c2 e2 d2 | B2 dB c2 | A2 cB A^G | A6 |\n" +
+    "z6 |\n"
+  },
+  {
+    name: "Steklåt från Särna",
+    tempo: 40,
+    tuning: "E/A",
+    abc: "X:180\n" +
+    "C:Steklåt från Särna\n" +
+    "L:1/8\n" +
+    "M:4/4\n" +
+    "K:C\n" +
+    "\"E:7\"E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | E8 | E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 |\n" +
+    "A8 | \"E:7\"E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | E8 |\n" +
+    "E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | A6 B2 | c3B c2 e2 | B6 ^G2 |\n" +
+    "A3^G A2 c2 | B6 Bd | c2 B2 A2 ce | d2 B2 ^G2 Bd | c2 BA B2 ^G2 | A6 B2 |\n" +
+    "c3B c2 e2 | B6 ^G2 | A3^G A2 c2 | B6 Bd | c2 B2 A2 ce | d2 B2 ^G2 Bd |\n" +
+    "c2 BA B2 ^G2 | A8 | z8 |\n"
   },
   {
     name: "E/A Chanter scale",

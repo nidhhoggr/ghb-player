@@ -96,15 +96,17 @@ function ABCPlayer({
     add_classes: true,
     responsive: "resize",
     clickListener: (abcElem, tuneNumber, classes, analysis, drag, mouseEvent) => {
+      
+      /*
       var output = "currentTrackMilliseconds: " + abcElem.currentTrackMilliseconds + "<br>" +
         "midiPitches: " + JSON.stringify(abcElem.midiPitches, null, 4) + "<br>" +
         "gracenotes: " + JSON.stringify(abcElem.gracenotes, null, 4) + "<br>" +
         "midiGraceNotePitches: " + JSON.stringify(abcElem.midiGraceNotePitches, null, 4) + "<br>";
       document.querySelector(".clicked-info").innerHTML = "<div class='label'>Clicked info:</div>" +output;
+      */
 
       var lastClicked = abcElem.midiPitches;
-      if (!lastClicked)
-        return;
+      if (!lastClicked) return;
 
       this.abcjs.synth.playEvent(lastClicked, abcElem.midiGraceNotePitches, this.synthControl.visualObj.millisecondsPerMeasure()).then((response) => {
         const { cmd, pitch, duration } = lastClicked[0];
@@ -618,6 +620,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       }
     }
   }
+  //only reuse if the chanter chnaged
   if (shouldReuseInstances(calledFrom) && this.midiBuffer) { 
     console.log(`resuing midiBuffer instance`);
     this._setTune(tuneArgs); 
@@ -647,6 +650,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
           max: _.max(compatiblePitches.compatible),
         }
       };
+      console.log(this.currentSong);
       onSuccess && onSuccess({response});
     }});
   })
@@ -672,7 +676,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
   }
 }
 
-function shouldReuseInstances(calledFrom, from = ["tempo","chanter"]) {
+function shouldReuseInstances(calledFrom, from = ["chanter"]) {
   return from.includes(calledFrom);
 }
 
@@ -768,8 +772,6 @@ function CursorControl({
   var self = this;
 
   self.onReady = function() {
-    var clickEl = document.querySelector(".click-explanation")
-    clickEl.setAttribute("style", "");
   };
   self.onStart = function() {
     var svg = document.querySelector("#paper svg");
@@ -797,7 +799,7 @@ function CursorControl({
     for (var k = 0; k < lastSelection.length; k++)
       lastSelection[k].classList.remove("highlight");
 
-    var el = document.querySelector(".feedback").innerHTML = "<div class='label'>Current Note:</div>" + JSON.stringify(ev, null, 4);
+    //var el = document.querySelector(".feedback").innerHTML = "<div class='label'>Current Note:</div>" + JSON.stringify(ev, null, 4);
     for (var i = 0; i < ev.elements.length; i++ ) {
       var note = ev.elements[i];
       for (var j = 0; j < note.length; j++) {
