@@ -1,7 +1,9 @@
+const tempo = 80;
+
 export default [
   {
     name: "Konvulsionslaaten",
-    tempo: 40,
+    tempo,
     abc: "X:1\n" +
       "T:Konvulsionslaaten\n" + 
       "C:Anders (Stake) Norudde\n" +
@@ -16,7 +18,7 @@ export default [
   },
   {
     name: "Tyskan",
-    tempo: 40,
+    tempo,
     abc: "X:1\n" +
       "T: Tyska polskan\n" +
       "T: (schottis)\n" +
@@ -36,7 +38,7 @@ export default [
   },
   {
     name: "Lördagsvisa",
-    tempo: 40,
+    tempo,
     abc: "X:177\n" +
       "T:Lördagsvisa\n" +
       "T:(Sv. L. Sm. 177, 50 Sm. låtar nr 40)\n" +
@@ -50,7 +52,7 @@ export default [
   },
   {
     name: "Langdans fran Solleron",
-    tempo: 40,
+    tempo,
     abc: "X:178\n" +
       "T: Langdans fran Solleron\n" +
       //"M: 3/4\n" +
@@ -65,13 +67,13 @@ export default [
   },
   {
     name: "Langdans fran Solleron",
-    tempo: 80,
+    tempo,
     tuning: "E/A",
     abc: "X:179\n" +
     "C:Långdans från Sollerön\n" +
     "L:1/8\n" +
     "M:3/4\n" +
-    "K:C\n" +
+    "K:Am\n" +
     "\"E:7\"E2 ^G2 A2 | B3d c2 | A2 cB A^G | A3^G E2 | E2 ^G2 A2 | B3d c2 | A2 cB A^G |\n" +
     "A6 | E2 ^G2 A2 | B3d c2 | A2 cB A^G | A3^G E2 | E2 ^G2 A2 | B3d c2 |\n" +
     "A2 cB A^G | A6 | e2 d2 B2 | d3B c2 | c2 e2 d2 | B2 dB c2 | A2 cB A^G |\n" +
@@ -80,13 +82,13 @@ export default [
   },
   {
     name: "Steklåt från Särna",
-    tempo: 40,
+    tempo,
     tuning: "E/A",
     abc: "X:180\n" +
     "C:Steklåt från Särna\n" +
     "L:1/8\n" +
     "M:4/4\n" +
-    "K:C\n" +
+    "K:Am\n" +
     "\"E:7\"E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | E8 | E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 |\n" +
     "A8 | \"E:7\"E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | E8 |\n" +
     "E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | A6 B2 | c3B c2 e2 | B6 ^G2 |\n" +
@@ -95,8 +97,44 @@ export default [
     "c2 BA B2 ^G2 | A8 | z8 |\n"
   },
   {
+    name: "Jag blåste i min pipa",
+    tempo,
+    tuning: "E/A",
+    abc: "X:181\n" +
+    "C:Jag blåste i min pipa\n" +
+    "L:1/8\n" +
+    "M:4/4\n" +
+    "K:Am\n" +
+    "\"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
+    "A2 A3^G E2 | E2 c4 c2 | B2 B3A ^G2 | B2 d2 d2 c2 |: B2 A3^G E2 | E2 c4 B2 |\n" +
+    "zA ^G3B e2 | ^G2 A6 | A2 A3^G E2 | E2 c4 c2 | B2 B3A ^G2 | B2 d2 d2 c2 :|\n" +
+    "B2 A3^G E2 | E2 c4 B2 | zA ^G3B e2 | ^G2 A6 | B2 c2 cB c2 | cB c2 e2 e2 |\n" +
+    "zd B2 BA B2 | BA B2 d2 d2 | zc A3^G E2 | E2 c4 B2 | zA ^G3B e2 | ^G2 A6 |\n" +
+    "B2 c2 cB c2 | cB c2 e2 e2 | zd B2 BA B2 | BA B2 d2 d2 | zc A3^G E2 | E2 c4 B2 |\n" +
+    "zA ^G3B e2 | ^G2 A6 | z8 |"
+  },
+  {
+    name: "Ljugaren",
+    tempo,
+    tuning: "E/A",
+    abc: "X:180\n" +
+    "C:Ljugaren\n" +
+    "L:1/8\n" +
+    "M:4/4\n" +
+    "K:Am\n" +
+    "\"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
+    "^G2 A6 | z8 | \"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 |\n" +
+    "c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 | B2 c4 B2 | c2 d4 c2 |\n" +
+    "d2 e6 | z2 A6 | B2 c4 B2 | c2 d4 c2 | z2 B3c B2 | A2 B4 ^G2 |\n" +
+    "E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
+    "^G2 A6 | z8 | B2 c4 B2 | c2 d4 c2 | d2 e6 | z2 A6 |\n" +
+    "B2 c4 B2 | c2 d4 c2 | z2 B3c B2 | A2 B4 ^G2 | E2 A3B A2 | ^G2 E4 E2 |\n" +
+    "z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 |\n" +
+    "z8 |"
+  },
+  {
     name: "E/A Chanter scale",
-    tempo: 75,
+    tempo: 40,
     tuning: "E/A",
     abc: "X:1\n" +
       "T:E/A Chanter scale\n" +
@@ -107,7 +145,7 @@ export default [
   },
   {
     name: "D/G Chanter scale",
-    tempo: 75,
+    tempo: 40,
     tuning: "D/G",
     abc: "X:2\n" +
       "T:D/G Chanter scale\n" +
@@ -118,7 +156,7 @@ export default [
   },
   {
     name: "C/F Chanter scale",
-    tempo: 75,
+    tempo: 40,
     tuning: "C/F",
     abc: "X:3\n" +
       "T:C/F Chanter scale\n" +

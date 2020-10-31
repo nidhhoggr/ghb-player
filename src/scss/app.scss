@@ -105,7 +105,14 @@ address {
   background-color: #fff0f0;
   margin: 0 0 10px;
   padding: 15px;
-  
+
+  span.title {
+    color: #2a5b80;
+    font-size: 20px;
+    min-height: 33px;
+    display: inline-block;
+  }
+
   .buttons {
     font-size: 32px;
     span:hover {
@@ -114,6 +121,7 @@ address {
     span:active {
       color: blue;
     }
+    cursor: pointer;
   }
 
   .songControls {
@@ -139,6 +147,7 @@ address {
     .buttons {
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
   }
 
@@ -150,6 +159,7 @@ address {
     .buttons {
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
   }
 
@@ -161,6 +171,7 @@ address {
     .buttons {
       display: flex;
       flex-direction: column;
+      cursor: pointer;
     }
   }
 
@@ -173,6 +184,8 @@ address {
     .buttons {
       display: flex;
       flex-direction: column;
+      color: rgba(0,0,0, 0.3);
+      cursor: pointer;
     }
   }
 
@@ -420,4 +433,28 @@ address {
     @include playable-note;
     background-position: -1500px 65px;
   }
+}
+
+//TOOLTIP.JS
+.b-tooltip {
+    border: 3px solid #fff;
+    display: inline-block;
+    font-size: .875em;
+    padding: .75em;
+    position: absolute;
+    text-align: center;
+}
+
+.b-tooltip-light {
+    background: #eaeaea;
+    background: linear-gradient(to bottom, #fdfdfd 0%, #eaeaea 100%);
+    box-shadow: 0px 0px 6px 2px rgba(110, 110, 110, .4);
+    color: #242424;
+}
+
+.b-tooltip-dark {
+    background: #242424;
+    background: linear-gradient(to bottom, #6e6e6e 0%, #242424 100%);
+    box-shadow: 0px 0px 6px 2px rgba(110, 110, 110, 1);
+    color: #fff;
 }
