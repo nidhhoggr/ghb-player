@@ -3,7 +3,8 @@ const tempo = 80;
 export default [
   {
     name: "Konvulsionslaaten",
-    tempo,
+    tempo: 70,
+    transposition: 1,
     abc: "X:1\n" +
       "T:Konvulsionslaaten\n" + 
       "C:Anders (Stake) Norudde\n" +
@@ -17,8 +18,8 @@ export default [
       "   dcB A2 F2c | cBA G2 E2E | DEFG A2GF | EFE2 D4 :|\n"
   },
   {
-    name: "Tyskan",
-    tempo,
+    name: "Tyskan (needs work)",
+    tempo: 120,
     abc: "X:1\n" +
       "T: Tyska polskan\n" +
       "T: (schottis)\n" +
@@ -55,20 +56,16 @@ export default [
     tempo,
     abc: "X:178\n" +
       "T: Langdans fran Solleron\n" +
-      //"M: 3/4\n" +
+      "M: 3/4\n" +
       "L: 1/8\n" +
-      "K:Em transpose=0\n" +
-      "A2 ^c2 d2 | e3 g f2 | d2 (fe) d^c | d3 ^c A2- | A2 ^c2 d2 |\n" +
-      "e3 g f2 | d2 (fe) d^c | d6 :: .a2 .g2 .e2 | g3 e f2 |\n" +
-      ".f2 .a2 .g2 | e2 ge f2 | d2 fe d^c | d6 :|\n"
-      //"|: \"E7\"A2 ^c2 \"Dm\"d2 | \"A7\"e3 g \"Dm\"f2 | d2 fe \"A7\"d^c |1,3 \"Dm\"d3 ^c \"A7\"A2 \\ \n" +
-      //"                                                      :|2,4 \"Dm\"d6 :|\n" + 
-      //"|: \"A7\".a2 .g2 .e3 | g3 e \"Dm\"f2 | .f2 \"A7\"a2 g2 | .e2 ge \"Dm\"f2 | \"A7\"d2 fe d^c | \"Dm\"d6 :|"
+      "K:Dm\n" +
+      "|: \"E7\"A2 ^c2 \"Dm\"d2 | \"A7\"e3 g \"Dm\"f2 | d2 fe \"A7\"d^c |1,3 \"Dm\"d3 ^c \"A7\"A2 \\ \n" +
+      "                                                      :|2,4 \"Dm\"d6 :|\n" + 
+      "|: \"A7\".a2 .g2 .e3 | g3 e \"Dm\"f2 | .f2 \"A7\"a2 g2 | .e2 ge \"Dm\"f2 | \"A7\"d2 fe d^c | \"Dm\"d6 :|"
   },
   {
     name: "Langdans fran Solleron",
     tempo,
-    tuning: "E/A",
     abc: "X:179\n" +
     "C:Långdans från Sollerön\n" +
     "L:1/8\n" +
@@ -83,7 +80,6 @@ export default [
   {
     name: "Steklåt från Särna",
     tempo,
-    tuning: "E/A",
     abc: "X:180\n" +
     "C:Steklåt från Särna\n" +
     "L:1/8\n" +
@@ -99,7 +95,6 @@ export default [
   {
     name: "Jag blåste i min pipa",
     tempo,
-    tuning: "E/A",
     abc: "X:181\n" +
     "C:Jag blåste i min pipa\n" +
     "L:1/8\n" +
@@ -116,8 +111,7 @@ export default [
   {
     name: "Ljugaren",
     tempo,
-    tuning: "E/A",
-    abc: "X:180\n" +
+    abc: "X:182\n" +
     "C:Ljugaren\n" +
     "L:1/8\n" +
     "M:4/4\n" +

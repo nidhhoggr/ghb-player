@@ -290,7 +290,7 @@ ABCPlayer.prototype.load = function() {
   }
 
   //an array of callbacks to be executed in the sequence they are inserted
-  let onSuccesses = [];
+  this.onSuccesses = [];
 
   if (this.urlParams["currentChanterIndex"]) {
     this.sackpipaOptions.chanterKeyIndex = parseInt(this.urlParams["currentChanterIndex"]);
@@ -306,13 +306,13 @@ ABCPlayer.prototype.load = function() {
     }
   }
   if (this.urlParams["currentTransposition"]) {
-    onSuccesses.push(() => {
+    this.onSuccesses.push(() => {
       const currentTransposition = parseInt(this.urlParams["currentTransposition"]);
       this.setTransposition(currentTransposition);
     });
   }
   if (this.urlParams["currentTempo"]) {
-    onSuccesses.push(() => {
+    this.onSuccesses.push(() => {
       const currentTempo = parseInt(this.urlParams["currentTempo"]);
       this.setTempo(currentTempo);
     });
@@ -326,11 +326,11 @@ ABCPlayer.prototype.load = function() {
     //this will be fired when the user clicks play is needed in addtion to the call below
     this.onStartCbQueue.push(clickItem.bind(this));
     //this will be fired first to set the note before clicking play
-    onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
+    this.onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
   }
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
-  this.setTune({userAction: true, onSuccess: onSuccesses});
+  this.setTune({userAction: true, onSuccess: this.onSuccesses});
   /*
   ({}) => {
     /*
@@ -445,15 +445,13 @@ ABCPlayer.prototype.songNext = function() {
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
-    this.transposition += 1;
-    this.setTransposition();
+    this.setTransposition(this.transposition + 1);
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
   if (this.transposition > this.transpositionLimits.min) {
-    this.transposition -= 1;
-    this.setTransposition();
+    this.setTransposition(this.transposition - 1);
   }
 }
 
@@ -528,20 +526,15 @@ ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   }
 }
 
-ABCPlayer.prototype.setTransposition = function(semitones) {
-  if (!semitones) {
-    semitones = this.transposition;
-  }
-  else {
-    this.transposition = semitones;
-  }
+ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true} = {}) {
+  this.transposition = semitones;
   this.currentSong.setTransposition(semitones, ({isSet}) => {
     if (!isSet) {
       console.error(`Could not set transposition by ${semitones}`)
       return;
     }
     else {
-      this.setTune({
+      shouldSetTune && this.setTune({
         userAction: true,
         isSameSong: true,
         currentSong: this.currentSong,
@@ -572,9 +565,41 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
   if (!isSameSong) {
     this.transposition = 0;
     if (this.noteScroller) this.noteScroller.setScrollerXPos({xpos: 0});
-    const { tempo } = this.currentSong;
+    const { tempo, transposition, tuning } = this.currentSong;
     //the shouldSetTune flag ensures that it will not call setTune, were already here!
-    this.setTempo(tempo, {shouldSetTune: false});
+    if (tempo) {
+      this.setTempo(tempo, {shouldSetTune: false});
+    }
+    if (transposition) {
+      const setEm = () => {
+        this.setTransposition(transposition, {shouldSetTune: true});
+      }
+      if (onSuccess && onSuccess.hasOwnProperty("length")) {
+        onSuccess.push(setEm);
+      }
+      else if (!onSuccess) {
+        onSuccess = [setEm];
+      }
+      else {
+        console.error(onSuccess);
+        throw new Error("Has no member length");
+      }
+    }
+    if (tuning) {
+       const setEm = () => {
+        this._updateChanter(tuning);
+      }
+      if (onSuccess && onSuccess.hasOwnProperty("length")) {
+        onSuccess.push(setEm);
+      }
+      else if (!onSuccess) {
+        onSuccess = [setEm];
+      }
+      else {
+        console.error(onSuccess);
+        throw new Error("Has no member length");
+      }
+    }
     this.domBinding.currentSong.innerText = this.currentSong.name;
   }
   

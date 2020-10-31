@@ -4,7 +4,8 @@ function ABCSong(song) {
   this.name = song.name;
   this.tempo = song.tempo;
   this.abc = song.abc;
-  this.transposition = 0;
+  this.transposition = song.transposition || 0;
+  this.tuning = song.tuning || "E/A";
   /**
    *  //loaded when the tune is set,
    *    used to peform various analytics and calculations

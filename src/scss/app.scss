@@ -115,11 +115,12 @@ address {
 
   .buttons {
     font-size: 32px;
+    color: #257aae;
     span:hover {
-      color: green;
+      color: #80cfff;
     }
     span:active {
-      color: blue;
+      color: #57cff4;
     }
     cursor: pointer;
   }
@@ -186,6 +187,9 @@ address {
       flex-direction: column;
       color: rgba(0,0,0, 0.3);
       cursor: pointer;
+      span:hover {
+        color: rgba(0,0,0, 0.3);
+      }
     }
   }
 
