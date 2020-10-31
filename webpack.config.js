@@ -27,6 +27,15 @@ const ImageMinPlugin = require('imagemin-webpack-plugin').default;
 let targetServerConfiguration = serverConfiguration.internal;
 
 const config = function(env, args) {
+  const hasSourceMaps = process.env.NODE_ENV !== "production";
+  
+  const terserOptions = process.env.NODE_ENV === "production" ? {
+    extractComments: "all",
+    compress: {
+      drop_console: true
+    }
+  } : {};
+
   if (args.externalServer !== undefined && args.externalServer) {
     targetServerConfiguration = serverConfiguration.external;
   }
@@ -78,6 +87,8 @@ const config = function(env, args) {
       minimizer: [
         new TerserPlugin({
           parallel: true,
+          sourceMap: hasSourceMaps,
+          terserOptions,
         }),
         new OptimizeCssAssetsPlugin({}),
       ],
@@ -132,6 +143,7 @@ const config = function(env, args) {
         ],
       }),
     ],
+    devtool: hasSourceMaps && "inline-source-map"
   };
 };
 

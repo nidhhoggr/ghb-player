@@ -20,7 +20,7 @@ npm-debug.log
 
 node_modules/
 dist/
-
+dist.tar.gz
 
 src/js/abcjs/bin
 src/js/abcjs/build-utils

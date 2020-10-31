@@ -127,7 +127,7 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { console.log(message) },
     options: {
-      soundFontUrl: "http://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
+      soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
       program: 109,//bagpipe
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
@@ -800,7 +800,7 @@ function CursorControl({
   };
   self.onStart = function() {
     var svg = document.querySelector("#paper svg");
-    var cursor = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    var cursor = document.createElementNS("https://www.w3.org/2000/svg", "line");
     cursor.setAttribute("class", "abcjs-cursor");
     cursor.setAttributeNS(null, 'x1', 0);
     cursor.setAttributeNS(null, 'y1', 0);
