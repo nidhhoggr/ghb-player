@@ -54,6 +54,12 @@ section.unplayable_note {
   }
 }
 
+.scrollingNotesWrapper {
+  section.playable_duration > div {
+    
+  }
+}
+
 .scrolling_notes-playable_chanter-ea {
   @mixin playable-note {
     background-image: url("../images/content/onescalloped.png");

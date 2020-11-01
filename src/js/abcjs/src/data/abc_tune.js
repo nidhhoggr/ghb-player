@@ -249,6 +249,14 @@ var Tune = function() {
 		if (element.hint)
 			return { isTiedState: undefined, duration: 0 };
 		var realDuration = element.durationClass ? element.durationClass : element.duration;
+    const firstPitch = element.abcelem.midiPitches && element.abcelem.midiPitches[0];
+    if (firstPitch && firstPitch.cmd == "note") {
+      if (!firstPitch.ensIndexes) element.abcelem.midiPitches[0].ensIndexes = [];
+      if (!firstPitch.ensIndexes.includes(this.currentEnsIndex + 1)) {
+        element.abcelem.midiPitches[0].ensIndexes.push(this.currentEnsIndex + 1);
+        this.currentEnsIndex++;
+      }
+    }
 		if (element.abcelem.rest && element.abcelem.rest.type === "spacer")
 			realDuration = 0;
 		if (realDuration > 0) {
@@ -302,7 +310,7 @@ var Tune = function() {
 						startCharArray: [element.abcelem.startChar],
 						endCharArray: [element.abcelem.endChar],
 						midiPitches: element.abcelem.midiPitches ? parseCommon.cloneArray(element.abcelem.midiPitches) : []
-					};
+          };
 					if (element.abcelem.midiGraceNotePitches)
 						eventHash["event" + voiceTimeMilliseconds].midiGraceNotePitches = parseCommon.cloneArray(element.abcelem.midiGraceNotePitches);
 				} else {
@@ -384,6 +392,7 @@ var Tune = function() {
 		var isTiedState;
 		var nextIsBar = true;
 		var voices = this.makeVoicesArray();
+    this.currentEnsIndex = 0;
 		for (var v = 0; v < voices.length; v++) {
 			var voiceTime = time;
 			var voiceTimeMilliseconds = Math.round(voiceTime * 1000);
@@ -392,6 +401,9 @@ var Tune = function() {
 			var elements = voices[v];
 			for (var elem = 0; elem < elements.length; elem++) {
 				var element = elements[elem].elem;
+        const firstPitch = element.abcelem.midiPitches && element.abcelem.midiPitches[0];
+        if (firstPitch)
+          delete firstPitch.ensIndexes;
 				if (element.abcelem.el_type === "tempo") {
 					bpm = this.getBpm(element.abcelem);
 					var beatLength = this.getBeatLength();

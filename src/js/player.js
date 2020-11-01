@@ -109,9 +109,15 @@ function ABCPlayer({
       if (!lastClicked) return;
 
       this.abcjs.synth.playEvent(lastClicked, abcElem.midiGraceNotePitches, this.synthControl.visualObj.millisecondsPerMeasure()).then((response) => {
-        const { cmd, pitch, duration } = lastClicked[0];
+        const { cmd, pitch, duration, ensIndex } = lastClicked[0];
         if (cmd == "note") {
           this.setNoteDiagram({pitchIndex: pitch, duration});
+          const firstPitch = _.get(abcElem, "midiPitches[0]");
+          if (firstPitch) {
+            const currentNoteIndex = _.get(firstPitch, "ensIndexes[0]");
+            if (currentNoteIndex) 
+              this.noteScrollerItemOnClick(undefined, {currentNoteIndex: currentNoteIndex - 1});
+          }
         }
       }).catch((error) => {
         console.log("error playing note", error);
@@ -723,10 +729,12 @@ function scrollingNoteItemIterator({section, item}) {
   else {
     section.classList.add(`playable_pitch-${pitchIndex}`);
     section.classList.add(`playable_duration-${dur}`);
+    section.innerHTML = `<div></div>`;
   }
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);
+  section.setAttribute("data-duration", `${duration}`);
   section.addEventListener("click", this.noteScrollerItemOnClick.bind(this));
 }
 
@@ -735,7 +743,7 @@ ABCPlayer.prototype.getNoteScrollerItem = function getNoteScrollerItem({currentN
 }
 
 ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e, {currentNoteIndex} = {}) {
-  if (!e && currentNoteIndex) {
+  if (!e && _.isNumber(currentNoteIndex)) {
     const target = this.getNoteScrollerItem({currentNoteIndex});
     e = {target};
   }
@@ -745,7 +753,8 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
   if (noteTimingIndex && percentage) {
     const noteEvent = _.get(this.audioParams, `visualObj.noteTimings[${noteTimingIndex}]`);
     if (noteEvent) {
-      this.synthControl.randomAccessBy({percent: parseFloat(percentage.replace("_","."))});
+      const percent = parseFloat(percentage.replace("_","."));
+      this.synthControl.randomAccessBy({percent});
     }
     else {
       console.error(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`);
