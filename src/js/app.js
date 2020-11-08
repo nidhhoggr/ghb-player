@@ -9,6 +9,8 @@ import Sackpipa from "./sackpipa";
 import utils from "./utils";
 import HPS from "./hps";
 import Tooltip from "./tooltip";
-const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, utils});
+const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, utils, options: {
+  currentInstrumentIndex: 109
+}});
 abcPlayer.load();
 const tooltip = new Tooltip();

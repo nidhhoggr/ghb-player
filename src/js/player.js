@@ -4,7 +4,8 @@ function ABCPlayer({
   ABCSong,
   Sackpipa,
   HPS,
-  utils
+  utils,
+  options
 }) {
 
   this.abcjs = abcjs;
@@ -75,7 +76,7 @@ function ABCPlayer({
   /*
    * @TODO look into abctune.formatting.bagpipe
    */
-  this.currentInstrumentIndex = 109; //bagpipe
+  this.currentInstrumentIndex = 109 || options.currentInstrumentIndex; //bagpipe
 
   this.transpositionLimits = {
     min: -12,
@@ -134,7 +135,8 @@ function ABCPlayer({
     // debugCallback: function(message) { console.log(message) },
     options: {
       soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
-      program: 109,//bagpipe
+      _soundFontUrl: "http://localhost:3000/fonts/FluidR3Mono_GM2.SF2",
+      program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
       // callbackContext: this,

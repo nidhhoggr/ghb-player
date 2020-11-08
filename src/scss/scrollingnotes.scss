@@ -54,9 +54,51 @@ section.unplayable_note {
   }
 }
 
+@mixin scrollingNoteDur {
+  background-image: url("../images/content/notesprite.png");
+  width: 30px;
+  height: 30px;
+  margin-left: 3px;;
+  border: 1px solid #000;
+  background-position-x: 0px;
+  background-position-y: 29px;
+  background-size: auto 123%;
+  position: relative;
+  top: 130px;
+  border-radius: 12px;
+}
+
 .scrollingNotesWrapper {
-  section.playable_duration > div {
-    
+  section.currentNote[data-duration] > div {
+    border: 1px solid  #ff7424 !important;
+  }
+  section[data-duration="1"] > div {//whole, appears as a hollow oval
+    @include scrollingNoteDur;
+    background-position-x: 7px;
+  }
+  section[data-duration="0.75"] > div {
+    @include scrollingNoteDur;
+    background-position-x: 67px;
+  }
+  section[data-duration="0.5"] > div {
+    @include scrollingNoteDur;
+    background-position-x: -23px;
+  }
+  section[data-duration="0.375"] > div {
+    @include scrollingNoteDur;
+    background-position-x: 33px;
+  }
+  section[data-duration="0.25"] > div {
+    @include scrollingNoteDur;
+    background-position-x: -50px;
+  }
+  section[data-duration="0.125"] > div {
+    @include scrollingNoteDur;
+    background-position-x: -82px;
+  }
+  section[data-duration="0.0625"] > div {
+    @include scrollingNoteDur;
+    background-position-x: 153px;
   }
 }
 
