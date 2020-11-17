@@ -127,6 +127,29 @@ export default [
     "z8 |"
   },
   {
+    name: "Star Spangled Banner",
+    tempo,
+    tuning: "E/A",
+    abc: "T: Anachreon in Heaven  v.1\n" +
+      "T: Star Spangled Banner\n" +
+      "C: John Stafford Smith (1780)\n" +
+      "P: piffero primo a0263\n" +
+      "O: old guard\n" +
+      "F: http://ancients.sudburymuster.org/mus/acn/pdf/fyf02F.pdf\n" +
+      "Z: 2019 John Chambers <jc:trillian.mit.edu>\n" +
+      "M: 3/4\n" +
+      "L: 1/8\n" +
+      "K: D transpose=-2\n" +
+      "A>F |\\\n" +
+      "D2 F2 A2 | d3 zfe | d2 F2 ^G2 | A3 zA>A |\\\n" +
+      "f3 e d2 | c3 zBc | d2 d2 A2 | F2 D2 :|\n" +
+      "ff |\\\n" +
+      "f2 g2 a2 | a4 gf | e2 f2 g2 | g3 zg2 |\\\n" +
+      "f3 e d2 | c3 zBc | d2 F2 ^G2 | A3 zA2 ||\n" +
+      "d2 d2 dc | B2 B2 B2 | e2 gfed | d2 Hc2 AA |\\\n" +
+      "d3 efg | Ha4 de | f3 g e2 | Hd6 |]"
+  },
+  {
     name: "E/A Chanter scale",
     tempo: 40,
     tuning: "E/A",
