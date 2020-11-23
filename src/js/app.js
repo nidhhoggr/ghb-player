@@ -9,9 +9,10 @@ import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
 import utils from "./utils";
 import HPS from "./hps";
+import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
-const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, utils, options: {
+const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, StateManagement, utils, options: {
   currentInstrumentIndex: 109
 }});
 tippy('[data-tooltip]', {

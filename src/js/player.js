@@ -3,6 +3,7 @@ function ABCPlayer({
   songs,
   ABCSong,
   Sackpipa,
+  StateManagement,
   HPS,
   utils,
   options
@@ -18,9 +19,14 @@ function ABCPlayer({
 
   this.HPS = HPS;
 
+  this.stateMgr = StateManagement;
+
   this.utils = utils;
 
   this.currentTune = 0;
+
+  //how often to analyze the state
+  this.stateAssessmentLoopInterval = 5000;//milliseconds
 
   //used to store events to dispatch when play button is fired
   this.onStartCbQueue = [];
@@ -177,6 +183,7 @@ function ABCPlayer({
 }
 
 export default ABCPlayer;
+
 
 ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true} = {}) {
   if (!tempo) {
@@ -339,6 +346,20 @@ ABCPlayer.prototype.load = function() {
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
   this.setTune({userAction: true, onSuccess: this.onSuccesses});
+  this.stateMgr.idleWatcher({
+    inactiveTimeout: 60000, 
+    onInaction: () => {
+      console.log("My inaction function"); 
+    },
+    onReactivate: () => {
+      console.log("My reactivate function");
+      this.stateMgr.onAssessState({playerInstance: this, onFinish: () => (window.location.reload())});
+    }
+  });
+  setInterval(() => {
+    this.stateMgr.onAssessState({playerInstance: this});
+  }, this.stateAssessmentLoopInterval);
+
   /*
   ({}) => {
     /*
@@ -479,7 +500,7 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
 
 ABCPlayer.prototype.chanterDown = function() {
   const { chanterKey, possibleChanters } = this.sackpipa;
-  const currentIndex = _.indexOf(possibleChanters, chanterKey);
+  const currentIndex = this.getCurrentChanterIndex();
   let nextIndex;
   if (currentIndex >= possibleChanters.length) {
     nextIndex = 0;
@@ -492,7 +513,7 @@ ABCPlayer.prototype.chanterDown = function() {
 
 ABCPlayer.prototype.chanterUp = function() {
   const { chanterKey, possibleChanters } = this.sackpipa;
-  const currentIndex = _.indexOf(possibleChanters, chanterKey);
+  const currentIndex = this.getCurrentChanterIndex();
   let nextIndex;
   if (currentIndex <= 0) {
     nextIndex = possibleChanters.length - 1;
@@ -502,6 +523,11 @@ ABCPlayer.prototype.chanterUp = function() {
     nextIndex = currentIndex - 1;
   }
   this._updateChanter(possibleChanters[nextIndex]);
+}
+
+ABCPlayer.prototype.getCurrentChanterIndex = function() {
+  const { chanterKey, possibleChanters } = this.sackpipa;
+  return _.indexOf(possibleChanters, chanterKey);
 }
 
 ABCPlayer.prototype._updateChanter = function updateChanter(chanterKey) {
