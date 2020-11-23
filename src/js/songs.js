@@ -9,9 +9,6 @@ export default [
       "T:Konvulsionslaaten\n" + 
       "C:Anders (Stake) Norudde\n" +
       "Z:Bart Brashers, bart@hpcc.epa.gov\n" +
-      "M:2/4\n" +
-      "L:1/16\n" +
-      "Q:1/4=70\n" +
       "K:Ddor\n" +
       "   DEFD E2E(D | D)EFD E4    | DEFG A2GF | EFE2 D4 :|\n" +
       "|: cAcA c2A(B | B)GBG B2G(c | c)Ac d2 cB2 | ABc d2 ddd |\n" +
@@ -30,12 +27,11 @@ export default [
       "N: Ingen garanti f¢r att bindningarna  r helt r tt.\n" +
       "N: YouTube-klipp med Bj¢rn St¡bi and Per Gudmundson.\n" +
       "M: 2/4\n" +
-      "L: 1/8\n" +
       "K:Am transpose=-5\n" +
       "A |: \"D\"vd>(c d>)(e | f>)(g f>)(e | \"G\"d>)(c (3d)(cB) | \"D\"uA3 (d | \"G\"B>)(G B>)(d | \"A\"c>)(A c>)(e | \"D\"d>)(c d>)(e | d>)e f2 |\n" +
-      "         ud>uc vd>(e | f>)(g f>)(e | \"G\"d>)(c (3d)(cB) | \"D\"uA3 (d | \"G\"B>)(G B>)(d | \"A\"c>)(A c>)e | \"D\"d2 f2 | d4 ::\n" +
-      "                \"A\"ve>c A>c | e3 (c | \"D\"d>)(c d>)e | f4 | \"G\"ug>(a g>)e | \"A\"{/e}c2 c2 | \"D\"va>b a>f | {/f}d2 d2 |\n" +
-      "                     \"A\"ve>c A>c | e3 (c | \"D\"d>)(c d>)e | f4 | \"G\"ug>(a g>)e | \"A\"c>(A B>)c | \"D\"ud2 f2 | !fine!d2 A2 :|\n"
+      " ud>uc vd>(e | f>)(g f>)(e | \"G\"d>)(c (3d)(cB) | \"D\"uA3 (d | \"G\"B>)(G B>)(d | \"A\"c>)(A c>)e | \"D\"d2 f2 | d4 ::\n" +
+      " \"A\"ve>c A>c | e3 (c | \"D\"d>)(c d>)e | f4 | \"G\"ug>(a g>)e | \"A\"{/e}c2 c2 | \"D\"va>b a>f | {/f}d2 d2 |\n" +
+      " \"A\"ve>c A>c | e3 (c | \"D\"d>)(c d>)e | f4 | \"G\"ug>(a g>)e | \"A\"c>(A B>)c | \"D\"ud2 f2 | !fine!d2 A2 :|\n"
   },
   {
     name: "Lördagsvisa",
@@ -44,7 +40,6 @@ export default [
       "T:Lördagsvisa\n" +
       "T:(Sv. L. Sm. 177, 50 Sm. låtar nr 40)\n" +
       "M:C|\n" +
-      "L:1/8\n" +
       "K:Am transpose=-5\n" +
       "(AB)|:\"Am\"c2 (dc) \"Dm\"B2 (B^G)|\"Am\"A4 (A3 c)|\"Em\"e2 (ec) \"Dm\"d2 (df)|\"G7\"a2 (ag) \"Am\"e2 (AB)|\n" +
       "c2 (dc) \"Dm\"B2 (B^G)|\"Am\"A4 (A3 c)|\"Em\"e2 (gf) \"Dm\"d2 (ag)|[1 \"Am\"e4 z2 (AB):|[2 \"Am\"e4  z2 (cd)|]\n" +
@@ -54,21 +49,8 @@ export default [
   {
     name: "Langdans fran Solleron",
     tempo,
-    abc: "X:178\n" +
-      "T: Langdans fran Solleron\n" +
-      "M: 3/4\n" +
-      "L: 1/8\n" +
-      "K:Dm\n" +
-      "|: \"E7\"A2 ^c2 \"Dm\"d2 | \"A7\"e3 g \"Dm\"f2 | d2 fe \"A7\"d^c |1,3 \"Dm\"d3 ^c \"A7\"A2 \\ \n" +
-      "                                                      :|2,4 \"Dm\"d6 :|\n" + 
-      "|: \"A7\".a2 .g2 .e3 | g3 e \"Dm\"f2 | .f2 \"A7\"a2 g2 | .e2 ge \"Dm\"f2 | \"A7\"d2 fe d^c | \"Dm\"d6 :|"
-  },
-  {
-    name: "Langdans fran Solleron",
-    tempo,
     abc: "X:179\n" +
     "C:Långdans från Sollerön\n" +
-    "L:1/8\n" +
     "M:3/4\n" +
     "K:Am\n" +
     "\"E:7\"E2 ^G2 A2 | B3d c2 | A2 cB A^G | A3^G E2 | E2 ^G2 A2 | B3d c2 | A2 cB A^G |\n" +
@@ -82,7 +64,6 @@ export default [
     tempo,
     abc: "X:180\n" +
     "C:Steklåt från Särna\n" +
-    "L:1/8\n" +
     "M:4/4\n" +
     "K:Am\n" +
     "\"E:7\"E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 | E8 | E2 A2 c2 e2 | B2 cd e3d | c2 BA B2 ^G2 |\n" +
@@ -97,7 +78,6 @@ export default [
     tempo,
     abc: "X:181\n" +
     "C:Jag blåste i min pipa\n" +
-    "L:1/8\n" +
     "M:4/4\n" +
     "K:Am\n" +
     "\"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
@@ -113,7 +93,6 @@ export default [
     tempo,
     abc: "X:182\n" +
     "C:Ljugaren\n" +
-    "L:1/8\n" +
     "M:4/4\n" +
     "K:Am\n" +
     "\"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
@@ -127,7 +106,7 @@ export default [
     "z8 |"
   },
   {
-    name: "Star Spangled Banner",
+    name: "Star Spangled Banner pt 1",
     tempo,
     tuning: "E/A",
     abc: "T: Anachreon in Heaven  v.1\n" +
@@ -138,12 +117,24 @@ export default [
       "F: http://ancients.sudburymuster.org/mus/acn/pdf/fyf02F.pdf\n" +
       "Z: 2019 John Chambers <jc:trillian.mit.edu>\n" +
       "M: 3/4\n" +
-      "L: 1/8\n" +
       "K: D transpose=-2\n" +
       "A>F |\\\n" +
       "D2 F2 A2 | d3 zfe | d2 F2 ^G2 | A3 zA>A |\\\n" +
       "f3 e d2 | c3 zBc | d2 d2 A2 | F2 D2 :|\n" +
       "ff |\\\n" +
+      "f2 g2 a2 | a4 gf | e2 f2 g2 | g3 zg2 |\\\n" +
+      "f3 e d2 | c3 zBc | d2 F2 ^G2 | A3 zA2 ||\n" +
+      "d2 d2 dc | B2 B2 B2 | e2 gfed | d2 Hc2 AA |\\\n" +
+      "d3 efg | Ha4 de | f3 g e2 | Hd6 |]"
+  },
+  {
+    name: "Star Spangled Banner pt 2",
+    tempo,
+    tuning: "E/A",
+    abc: "T: Anachreon in Heaven  v.1\n" +
+      "T: Star Spangled Banner\n" +
+      "M: 3/4\n" +
+      "K: D transpose=-5\n" +
       "f2 g2 a2 | a4 gf | e2 f2 g2 | g3 zg2 |\\\n" +
       "f3 e d2 | c3 zBc | d2 F2 ^G2 | A3 zA2 ||\n" +
       "d2 d2 dc | B2 B2 B2 | e2 gfed | d2 Hc2 AA |\\\n" +
@@ -156,7 +147,6 @@ export default [
     abc: "X:1\n" +
       "T:E/A Chanter scale\n" +
       "M:C|\n" +
-      "L:1/8\n" +
       "K:Am\n" +
       "| A, D E ^F G ^G A B C' ^C' D' E' |"
   },
@@ -167,7 +157,6 @@ export default [
     abc: "X:2\n" +
       "T:D/G Chanter scale\n" +
       "M:C|\n" +
-      "L:1/8\n" +
       "K:Dm\n" +
       "| C D E F ^F G A _B =B C' ^C' D' |"
   },
@@ -178,7 +167,6 @@ export default [
     abc: "X:3\n" +
       "T:C/F Chanter scale\n" +
       "M:C|\n" +
-      "L:1/8\n" +
       "K:Cm\n" +
       "| _B, C D _E =E F G _A =A _B =B C' |"
   },
