@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 var idleInterval;
 const debug = false;
 const debugLog = function() {
@@ -19,12 +21,14 @@ const StateManagement = {
       tempo, 
       transposition, 
       currentTune, 
+      currentNoteIndex,
       getCurrentChanterIndex 
     } = playerInstance;
     const currentChanterIndex = playerInstance.getCurrentChanterIndex();
     tempo && stateArray.push(["currentTempo", tempo]);
     stateArray.push(["currentTransposition", transposition]);//contains zero
     stateArray.push(["currentTuneIndex", currentTune]);//contain zero
+    _.isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
     stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
     const queryParams = new URLSearchParams(window.location.search);
     const qpOld = queryParams.toString();

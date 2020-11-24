@@ -124,6 +124,7 @@ function ABCPlayer({
             const currentNoteIndex = _.get(firstPitch, "ensIndexes[0]");
             if (currentNoteIndex) 
               this.noteScrollerItemOnClick(undefined, {currentNoteIndex: currentNoteIndex - 1});
+              this.assessState({currentNoteIndex});
           }
         }
       }).catch((error) => {
@@ -456,18 +457,27 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   });
 }
 
+ABCPlayer.prototype.assessState = function(args = {}) {
+  let i, j;
+  for (i in args) {
+    this[i] = args[i];
+  }
+  this.stateMgr.onAssessState({playerInstance: this});
+}
+
 ABCPlayer.prototype.songPrev = function() {
   if (this.currentTune > 0)
     this.currentTune--
   else
     this.currentTune = this.songs.length - 1;
+  this.assessState({currentNoteIndex: 0});
   this.setTune({userAction: true, calledFrom: "song"});
 }
 
 ABCPlayer.prototype.songNext = function() {
   this.currentTune++;
-  if (this.currentTune >= this.songs.length)
-    this.currentTune = 0;
+  if (this.currentTune >= this.songs.length) this.currentTune = 0;
+  this.assessState({currentNoteIndex: 0});
   this.setTune({userAction: true, calledFrom: "song"});
 }
 
@@ -776,6 +786,7 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
     e = {target};
   }
   if (!e) return;
+  this.assessState({currentNoteIndex});
   const noteTimingIndex = _.get(e, "target.dataset.notetimingindex");
   const percentage = _.get(e, "target.dataset.percentage", 0);
   if (noteTimingIndex && percentage) {

@@ -161,8 +161,6 @@ export default [
       "| C D E F ^F G A _B =B C' ^C' D' |"
   },
   {
-    name: "C/F Chanter scale",
-    tempo: 40,
     tuning: "C/F",
     abc: "X:3\n" +
       "T:C/F Chanter scale\n" +
@@ -170,4 +168,41 @@ export default [
       "K:Cm\n" +
       "| _B, C D _E =E F G _A =A _B =B C' |"
   },
+  {
+    name: "Valtrall",
+    tempo: 40,
+    tuning: "E/A",
+    transposition: 1,
+    abc: "X:4\n" +
+      "M:4/4\n" +
+      "K:C\n" +
+      "A8 | A3/2c/ _BB AF D3/2D/ | CE GE D4 | G_B dB A2 B/4A/4G/4Az/4 | d3/2c/ _B/A/B/d/ cA FA | \n" +
+      "c3/2d/ _BA G4 | cA/c/ _B/A/G/B/ AF D3/2D/ | CE GE/4G/4E/ D4 | z8 "
+    },
+    {
+      name: "Trilltrall",
+      tempo: 70,
+      tuning: "E/A",
+      transposition: 1,
+      abc: "X:5\n" +
+        "T:Trill Trall\n" +
+        "F:http://richardrobinson.tunebook.org.uk/tune/5482\n" +
+        "M:3/4\n" +
+        "K:Bm\n" +
+        "|: FF BB AF | GF GA B2 | FF BB AF | GA B4 :||\n" +
+        "GF G4 | BA F4 | dc Bc dc | BA F4 | EF G4 | BA F2 E D | E6 ||\n" +
+        "K:Am\n" +
+        "|: EE AA GE | FE FG A2 | EE AA GE | FG A4 :||\n" +
+        "FE F4 | AG E4 | cB AB cB | AG E4 | DE F4 | AG E2 D C | D6 ||\n" +
+        "K:Gm\n" +
+        "|: DD GG FD | ED EF G2 | DD GG FD | EF G4 :||\n" +
+        "ED E4 | GF D4 | BA GA BA | GF D4 | CD E4 | GF D2 C B, | C6 ||"
+    },
+    {
+      name: "Sugghugg",
+      tempo: 70,
+      tuning: "E/A",
+      abc: "X:6\n" +
+        "F:http://richardrobinson.tunebook.org.uk/tune/5482\n"
+    },
 ];
