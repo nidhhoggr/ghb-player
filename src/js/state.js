@@ -11,7 +11,7 @@ var state = {
 };
 
 const StateManagement = {
-  onAssessState: function({playerInstance, onFinish}) {
+  onAssessState: function({playerInstance, onFinish, overideFalsy}) {
     if (!state.isActive) {
       debugLog("State isActive return early")
       return;
@@ -26,7 +26,7 @@ const StateManagement = {
     } = playerInstance;
     const currentChanterIndex = playerInstance.getCurrentChanterIndex();
     tempo && stateArray.push(["currentTempo", tempo]);
-    stateArray.push(["currentTransposition", transposition]);//contains zero
+    (transposition || overideFalsy) && stateArray.push(["currentTransposition", transposition]);//contains zero
     stateArray.push(["currentTuneIndex", currentTune]);//contain zero
     _.isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
     stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero

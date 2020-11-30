@@ -141,8 +141,8 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { console.log(message) },
     options: {
-      soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
-      _soundFontUrl: "http://localhost:3000/fonts/FluidR3Mono_GM2.SF2",
+      _soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
+      soundFontUrl: "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
       program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
@@ -242,11 +242,13 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   //endType,
   //gap,
 }}) {
-  const scrollingNotesWrapper = _.get(this.domBinding, "scrollingNotesWrapper");
+  const scrollingNotesWrapper = this.domBinding?.scrollingNotesWrapper;
   console.log("onNoteChange:", {pitch, cmd, event});
   if (scrollingNotesWrapper) {
     const index = event.ensIndex + 1;
     if (!index) return;
+    this.currentNoteIndex = index;
+    this.updateState();
     const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
     try { 
       const firstLeft = scrollingNotesWrapper.getBoundingClientRect();
@@ -259,7 +261,7 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
     catch (err) {
       console.error(`Could not calculate offset`);
     }
-    const scrollingNoteDivs = _.get(this.domBinding,"scrollingNotesWrapper.children", []);
+    const scrollingNoteDivs = this.domBinding?.scrollingNotesWrapper.children || [];
     const currEl = scrollingNoteDivs[index];
     let i, snd;
     if (currEl && !currEl.className.includes("currentNote")) {
@@ -348,17 +350,17 @@ ABCPlayer.prototype.load = function() {
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
   this.setTune({userAction: true, onSuccess: this.onSuccesses});
   this.stateMgr.idleWatcher({
-    inactiveTimeout: 60000, 
+    inactiveTimeout: 60000 * 5, 
     onInaction: () => {
       console.log("My inaction function"); 
     },
     onReactivate: () => {
       console.log("My reactivate function");
-      this.stateMgr.onAssessState({playerInstance: this, onFinish: () => (window.location.reload())});
+      this.updateState({onFinish: () => (window.location.reload())});
     }
   });
   setInterval(() => {
-    this.stateMgr.onAssessState({playerInstance: this});
+    this.updateState();
   }, this.stateAssessmentLoopInterval);
 
   /*
@@ -396,8 +398,8 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   }
   console.log({pitchIndex, currentNote});
   const chanterKey = this.sackpipa.getChanterKeyAbbr();
-  if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") ||
-    (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
+  if ((pitchIndex < this.currentSong?.compatibility.pitchReached.min ||
+    (pitchIndex > this.currentSong?.compatibility.pitchReached.max))) {
     this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} unplayable-note"><h1>${currentNote}</h1></div>`;
   }
   else {
@@ -485,12 +487,16 @@ ABCPlayer.prototype.songNext = function() {
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
     this.setTransposition(this.transposition + 1);
+    //needed to set transposition to zero with overideFalsy
+    this.updateState({overideFalsy: true});
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
   if (this.transposition > this.transpositionLimits.min) {
     this.setTransposition(this.transposition - 1);
+    //needed to set transposition to zero with overideFalsy
+    this.updateState({overideFalsy: true});
   }
 }
 
@@ -594,6 +600,10 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
   }); 
 }
 
+ABCPlayer.prototype.updateState = function(args) {
+  return this.stateMgr.onAssessState({playerInstance: this, ...args});
+}
+
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   
   if (!currentSong) {
@@ -607,16 +617,17 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
   }
  
   if (!isSameSong) {
-    this.transposition = 0;
     if (this.noteScroller) this.noteScroller.setScrollerXPos({xpos: 0});
     const { tempo, transposition, tuning } = this.currentSong;
     //the shouldSetTune flag ensures that it will not call setTune, were already here!
     if (tempo) {
       this.setTempo(tempo, {shouldSetTune: false});
     }
-    if (transposition) {
+    if (_.isNumber(transposition) && transposition !== this.transposition) {
       const setEm = () => {
         this.setTransposition(transposition, {shouldSetTune: true});
+        //needed to set tranposition to zero if it is zero
+        this.updateState({overideFalsy: true});
       }
       if (onSuccess && onSuccess.hasOwnProperty("length")) {
         onSuccess.push(setEm);
@@ -629,6 +640,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         throw new Error("Has no member length");
       }
     }
+    this.transposition = 0;
     if (tuning) {
        const setEm = () => {
         this._updateChanter(tuning);

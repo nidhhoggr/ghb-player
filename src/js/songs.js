@@ -1,4 +1,5 @@
 const tempo = 80;
+const transposition = 0;
 
 export default [
   {
@@ -17,6 +18,7 @@ export default [
   {
     name: "Tyskan (needs work)",
     tempo: 120,
+    transposition,
     abc: "X:1\n" +
       "T: Tyska polskan\n" +
       "T: (schottis)\n" +
@@ -36,6 +38,7 @@ export default [
   {
     name: "Lördagsvisa",
     tempo,
+    transposition,
     abc: "X:177\n" +
       "T:Lördagsvisa\n" +
       "T:(Sv. L. Sm. 177, 50 Sm. låtar nr 40)\n" +
@@ -49,6 +52,7 @@ export default [
   {
     name: "Langdans fran Solleron",
     tempo,
+    transposition,
     abc: "X:179\n" +
     "C:Långdans från Sollerön\n" +
     "M:3/4\n" +
@@ -62,6 +66,7 @@ export default [
   {
     name: "Steklåt från Särna",
     tempo,
+    transposition,
     abc: "X:180\n" +
     "C:Steklåt från Särna\n" +
     "M:4/4\n" +
@@ -76,6 +81,7 @@ export default [
   {
     name: "Jag blåste i min pipa",
     tempo,
+    transposition,
     abc: "X:181\n" +
     "C:Jag blåste i min pipa\n" +
     "M:4/4\n" +
@@ -91,6 +97,7 @@ export default [
   {
     name: "Ljugaren",
     tempo,
+    transposition,
     abc: "X:182\n" +
     "C:Ljugaren\n" +
     "M:4/4\n" +
@@ -108,6 +115,7 @@ export default [
   {
     name: "Star Spangled Banner pt 1",
     tempo,
+    transposition,
     tuning: "E/A",
     abc: "T: Anachreon in Heaven  v.1\n" +
       "T: Star Spangled Banner\n" +
@@ -130,6 +138,7 @@ export default [
   {
     name: "Star Spangled Banner pt 2",
     tempo,
+    transposition,
     tuning: "E/A",
     abc: "T: Anachreon in Heaven  v.1\n" +
       "T: Star Spangled Banner\n" +
@@ -143,6 +152,7 @@ export default [
   {
     name: "E/A Chanter scale",
     tempo: 40,
+    transposition,
     tuning: "E/A",
     abc: "X:1\n" +
       "T:E/A Chanter scale\n" +
@@ -153,6 +163,7 @@ export default [
   {
     name: "D/G Chanter scale",
     tempo: 40,
+    transposition,
     tuning: "D/G",
     abc: "X:2\n" +
       "T:D/G Chanter scale\n" +
@@ -201,6 +212,7 @@ export default [
     {
       name: "Sugghugg",
       tempo: 70,
+      transposition,
       tuning: "E/A",
       abc: "X:6\n" +
         "F:http://richardrobinson.tunebook.org.uk/tune/5482\n"
