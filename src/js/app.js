@@ -12,9 +12,19 @@ import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
-const abcPlayer = new ABCPlayer({abcjs, songs, ABCSong, Sackpipa, HPS, StateManagement, utils, options: {
-  currentInstrumentIndex: 109
-}});
+const abcPlayer = new ABCPlayer({
+  abcjs, 
+  songs, 
+  ABCSong, 
+  Sackpipa, 
+  HPS, 
+  StateManagement, 
+  utils,
+  options: {
+    currentInstrumentIndex: 109,
+    refreshWhenPossible: true
+  }
+});
 tippy('[data-tooltip]', {
   onShow(instance) {
     const tooltip = _.get(instance, "reference.dataset.tooltip");

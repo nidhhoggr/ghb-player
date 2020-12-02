@@ -210,11 +210,20 @@ export default [
         "ED E4 | GF D4 | BA GA BA | GF D4 | CD E4 | GF D2 C B, | C6 ||"
     },
     {
-      name: "Sugghugg",
+      name: "Säckpipslåt från Norra Råda",
       tempo: 70,
-      transposition,
+      transposition: 1,
       tuning: "E/A",
       abc: "X:6\n" +
-        "F:http://richardrobinson.tunebook.org.uk/tune/5482\n"
-    },
+        "T:Säckpipslåt från Norra Råda\n" +
+        "O:Värmland\n" +
+        "Z: Jimmy U, 2011-07-21\n" +
+        "N: Spelbar på säckpipa i E med viss modifikation\n" +
+        "M:4/4\n" +
+        "K:Ddorisk\n" +
+        "DE|F2EFD2EF|G2FGE2FG|A2BA GFEF|D2EDC2DE|\n" +
+        "F2EFD2EF|G2FGE2FG|A2BA GFEF|D6:|]|:DF|\n" +
+        "A2FA cBGB|BAced2dc|A2FA cBGB|BAAG FEFG|\n" +
+        "A2FA cBGB|BAced2dc|A2BA GFEF|D6:|]\n"
+    }
 ];

@@ -23,6 +23,8 @@ function ABCPlayer({
 
   this.utils = utils;
 
+  this.options = options;
+
   this.currentTune = 0;
 
   //how often to analyze the state
@@ -141,8 +143,8 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { console.log(message) },
     options: {
-      _soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
-      soundFontUrl: "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
+      soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
+      _soundFontUrl: "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
       program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
@@ -398,8 +400,8 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   }
   console.log({pitchIndex, currentNote});
   const chanterKey = this.sackpipa.getChanterKeyAbbr();
-  if ((pitchIndex < this.currentSong?.compatibility.pitchReached.min ||
-    (pitchIndex > this.currentSong?.compatibility.pitchReached.max))) {
+  if ((pitchIndex < this.currentSong?.compatibility?.pitchReached.min ||
+    (pitchIndex > this.currentSong?.compatibility?.pitchReached.max))) {
     this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} unplayable-note"><h1>${currentNote}</h1></div>`;
   }
   else {
@@ -407,24 +409,6 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   }
 }
 
-ABCPlayer.prototype.start = function() {
-  if (this.synthControl) {
-    this.synthControl.play();
-    if (this.onStartCbQueue.length) {
-      this.synthControl.pause();
-      _.each(this.onStartCbQueue, (cq, i) => {
-        _.isFunction(cq) && cq();
-        delete this.onStartCbQueue[i];
-      });
-    }
-  }
-}
-
-ABCPlayer.prototype.stop = function() {
-  if (this.synthControl) {
-    this.setTune({userAction: true});
-  }
-}
 
 ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish}) {
   this.currentSong.entireNoteSequence = [];
@@ -459,28 +443,51 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   });
 }
 
-ABCPlayer.prototype.assessState = function(args = {}) {
-  let i, j;
-  for (i in args) {
-    this[i] = args[i];
+ABCPlayer.prototype.start = function() {
+  if (this.synthControl) {
+    this.synthControl.play();
+    if (this.onStartCbQueue.length) {
+      this.synthControl.pause();
+      _.each(this.onStartCbQueue, (cq, i) => {
+        _.isFunction(cq) && cq();
+        delete this.onStartCbQueue[i];
+      });
+    }
   }
-  this.stateMgr.onAssessState({playerInstance: this});
 }
+
+ABCPlayer.prototype.stop = function(args) {
+  if (this.options.refreshWhenPossible) {
+    this.updateState({
+      playerInstance: {
+        currentNoteIndex: 0,
+        ...args
+      },
+      onFinish: () => (window.location.reload())
+    });
+  }
+  else {
+    this.assessState({
+      currentNoteIndex: 0,
+      ...args
+    });
+    this.setTune({userAction: true, calledFrom: "song"});
+  }
+}
+
 
 ABCPlayer.prototype.songPrev = function() {
   if (this.currentTune > 0)
     this.currentTune--
   else
     this.currentTune = this.songs.length - 1;
-  this.assessState({currentNoteIndex: 0});
-  this.setTune({userAction: true, calledFrom: "song"});
+  this.stop({currentTune: this.currentTune});
 }
 
 ABCPlayer.prototype.songNext = function() {
   this.currentTune++;
   if (this.currentTune >= this.songs.length) this.currentTune = 0;
-  this.assessState({currentNoteIndex: 0});
-  this.setTune({userAction: true, calledFrom: "song"});
+  this.stop({currentTune: this.currentTune});
 }
 
 
@@ -598,6 +605,14 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
       });
     }
   }); 
+}
+
+ABCPlayer.prototype.assessState = function(args = {}) {
+  let i, j;
+  for (i in args) {
+    this[i] = args[i];
+  }
+  this.stateMgr.onAssessState({playerInstance: this});
 }
 
 ABCPlayer.prototype.updateState = function(args) {
@@ -758,7 +773,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
 }
 
 function shouldReuseInstances(calledFrom, from = ["chanter"]) {
-  return from.includes(calledFrom);
+  return false;from.includes(calledFrom);
 }
 
 ABCPlayer.prototype.createMidiBuffer = function createMidiBuffer() {
