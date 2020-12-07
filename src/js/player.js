@@ -773,7 +773,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
 }
 
 function shouldReuseInstances(calledFrom, from = ["chanter"]) {
-  return false;from.includes(calledFrom);
+  return from.includes(calledFrom);
 }
 
 ABCPlayer.prototype.createMidiBuffer = function createMidiBuffer() {
