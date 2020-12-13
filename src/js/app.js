@@ -22,7 +22,8 @@ const abcPlayer = new ABCPlayer({
   utils,
   options: {
     currentInstrumentIndex: 109,
-    refreshWhenPossible: true
+    refreshWhenPossible: true,
+    soundFontUrl: (process.env.NODE_ENV ===  "production") ? "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/" : "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
   }
 });
 tippy('[data-tooltip]', {

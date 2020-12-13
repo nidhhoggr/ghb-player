@@ -1,12 +1,14 @@
 const tempo = 80;
 const transposition = 0;
+const tuning = "E/A";
 
 export default [
   {
     name: "Konvulsionslaaten",
     tempo: 70,
     transposition: 1,
-    abc: "X:1\n" +
+    tuning,
+    abc: "X:0\n" +
       "T:Konvulsionslaaten\n" + 
       "C:Anders (Stake) Norudde\n" +
       "Z:Bart Brashers, bart@hpcc.epa.gov\n" +
@@ -19,7 +21,8 @@ export default [
     name: "Tyskan (needs work)",
     tempo: 120,
     transposition,
-    abc: "X:1\n" +
+    tuning,
+    abc: "X:0\n" +
       "T: Tyska polskan\n" +
       "T: (schottis)\n" +
       "R: Schottis\n" +
@@ -39,7 +42,8 @@ export default [
     name: "Lördagsvisa",
     tempo,
     transposition,
-    abc: "X:177\n" +
+    tuning,
+    abc: "X:0\n" +
       "T:Lördagsvisa\n" +
       "T:(Sv. L. Sm. 177, 50 Sm. låtar nr 40)\n" +
       "M:C|\n" +
@@ -53,7 +57,8 @@ export default [
     name: "Langdans fran Solleron",
     tempo,
     transposition,
-    abc: "X:179\n" +
+    tuning,
+    abc: "X:0\n" +
     "C:Långdans från Sollerön\n" +
     "M:3/4\n" +
     "K:Am\n" +
@@ -67,7 +72,8 @@ export default [
     name: "Steklåt från Särna",
     tempo,
     transposition,
-    abc: "X:180\n" +
+    tuning,
+    abc: "X:0\n" +
     "C:Steklåt från Särna\n" +
     "M:4/4\n" +
     "K:Am\n" +
@@ -82,7 +88,8 @@ export default [
     name: "Jag blåste i min pipa",
     tempo,
     transposition,
-    abc: "X:181\n" +
+    tuning,
+    abc: "X:0\n" +
     "C:Jag blåste i min pipa\n" +
     "M:4/4\n" +
     "K:Am\n" +
@@ -98,7 +105,8 @@ export default [
     name: "Ljugaren",
     tempo,
     transposition,
-    abc: "X:182\n" +
+    tuning,
+    abc: "X:0\n" +
     "C:Ljugaren\n" +
     "M:4/4\n" +
     "K:Am\n" +
@@ -116,7 +124,7 @@ export default [
     name: "Star Spangled Banner pt 1",
     tempo,
     transposition,
-    tuning: "E/A",
+    tuning,
     abc: "T: Anachreon in Heaven  v.1\n" +
       "T: Star Spangled Banner\n" +
       "C: John Stafford Smith (1780)\n" +
@@ -139,7 +147,7 @@ export default [
     name: "Star Spangled Banner pt 2",
     tempo,
     transposition,
-    tuning: "E/A",
+    tuning,
     abc: "T: Anachreon in Heaven  v.1\n" +
       "T: Star Spangled Banner\n" +
       "M: 3/4\n" +
@@ -150,11 +158,80 @@ export default [
       "d3 efg | Ha4 de | f3 g e2 | Hd6 |]"
   },
   {
+    name: "Valtrall",
+    tempo: 40,
+    tuning: "E/A",
+    transposition: 1,
+    abc: "X:0\n" +
+      "M:4/4\n" +
+      "K:C\n" +
+      "A8 | A3/2c/ _BB AF D3/2D/ | CE GE D4 | G_B dB A2 B/4A/4G/4Az/4 | d3/2c/ _B/A/B/d/ cA FA | \n" +
+      "c3/2d/ _BA G4 | cA/c/ _B/A/G/B/ AF D3/2D/ | CE GE/4G/4E/ D4 | z8 "
+  },
+  {
+    name: "Trilltrall",
+    tempo: 70,
+    tuning,
+    transposition: 1,
+    abc: "X:0\n" +
+      "T:Trill Trall\n" +
+      "F:http://richardrobinson.tunebook.org.uk/tune/5482\n" +
+      "M:3/4\n" +
+      "K:Bm\n" +
+      "|: FF BB AF | GF GA B2 | FF BB AF | GA B4 :||\n" +
+      "GF G4 | BA F4 | dc Bc dc | BA F4 | EF G4 | BA F2 E D | E6 ||\n" +
+      "K:Am\n" +
+      "|: EE AA GE | FE FG A2 | EE AA GE | FG A4 :||\n" +
+      "FE F4 | AG E4 | cB AB cB | AG E4 | DE F4 | AG E2 D C | D6 ||\n" +
+      "K:Gm\n" +
+      "|: DD GG FD | ED EF G2 | DD GG FD | EF G4 :||\n" +
+      "ED E4 | GF D4 | BA GA BA | GF D4 | CD E4 | GF D2 C B, | C6 ||"
+  },
+  {
+    name: "Säckpipslåt från Norra Råda",
+    tempo: 70,
+    transposition: 1,
+    tuning,
+    abc: "X:0\n" +
+      "T:Säckpipslåt från Norra Råda\n" +
+      "O:Värmland\n" +
+      "Z: Jimmy U, 2011-07-21\n" +
+      "N: Spelbar på säckpipa i E med viss modifikation\n" +
+      "M:4/4\n" +
+      "K:Ddorisk\n" +
+      "DE|F2EFD2EF|G2FGE2FG|A2BA GFEF|D2EDC2DE|\n" +
+      "F2EFD2EF|G2FGE2FG|A2BA GFEF|D6:|]|:DF|\n" +
+      "A2FA cBGB|BAced2dc|A2FA cBGB|BAAG FEFG|\n" +
+      "A2FA cBGB|BAced2dc|A2BA GFEF|D6:|]\n"
+  },
+  {
+    name: "Springlek (Malungslek, Norska)",
+    tempo: 70,
+    transposition: -4,
+    tuning,
+    abc: "X: 0\n" +
+    "T:Springlek (Malungslek, JÃ¶sshÃ¤rspolska, Norska)\n" +
+    "B:EÃ–, nr 296\n" +
+    "S:efter ErkgÃ¤rds Mats Ersson\n" +
+    "R:Springlek\n" +
+    "O:GrimsÃ¥ker, Malungs sn, Dalarna\n" +
+    "Z:Nils L\n" +
+    "N:Till en annan renskrift har EÃ– skrivit kommentaren \"Egent. 1/2 + 2/4 takt\". Den renskriften har Ã¤ven ciss istÃ¤llet fÃ¶r c i fÃ¶rstareprisens tvÃ¥ sista takter.\n" +
+    "L:1/8\n" +
+    "M:3/4\n" +
+    "K:Dm\n" +
+    "A2- A>^c d>e | Pf>e f>g e>g | Pf>e d>^c d>f | e>d (3^cAc A2 |\n" +
+    "A2- A>^c d>e | f>e f>g e>g | f>e d>c d>f | (3e(ce) d4 ::\n" +
+    "%%tuplets 0 0 1\n" +
+    "a2 ((3aba) g>a | Pf>e f>g e>g | f>e d>^c d>f | e>d (3^c(Ac) A2 |\n" +
+    "a2 ((3aba) g>a | Pf>e fg  e>g | Pf>e d>^c d>f | (3ece [dD]4 :|"
+  },
+  {
     name: "E/A Chanter scale",
     tempo: 40,
     transposition,
     tuning: "E/A",
-    abc: "X:1\n" +
+    abc: "X:0\n" +
       "T:E/A Chanter scale\n" +
       "M:C|\n" +
       "K:Am\n" +
@@ -165,65 +242,21 @@ export default [
     tempo: 40,
     transposition,
     tuning: "D/G",
-    abc: "X:2\n" +
+    abc: "X:0\n" +
       "T:D/G Chanter scale\n" +
       "M:C|\n" +
       "K:Dm\n" +
       "| C D E F ^F G A _B =B C' ^C' D' |"
   },
   {
+    name: "C/F Chanter scale",
+    tempo: 40,
+    transposition,
     tuning: "C/F",
-    abc: "X:3\n" +
+    abc: "X:0\n" +
       "T:C/F Chanter scale\n" +
       "M:C|\n" +
       "K:Cm\n" +
       "| _B, C D _E =E F G _A =A _B =B C' |"
-  },
-  {
-    name: "Valtrall",
-    tempo: 40,
-    tuning: "E/A",
-    transposition: 1,
-    abc: "X:4\n" +
-      "M:4/4\n" +
-      "K:C\n" +
-      "A8 | A3/2c/ _BB AF D3/2D/ | CE GE D4 | G_B dB A2 B/4A/4G/4Az/4 | d3/2c/ _B/A/B/d/ cA FA | \n" +
-      "c3/2d/ _BA G4 | cA/c/ _B/A/G/B/ AF D3/2D/ | CE GE/4G/4E/ D4 | z8 "
-    },
-    {
-      name: "Trilltrall",
-      tempo: 70,
-      tuning: "E/A",
-      transposition: 1,
-      abc: "X:5\n" +
-        "T:Trill Trall\n" +
-        "F:http://richardrobinson.tunebook.org.uk/tune/5482\n" +
-        "M:3/4\n" +
-        "K:Bm\n" +
-        "|: FF BB AF | GF GA B2 | FF BB AF | GA B4 :||\n" +
-        "GF G4 | BA F4 | dc Bc dc | BA F4 | EF G4 | BA F2 E D | E6 ||\n" +
-        "K:Am\n" +
-        "|: EE AA GE | FE FG A2 | EE AA GE | FG A4 :||\n" +
-        "FE F4 | AG E4 | cB AB cB | AG E4 | DE F4 | AG E2 D C | D6 ||\n" +
-        "K:Gm\n" +
-        "|: DD GG FD | ED EF G2 | DD GG FD | EF G4 :||\n" +
-        "ED E4 | GF D4 | BA GA BA | GF D4 | CD E4 | GF D2 C B, | C6 ||"
-    },
-    {
-      name: "Säckpipslåt från Norra Råda",
-      tempo: 70,
-      transposition: 1,
-      tuning: "E/A",
-      abc: "X:6\n" +
-        "T:Säckpipslåt från Norra Råda\n" +
-        "O:Värmland\n" +
-        "Z: Jimmy U, 2011-07-21\n" +
-        "N: Spelbar på säckpipa i E med viss modifikation\n" +
-        "M:4/4\n" +
-        "K:Ddorisk\n" +
-        "DE|F2EFD2EF|G2FGE2FG|A2BA GFEF|D2EDC2DE|\n" +
-        "F2EFD2EF|G2FGE2FG|A2BA GFEF|D6:|]|:DF|\n" +
-        "A2FA cBGB|BAced2dc|A2FA cBGB|BAAG FEFG|\n" +
-        "A2FA cBGB|BAced2dc|A2BA GFEF|D6:|]\n"
-    }
+  }
 ];

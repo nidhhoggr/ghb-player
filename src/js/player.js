@@ -143,8 +143,7 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { console.log(message) },
     options: {
-      soundFontUrl: "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/",
-      _soundFontUrl: "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
+      soundFontUrl: this.options.soundFontUrl, 
       program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
@@ -461,6 +460,7 @@ ABCPlayer.prototype.stop = function(args) {
     this.updateState({
       playerInstance: {
         currentNoteIndex: 0,
+        currentTune: this.currentTune,
         ...args
       },
       onFinish: () => (window.location.reload())
