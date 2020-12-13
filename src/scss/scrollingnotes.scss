@@ -118,6 +118,10 @@ section.unplayable_note {
     @include scrollingNoteDur;
     background-position-x: 153px;
   }
+  section[data-duration="0.03125"] > div {
+    @include scrollingNoteDur;
+    background-position-x: 126px;
+  }
 }
 
 .scrolling_notes-playable_chanter-ea {

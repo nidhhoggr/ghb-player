@@ -110,15 +110,10 @@ export default [
     "C:Ljugaren\n" +
     "M:4/4\n" +
     "K:Am\n" +
-    "\"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
-    "^G2 A6 | z8 | \"E:7\"E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 |\n" +
-    "c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 | B2 c4 B2 | c2 d4 c2 |\n" +
-    "d2 e6 | z2 A6 | B2 c4 B2 | c2 d4 c2 | z2 B3c B2 | A2 B4 ^G2 |\n" +
-    "E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 |\n" +
-    "^G2 A6 | z8 | B2 c4 B2 | c2 d4 c2 | d2 e6 | z2 A6 |\n" +
-    "B2 c4 B2 | c2 d4 c2 | z2 B3c B2 | A2 B4 ^G2 | E2 A3B A2 | ^G2 E4 E2 |\n" +
-    "z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 |\n" +
-    "z8 |"
+    "|:E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 :|\n" +
+    "|: B2 c4 B2 | c2 d4 c2 | d2 e6 | z2 A6 |\n" +
+    "B2 c4 B2 | c2 d4 c2 | z2 B3c B2 | A2 B4 ^G2 |\n" +
+    "E2 A3B A2 | ^G2 E4 E2 | z2 c4 B2 | c2 d6 | c2 B3c B2 | A2 ^G2 A2 B2 | ^G2 A6 | z8 :|\n"
   },
   {
     name: "Star Spangled Banner pt 1",
@@ -160,19 +155,19 @@ export default [
   {
     name: "Valtrall",
     tempo: 40,
-    tuning: "E/A",
     transposition: 1,
+    tuning,
     abc: "X:0\n" +
       "M:4/4\n" +
       "K:C\n" +
       "A8 | A3/2c/ _BB AF D3/2D/ | CE GE D4 | G_B dB A2 B/4A/4G/4Az/4 | d3/2c/ _B/A/B/d/ cA FA | \n" +
-      "c3/2d/ _BA G4 | cA/c/ _B/A/G/B/ AF D3/2D/ | CE GE/4G/4E/ D4 | z8 "
+      "c3/2d/ _BA G4 | cA/c/ _B/A/G/B/ AF D3/2D/ | CE GE/4G/4E/ D4 |"
   },
   {
     name: "Trilltrall",
     tempo: 70,
-    tuning,
     transposition: 1,
+    tuning,
     abc: "X:0\n" +
       "T:Trill Trall\n" +
       "F:http://richardrobinson.tunebook.org.uk/tune/5482\n" +
