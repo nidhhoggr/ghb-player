@@ -8,6 +8,7 @@ import songs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
 import utils from "./utils";
+import config from "./config";
 import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';
@@ -20,11 +21,7 @@ const abcPlayer = new ABCPlayer({
   HPS, 
   StateManagement, 
   utils,
-  options: {
-    currentInstrumentIndex: 109,
-    refreshWhenPossible: true,
-    soundFontUrl: (process.env.NODE_ENV ===  "production") ? "https://folktabs.com/midi-js-soundfonts/FluidR3_GM/" : "http://localhost:3000/midi-js-soundfonts/FluidR3_GM/",
-  }
+  options: config.player
 });
 tippy('[data-tooltip]', {
   onShow(instance) {
