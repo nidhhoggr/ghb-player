@@ -416,7 +416,6 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
   let durationReached = 0;
   lines.map((line, lKey) => {
-    console.log(_.get(line, "midiPitches[0].cmd"), lKey);
     if (_.get(line, "midiPitches[0].cmd") === "note") {
       const pitchIndex = line.midiPitches[0].pitch;
       const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
