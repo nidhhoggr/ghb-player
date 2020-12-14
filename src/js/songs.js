@@ -222,6 +222,59 @@ export default [
     "a2 ((3aba) g>a | Pf>e fg  e>g | Pf>e d>^c d>f | (3ece [dD]4 :|"
   },
   {
+    name: "30 Year Jig",
+    tempo: 180,
+    transposition,
+    tuning,
+    abc: "X: 0\n" +
+      "T:30 Year Jig, The\n" +
+      "M:6/8\n" +
+      "L:1/8\n" +
+      "C:Roger Tallroth\n" +
+      "R:jig\n" +
+      "D:John McCusker: Yella Hoose\n" +
+      "Z:Devin McCabe\n" +
+      "K:G\n" +
+      "D|:EDE FEF|GBG D2D|EcB AGE|{F}G2A- AFD|\n" +
+      "!EDE FEF|GBG D2D|EcB AGE|1F2G- GzD:|2F2G- Gz2|\n" +
+      "!:~g3 agf|~g3 d(3B^cd|egf edc|BAG ABd|\n" +
+      "!~g3 agf|~g3 d(3B^cd|egf edB-|Bgf edB|\n" +
+      "!cBA ~B3|ced BAB|cBc eag|1f2g- gz2:|2f2g- gzD||"
+  },
+  {
+    name: "Sarna gamla brudmarsch",
+    tempo: 100,
+    transposition,
+    tuning,
+    abc: "X: 0\n" +
+      "T: Sarna gamla brudmarsch\n" +
+      "R: brudmarsch\n" +
+      "O: Dalarna\n" +
+      "Z: ABC-transkribering by Joseph Persie\n" +
+      "T: Transkribering efter Per Gudmundson's LP \"Sackpipa\" (1983)\n" +
+      "K: Emin\n" +
+      "E^F^G A2 B2 dB | c2 A2-A2 AE | A2 ^GE G2E2 |[1 ^G8 :|2 ^G5 B2 |]\n" +
+      "c2 A2 B2 d2 | e5 B2 | c3 e dc BA | c5 dc | B5 cB | E4 e4 | d4 e4|\n" +
+      "c3 B A^G AB | c3 e dc Bd | c2 A2-A2 AE | A2 ^GE G2G2 | E ^G B GE"
+  },
+  {
+    name: "LÂngt ner i SmÂland",
+    tempo,
+    transposition,
+    tuning,
+    abc: "X: 0\n" +
+      "T:LÂngt ner i SmÂland\n" +
+      "R:schottis\n" +
+      "C:Roger Tallroth\n" +
+      "Z:id:hn-schottis-21\n" +
+      "M:C|\n" +
+      "K:Ddor\n" +
+      "D>AA>A A<BA2|G>BB>B B<cB2|d>ed>c A>Bc2|B>AG2 F4|\n" +
+      "D>AA>A A<BA2|G>BB>B B<cB2|G2G2 F>GF>D|C2D2 D4:|\n" +
+      "|:A>^FA2 B2d2|e>dc2 d4|A>^FA2 G>AB2|c>BG2 A4|\n" +
+      "A>^FA2 B2d2|c>BG2 =F4|F2F2 E>FE>D|C2D2 D4:|"
+  },
+  {
     name: "E/A Chanter scale",
     tempo: 40,
     transposition,
