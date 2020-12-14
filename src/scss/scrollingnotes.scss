@@ -80,8 +80,11 @@ section.unplayable_note {
 }
 
 .scrollingNotesWrapper {
+  section[data-measurestart] > div {
+    border: 1px solid green !important;
+  }
   section.currentNote[data-duration] > div {
-    border: 1px solid  #ff7424 !important;
+    border: 1px solid #ff7424 !important;
   }
   section[data-duration="1"] > div {//whole, appears as a hollow oval
     @include scrollingNoteDur;

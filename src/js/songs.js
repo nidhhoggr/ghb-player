@@ -103,7 +103,7 @@ export default [
   },
   {
     name: "Ljugaren",
-    tempo,
+    tempo: 100,
     transposition,
     tuning,
     abc: "X:0\n" +

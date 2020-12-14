@@ -416,6 +416,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
   let durationReached = 0;
   lines.map((line, lKey) => {
+    console.log(_.get(line, "midiPitches[0].cmd"), lKey);
     if (_.get(line, "midiPitches[0].cmd") === "note") {
       const pitchIndex = line.midiPitches[0].pitch;
       const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
@@ -427,7 +428,8 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
         duration,
         durationReached,
         _percentage: percentage,
-        percentage: percentage.toString().replace(".","_")
+        percentage: percentage.toString().replace(".","_"),
+        measureStart: line.measureStart
       }) - 1;
       this.audioParams.visualObj.noteTimings[lKey].ensIndex = ensIndex;
       this.currentSong.entireNoteSequence[ensIndex].noteTimingIndex = lKey;
@@ -784,7 +786,15 @@ ABCPlayer.prototype.createMidiBuffer = function createMidiBuffer() {
 
 //This is called whenever a note is added to the scroller
 function scrollingNoteItemIterator({section, item}) {
-  const { duration, noteName, pitchIndex, ensIndex, noteTimingIndex, percentage} = item;
+  const { 
+    duration, 
+    noteName, 
+    pitchIndex, 
+    ensIndex, 
+    noteTimingIndex, 
+    percentage, 
+    measureStart 
+  } = item;
   const dur = _.ceil(duration * 100);
   if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") || 
   (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
@@ -800,6 +810,7 @@ function scrollingNoteItemIterator({section, item}) {
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);
   section.setAttribute("data-duration", `${duration}`);
+  if (measureStart) section.setAttribute("data-measureStart", "true");
   section.addEventListener("click", this.noteScrollerItemOnClick.bind(this));
 }
 
