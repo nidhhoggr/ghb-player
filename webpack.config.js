@@ -81,6 +81,17 @@ const config = function(env, args) {
             },
           ],
         },
+        {
+          test: /\.abc$/i,
+          use: [
+            {
+              loader: 'raw-loader',
+              options: {
+                esModule: false
+              }
+            }
+          ]
+        },
       ],
     },
     optimization: {
