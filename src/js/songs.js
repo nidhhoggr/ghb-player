@@ -139,16 +139,7 @@ const songs = [
   {
     name: "Sarna gamla brudmarsch",
     tempo: 100,
-    abc: "X: 0\n" +
-      "T: Sarna gamla brudmarsch\n" +
-      "R: brudmarsch\n" +
-      "O: Dalarna\n" +
-      "Z: ABC-transkribering by Joseph Persie\n" +
-      "T: Transkribering efter Per Gudmundson's LP \"Sackpipa\" (1983)\n" +
-      "K: Emin\n" +
-      "E^F^G A2 B2 dB | c2 A2-A2 AE | A2 ^GE G2E2 |[1 ^G8 :|2 ^G5 B2 |]\n" +
-      "c2 A2 B2 d2 | e5 B2 | c3 e dc BA | c5 dc | B5 cB | E4 e4 | d4 e4|\n" +
-      "c3 B A^G AB | c3 e dc Bd | c2 A2-A2 AE | A2 ^GE G2G2 | E ^G B GE"
+    abc: getAbc("sarnaGamlaBrudmarsch")
   },
   {
     name: "LÂngt ner i SmÂland",
