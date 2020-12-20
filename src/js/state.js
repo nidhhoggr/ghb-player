@@ -24,9 +24,8 @@ const StateManagement = {
       currentNoteIndex,
       getCurrentChanterIndex 
     } = playerInstance;
-    getCurrentChanterIndex
     const currentChanterIndex = getCurrentChanterIndex?.call(playerInstance, undefined);
-    tempo && stateArray.push(["currentTempo", tempo]);
+    (tempo || overideFalsy) && stateArray.push(["currentTempo", tempo]);//contains zero to reset for next initialization
     (transposition || overideFalsy) && stateArray.push(["currentTransposition", transposition]);//contains zero
     stateArray.push(["currentTuneIndex", currentTune]);//contain zero
     _.isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);

@@ -1,6 +1,16 @@
 import _ from 'lodash';
 
+String.prototype.getInfoField = function(key) {
+  return this.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
+}
+
 function ABCSong(song) {
+  //prevent reloading twice
+  if (song instanceof ABCSong) {
+    console.log(`preventing ${song.abc} from loading twice`);
+    return song
+  }
+  if (!song) throw new Error("Song object is required ");
   this.name = song.name;
   this.tempo = song.tempo;
   this.abc = song.abc;
@@ -64,6 +74,42 @@ ABCSong.prototype.lineIterator = function(perform) {
       key,
       isLastLine: (key == newLineDelimited.length - 1)
     });
+  });
+}
+
+ABCSong.prototype.load = function() {
+  this.lineIterator( (line, {key, isLastLine}) => {
+    const infoFieldKey = line.isInfoField();
+    let matched = false;
+    switch (infoFieldKey) {
+      case "Tune Title":
+        if (!this.name) this.name = line.withoutPrefix();
+        break;
+      case "Key":
+        if (this.transposition) return;
+        //note, this is not to be confused with the native directive
+        //for transposition which is spelled "transpose=[integer]"
+        //this allows leveraging of both simultaneously or one or 
+        //the other exclusively. trust that you will need to experiment
+        //with all different permutations depending on the song and
+        //its musical composition
+        matched = line.match(/transposition=(0|-?[1-9])/);
+        if (matched?.[1]) {
+          this.transposition = parseInt(matched[1]);
+        }
+        break;
+      case "Tempo":
+        if (this.tempo) return;
+        //this is not to be confused with the native directive
+        //for tempo which uses meters and allows arbitrary comments 
+        //wrapped in double-qoutes which we utilize for parsing
+        //the BPM we desire.
+        matched = line.match(/"BPM=(\d+)/);
+        if (matched?.[1]) {
+          this.tempo = parseInt(matched[1]);
+        }
+        break;
+    }
   });
 }
 
@@ -135,7 +181,7 @@ ABCSong.prototype.getDistinctPitches = function() {
 ABCSong.prototype.getInformationByFieldName = function({fieldName, flatten = true}) {
   const fieldKey = this.options.infoFieldKeyMapping[fieldName];
   const found = [];
-  this.lineIterator((line, isLastLine) => {
+  this.lineIterator((line, {isLastLine}) => {
     if (line.containsPrefix(fieldKey)){
       found.push(line.withoutPrefix(fieldKey));
     }

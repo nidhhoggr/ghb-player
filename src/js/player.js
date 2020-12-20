@@ -464,7 +464,8 @@ ABCPlayer.prototype.stop = function(args) {
         currentTune: this.currentTune,
         ...args
       },
-      onFinish: () => (window.location.reload())
+      onFinish: () => (window.location.reload()),
+      overideFalsy: args.changeSong
     });
   }
   else {
@@ -476,19 +477,28 @@ ABCPlayer.prototype.stop = function(args) {
   }
 }
 
+ABCPlayer.prototype.updateSong = function(args) {
+  //throw "unset transposition and tempo in url";
+  this.stop({
+    changeSong: true,
+    tempo: 0,
+    transposition: 0,
+  });
+}
+
 
 ABCPlayer.prototype.songPrev = function() {
   if (this.currentTune > 0)
     this.currentTune--
   else
     this.currentTune = this.songs.length - 1;
-  this.stop({currentTune: this.currentTune});
+  this.updateSong({currentTune: this.currentTune});
 }
 
 ABCPlayer.prototype.songNext = function() {
   this.currentTune++;
   if (this.currentTune >= this.songs.length) this.currentTune = 0;
-  this.stop({currentTune: this.currentTune});
+  this.updateSong({currentTune: this.currentTune});
 }
 
 
