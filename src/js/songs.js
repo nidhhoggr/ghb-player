@@ -2,26 +2,19 @@ import _ from "lodash";
 import ABCSong from "./song";
 import songs, { tempo, transposition, tuning } from "./../abc/songs.js";
 let abcFiles = require.context("./../abc/", true, /\.abc$/);
-abcFiles = _.clone(abcFiles?.keys());
+abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled-")));
 
 export function getAbc(file) {
-  file = file.replace("./","");
-  console.log(`requiring ${file}`);
-  const abc = require(`./../abc/${file}`);
+  if (!abcFiles.includes(file)) return;
+  const _file = file.replace("./","");
+  console.log(`requiring ${_file}`);
+  const abc = require(`./../abc/${_file}`);
   abcFiles = _.without(abcFiles, file);
   return abc;
 }
 
-const _songs = [];
-
-abcFiles.map( file => {
-  let abc = getAbc(file);
-  if (abc) {
-    const song = new ABCSong({abc});
-    song.load();
-    _songs.push(song);
-  }
-});
+const _jsonSongs = [];
+const _abcSongs = [];
 
 songs.map( song => {
   let abc = "";
@@ -31,16 +24,27 @@ songs.map( song => {
   else {
     abc = getAbc(`./${song.abc}.abc`);
   }
-  _songs.push({
+  if (abc) _jsonSongs.push({
     ...song,
     abc
   });
 });
 
+abcFiles.map( file => {
+  let abc = getAbc(file);
+  if (abc) {
+    const song = new ABCSong({abc});
+    song.load();
+    _abcSongs.push(song);
+  }
+});
+
+
+
 //apply defaults
-export default _songs.map( song => {
-  if (!song.tempo) song.tempo = tempo;
-  if (!song.transposition) song.transposition = transposition;
-  if (!song.tuning) song.tuning = tuning;
+export default _.concat(_abcSongs, _jsonSongs)?.map( song => {
+  song.tempo ??= tempo;
+  song.transposition ??= transposition;
+  song.tuning ??= tuning;
   return song;
 });

@@ -83,7 +83,7 @@ ABCSong.prototype.load = function() {
     let matched = false;
     switch (infoFieldKey) {
       case "Tune Title":
-        if (!this.name) this.name = line.withoutPrefix();
+        this.name ??= line.substring(2);
         break;
       case "Key":
         if (this.transposition) return;
