@@ -456,7 +456,7 @@ ABCPlayer.prototype.start = function() {
   }
 }
 
-ABCPlayer.prototype.stop = function(args) {
+ABCPlayer.prototype.stop = function(args = {}) {
   if (this.options.refreshWhenPossible) {
     this.updateState({
       playerInstance: {
