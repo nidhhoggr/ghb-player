@@ -195,7 +195,7 @@ function ABCPlayer({
 export default ABCPlayer;
 
 
-ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true} = {}) {
+ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}) {
   if (!tempo) {
     tempo = this.tempo;
   }
@@ -216,6 +216,12 @@ ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true} = {}) {
     onSuccess: () => {
       this.domBinding.currentTempo.innerText = tempo;
       console.log(`Set tempo to ${tempo}.`);
+      if (!this.onUnsetUrlParamTempo && _.isNumber(from) && !_.isNaN(from) && tempo !== from) {
+        this.onUnsetUrlParamTempo = () => {
+          this.setTempo(from);
+        }
+        this.domBinding.unsetUrlTempo.show();
+      }
     },
     calledFrom: "tempo"
   });
@@ -423,7 +429,6 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
       this._updateChanter(possibleChanters[urlChanterIndex]);
       this.onUnsetUrlParamChanter = () => {
         this._updateChanter(possibleChanters[currentChanterIndex]);
-        delete this.onUnsetUrlParamChanter;
       }
     }
   }
@@ -434,12 +439,8 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     const urlTransposition = urlParam;
     console.log("URL TRANSPOSITION", currentTransposition, urlTransposition);
     if (currentTransposition !== urlTransposition && urlTransposition !== 0) {
-      this.domBinding.unsetUrlTransposition.show();
-      this.onUnsetUrlParamTransposition = () => {
-        this.setTransposition(currentTransposition);
-        delete this.onUnsetUrlParamTransposition;
-      }
       toSet.transposition = urlTransposition;
+      toSet.from_transposition = currentTransposition;
     }
   }
 
@@ -451,7 +452,6 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     if (currentTempo !== urlTempo && urlTempo !== 0) {
       this.onUnsetUrlParamTempo = () => {
         this.setTempo(currentTempo);
-        delete this.onUnsetUrlParamTempo;
       }
       this.domBinding.unsetUrlTempo.show();
       toSet.tempo = urlTempo
@@ -460,7 +460,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
 
   this.onSuccesses.push(() => {
     if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo);
-    if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition);
+    if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
   });
 
   urlParam = parseInt(this.urlParams["currentNoteIndex"]);
@@ -557,6 +557,8 @@ ABCPlayer.prototype.stop = function(args = {}) {
       playerInstance: {
         currentNoteIndex: 0,
         currentTuneIndex: args.currentTuneIndex || this.currentTuneIndex,
+        tempo: this.currentTempo,
+        transposition: this.transposition,
         ...args
       },
       changeSong: args.changeSong,
@@ -566,11 +568,11 @@ ABCPlayer.prototype.stop = function(args = {}) {
 }
 
 ABCPlayer.prototype.changeSong = function(args) {
+  this.unsetUrlTransposition();
+  this.unsetUrlTempo();
+  this.unsetUrlChanter();
   this.stop({changeSong: true, ...args});
   //in case we do no refresh, unset these functions set by urlparam eveluation
-  delete this.onUnsetUrlParamTransposition;
-  delete this.onUnsetUrlParamTempo;
-  delete this.onUnsetUrlParamChanter;
 }
 
 
@@ -591,27 +593,29 @@ ABCPlayer.prototype.songNext = function() {
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
-    this.setTransposition(this.transposition + 1);
+    this.setTransposition(this.transposition + 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
   if (this.transposition > this.transpositionLimits.min) {
-    this.setTransposition(this.transposition - 1);
+    this.setTransposition(this.transposition - 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.tempoUp = function(by = 1) {
   if ((this.tempo + by) <= this.tempoLimits.max) {
+    const from = this.tempo;
     this.tempo += by;
-    this.setTempo();
+    this.setTempo(undefined, {from});
   }
 }
 
 ABCPlayer.prototype.tempoDown = function(by = 1) {
   if ((this.tempo - by) >= this.tempoLimits.min) {
+    const from = this.tempo;
     this.tempo -= by;
-    this.setTempo();
+    this.setTempo(undefined, {from});
   }
 }
 
@@ -670,18 +674,21 @@ ABCPlayer.prototype.unsetUrlTempo = function() {
   this.onUnsetUrlParamTempo?.();
   this.domBinding.unsetUrlTempo.hide();
   this.updateState();
+  delete this.onUnsetUrlParamTempo;
 }
 
 ABCPlayer.prototype.unsetUrlTransposition = function() {
   this.onUnsetUrlParamTransposition?.();
   this.domBinding.unsetUrlTransposition.hide();
   this.updateState();
+  delete this.onUnsetUrlParamTransposition;
 }
 
 ABCPlayer.prototype.unsetUrlChanter = function() {
   this.onUnsetUrlParamChanter?.();
   this.domBinding.unsetUrlChanter.hide();
   this.updateState();
+  delete this.onUnsetUrlParamChanter;
 }
 
 ABCPlayer.prototype.updateControlStats = function updateControlStats() {
@@ -698,7 +705,7 @@ ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   }
 }
 
-ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true} = {}) {
+ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true, from} = {}) {
   this.transposition = semitones;
   this.currentSong.setTransposition(semitones, ({isSet}) => {
     if (!isSet) {
@@ -716,8 +723,13 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
         },
         onSuccess: () => {
           console.log(`Set transposition by ${semitones} half steps.`);
-        },
-        calledFrom: "transposition",
+          if (!this.onUnsetUrlParamTransposition && _.isNumber(from) && !_.isNaN(from) && semitones !== from) {
+            this.onUnsetUrlParamTransposition = () => {
+              this.setTransposition(from);
+            }
+            this.domBinding.unsetUrlTransposition.show();
+          }
+        }
       });
     }
   }); 
@@ -755,11 +767,11 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     //this will override URLPARAMS
     if (_.isNumber(transposition) //can contain zero
         && transposition !== this.transposition //song trans. doesnt match player trans.
-        && !this.onUnsetUrlParamTransposition || transposition === 0) {//the trans. was not set by urlparams
+        && !this.onUnsetUrlParamTransposition) {//the trans. was not set by urlparams
       const setEm = () => {
+        //altough were already here well need to set the tune again...
         this.setTransposition(transposition, {shouldSetTune: true});
         //needed to set tranposition to zero if it is zero
-        this.updateState({});
       }
       if (onSuccess && onSuccess.hasOwnProperty("length")) {
         onSuccess.push(setEm);
