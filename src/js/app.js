@@ -13,13 +13,14 @@ import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
+const stateMgr = new StateManagement({options: config});
 const abcPlayer = new ABCPlayer({
   abcjs, 
   songs, 
   ABCSong, 
   Sackpipa, 
   HPS, 
-  StateManagement, 
+  stateMgr, 
   utils,
   options: config.player
 });

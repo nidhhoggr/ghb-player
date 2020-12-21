@@ -10,26 +10,44 @@ var state = {
   onReactivate: null,
 };
 
-const StateManagement = {
-  onAssessState: function({playerInstance, onFinish, overideFalsy}) {
-    if (!state.isActive) {
-      debugLog("State isActive return early")
-      return;
+function StateManagement({options} = {}) {
+  this.options = options;
+}
+
+StateManagement.prototype.getState = () => (state);
+
+StateManagement.prototype.onAssessState = function onAssessState({playerInstance, onFinish, changeSong}) {
+   const { 
+    tempo, 
+    transposition, 
+    currentTuneIndex, 
+    currentNoteIndex,
+    getCurrentChanterIndex 
+  } = playerInstance;
+
+  if (changeSong && !_.isNaN(currentTuneIndex)) {
+    if (this.options?.player?.refreshWhenPossible) {
+      window.location.href = window.location.origin + window.location.pathname + `?currentTuneIndex=${currentTuneIndex}`
     }
+    else {
+      history.replaceState({}, null, `?currentTuneIndex=${currentTuneIndex}`);
+      setTimeout(() => {
+        onFinish && onFinish();
+      }, 100);
+    }
+  }
+  else if (!state.isActive) {
+    debugLog("State isActive return early")
+    return;
+  }
+  else {
     const stateArray = [];
-    const { 
-      tempo, 
-      transposition, 
-      currentTune, 
-      currentNoteIndex,
-      getCurrentChanterIndex 
-    } = playerInstance;
     const currentChanterIndex = getCurrentChanterIndex?.call(playerInstance, undefined);
-    (tempo || overideFalsy) && stateArray.push(["currentTempo", tempo]);//contains zero to reset for next initialization
-    (transposition || overideFalsy) && stateArray.push(["currentTransposition", transposition]);//contains zero
-    stateArray.push(["currentTuneIndex", currentTune]);//contain zero
+    _.isNumber(tempo) && stateArray.push(["currentTempo", tempo]);//contains zero to reset for next initialization
+    _.isNumber(transposition) && stateArray.push(["currentTransposition", transposition]);//contains zero
+    _.isNumber(currentTuneIndex) && stateArray.push(["currentTuneIndex", currentTuneIndex]);//contain zero
     _.isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
-    stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
+    _.isNumber(currentChanterIndex) && stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
     const queryParams = new URLSearchParams(window.location.search);
     const qpOld = queryParams.toString();
     stateArray.forEach((sa, i) => {
@@ -37,7 +55,7 @@ const StateManagement = {
       if (i == (stateArray.length - 1)) {
         const qpNew = queryParams.toString();
         if (qpNew !== qpOld) {
-          debugLog("Updating state and url",{qpOld, qpNew, stateArray});
+          console.log("Updating state and url",{qpOld, qpNew, stateArray});
           history.replaceState(null, null, "?" + queryParams.toString());
           onFinish && onFinish();
         }
@@ -47,35 +65,34 @@ const StateManagement = {
         }
       }
     });
-  },
-  idleWatcher: function({onInaction, inactiveTimeout = 20000, onReactivate}) {
-    const self = this;
-    function resetTimer () {
-      state.isActive = true;
-      debugLog("activity detected", {onInaction, inactiveTimeout});
-      clearTimeout(idleInterval);
-      if (onReactivate && state.wasInactive) {
-        onReactivate();
-      }
-      else {
-        debugLog("reactivate was null");
-      }
-      idleInterval = setTimeout(() => {
-        state.isActive = false;
-        state.wasInactive = true;
-        debugLog("inactivity detected");
-        onInaction && onInaction();
-      }, inactiveTimeout);  // time is in milliseconds
+  }
+}
+
+StateManagement.prototype.idleWatcher = function idleWatcher({onInaction, inactiveTimeout = 20000, onReactivate}) {
+  function resetTimer () {
+    state.isActive = true;
+    debugLog("activity detected", {onInaction, inactiveTimeout});
+    clearTimeout(idleInterval);
+    if (onReactivate && state.wasInactive) {
+      onReactivate();
     }
-    window.onload = resetTimer;
-    window.onmousemove = resetTimer;
-    window.onmousedown = resetTimer;  // catches touchscreen presses as well      
-    window.ontouchstart = resetTimer; // catches touchscreen swipes as well 
-    window.onclick = resetTimer;      // catches touchpad clicks as well
-    window.onkeydown = resetTimer;   
-    window.addEventListener('scroll', resetTimer, true); // improved; see comments
-  },
-  getState: () => (state)
+    else {
+      debugLog("reactivate was null");
+    }
+    idleInterval = setTimeout(() => {
+      state.isActive = false;
+      state.wasInactive = true;
+      debugLog("inactivity detected");
+      onInaction && onInaction();
+    }, inactiveTimeout);  // time is in milliseconds
+  }
+  window.onload = resetTimer;
+  window.onmousemove = resetTimer;
+  window.onmousedown = resetTimer;  // catches touchscreen presses as well      
+  window.ontouchstart = resetTimer; // catches touchscreen swipes as well 
+  window.onclick = resetTimer;      // catches touchpad clicks as well
+  window.onkeydown = resetTimer;   
+  window.addEventListener('scroll', resetTimer, true); // improved; see comments
 }
 
 export default StateManagement;

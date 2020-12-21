@@ -3,7 +3,7 @@ function ABCPlayer({
   songs,
   ABCSong,
   Sackpipa,
-  StateManagement,
+  stateMgr,
   HPS,
   utils,
   options
@@ -19,13 +19,15 @@ function ABCPlayer({
 
   this.HPS = HPS;
 
-  this.stateMgr = StateManagement;
+  this.stateMgr = stateMgr;
 
   this.utils = utils;
 
   this.options = options;
 
-  this.currentTune = 0;
+  this.currentTuneIndex = 0;
+  this.transposition = 0;
+  this.tempo = 0;
 
   //how often to analyze the state
   this.stateAssessmentLoopInterval = 5000;//milliseconds
@@ -55,6 +57,9 @@ function ABCPlayer({
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
+    "unsetUrlTempo",
+    "unsetUrlTransposition",
+    "unsetUrlChanter",
   ];
 
   this.domButtonSelectors = [
@@ -67,7 +72,10 @@ function ABCPlayer({
     "tempoUp",
     "tempoDown",
     "chanterUp",
-    "chanterDown"
+    "chanterDown",
+    "unsetUrlTempo",
+    "unsetUrlTransposition",
+    "unsetUrlChanter",
   ];
 
   this.urlParamNames = [
@@ -282,7 +290,14 @@ ABCPlayer.prototype.load = function() {
 
   this.domBindingKeys.map((name) => {
     this.domBinding[name] = document.querySelector(`.${name}`);
-    console.log(name, this.domBinding[name]);
+    if (this.domBinding[name]) { 
+      this.domBinding[name].hide = function() {
+        this.style.display = "none";
+      }
+      this.domBinding[name].show = function() {
+        this.style.display = "inline-block";
+      }
+    }
   });
 
   this.domButtonSelectors.map((elName) => {
@@ -307,47 +322,12 @@ ABCPlayer.prototype.load = function() {
   } else {
     this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
   }
-
-  //an array of callbacks to be executed in the sequence they are inserted
-  this.onSuccesses = [];
-
-  if (this.urlParams["currentChanterIndex"]) {
-    this.sackpipaOptions.chanterKeyIndex = parseInt(this.urlParams["currentChanterIndex"]);
-  }
-  if (this.urlParams["currentTuneIndex"]) {
-    const currentTuneIndex = parseInt(this.urlParams["currentTuneIndex"]);
-    if (this.songs[currentTuneIndex]) {
-      this.currentTune = currentTuneIndex;
-      parseInt(this.urlParams["currentTuneIndex"]);
-    }
-    else {
-      console.error(`Could not get song from index ${currentTuneIndex}`);
-    }
-  }
-  if (this.urlParams["currentTransposition"]) {
-    this.onSuccesses.push(() => {
-      const currentTransposition = parseInt(this.urlParams["currentTransposition"]);
-      this.setTransposition(currentTransposition);
-    });
-  }
-  if (this.urlParams["currentTempo"]) {
-    this.onSuccesses.push(() => {
-      const currentTempo = parseInt(this.urlParams["currentTempo"]);
-      this.setTempo(currentTempo);
-    });
-  }
-  if (this.urlParams["currentNoteIndex"]) {
-    const currentNoteIndex = parseInt(this.urlParams["currentNoteIndex"]);
-    function clickItem() {
-      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
-      nsItem && this.utils.simulateClick(nsItem);
-    }
-    //this will be fired when the user clicks play is needed in addtion to the call below
-    this.onStartCbQueue.push(clickItem.bind(this));
-    //this will be fired first to set the note before clicking play
-    this.onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
-  }
+  
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+  
+
+  this.evaluateUrlParams();
+  
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
   this.setTune({userAction: true, onSuccess: this.onSuccesses});
   this.stateMgr.idleWatcher({
@@ -363,6 +343,28 @@ ABCPlayer.prototype.load = function() {
   setInterval(() => {
     this.updateState();
   }, this.stateAssessmentLoopInterval);
+
+  document.onkeydown = (evt) => {
+    evt = evt || window.event;
+    const { keyCode } = evt;
+    const { keyCodes } = this.options;
+    if (!keyCodes) return;
+    if (keyCode === keyCodes.esc) { 
+      history.replaceState({}, null, `?currentTuneIndex=${this.currentTuneIndex}`);
+      setTimeout(() => {
+        window.location.reload();
+      }, 100);
+    }
+    else if (keyCode === keyCodes.prev) {
+      this.songPrev();
+    }
+    else if (keyCode === keyCodes.play) {
+      this.start();
+    }
+    else if (keyCode === keyCodes.next) {
+      this.songNext();
+    }
+  };
 
   /*
   ({}) => {
@@ -393,11 +395,93 @@ ABCPlayer.prototype.load = function() {
   */
 }
 
+ABCPlayer.prototype.evaluateUrlParams = function() {
+  //an array of callbacks to be executed in the sequence they are inserted
+  this.onSuccesses = [];
+  let urlParam = parseInt(this.urlParams["currentTuneIndex"]);
+  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+    this.currentTuneIndex = urlParam;
+    if (this.songs[this.currentTuneIndex]) {
+      const song = this.songs[this.currentTuneIndex];
+      this.currentSong = new this.ABCSong(song);
+      this.currentSong.load();
+    }
+    else {
+      console.error(`Could not get song from index ${this.currentTuneIndex}`);
+    }
+  }
+
+  const toSet = {};//stores a set of properties to call in onSuccess
+  urlParam = parseInt(this.urlParams["currentChanterIndex"]);
+  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+    const currentChanterIndex = this.getCurrentChanterIndex();
+    const urlChanterIndex = urlParam;
+    console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
+    if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
+      this.domBinding.unsetUrlChanter.show();
+      const { possibleChanters } = this.sackpipa;
+      this._updateChanter(possibleChanters[urlChanterIndex]);
+      this.onUnsetUrlParamChanter = () => {
+        this._updateChanter(possibleChanters[currentChanterIndex]);
+        delete this.onUnsetUrlParamChanter;
+      }
+    }
+  }
+
+  urlParam = parseInt(this.urlParams["currentTransposition"]);
+  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+    const currentTransposition = this.currentSong?.transposition || this.transposition;
+    const urlTransposition = urlParam;
+    console.log("URL TRANSPOSITION", currentTransposition, urlTransposition);
+    if (currentTransposition !== urlTransposition && urlTransposition !== 0) {
+      this.domBinding.unsetUrlTransposition.show();
+      this.onUnsetUrlParamTransposition = () => {
+        this.setTransposition(currentTransposition);
+        delete this.onUnsetUrlParamTransposition;
+      }
+      toSet.transposition = urlTransposition;
+    }
+  }
+
+  urlParam = parseInt(this.urlParams["currentTempo"]);
+  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+    const currentTempo = this.currentSong?.tempo || this.tempo;
+    const urlTempo = urlParam;
+    console.log("URL TEMPO", currentTempo, urlTempo, this.currentSong);
+    if (currentTempo !== urlTempo && urlTempo !== 0) {
+      this.onUnsetUrlParamTempo = () => {
+        this.setTempo(currentTempo);
+        delete this.onUnsetUrlParamTempo;
+      }
+      this.domBinding.unsetUrlTempo.show();
+      toSet.tempo = urlTempo
+    }
+  }
+
+  this.onSuccesses.push(() => {
+    if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo);
+    if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition);
+  });
+
+  urlParam = parseInt(this.urlParams["currentNoteIndex"]);
+  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+    const currentNoteIndex = urlParam;
+    if (currentNoteIndex == 0) return;
+    function clickItem() {
+      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
+      nsItem && this.utils.simulateClick(nsItem);
+    }
+    //this will be fired when the user clicks play is needed in addtion to the call below
+    this.onStartCbQueue.push(clickItem.bind(this));
+    //this will be fired first to set the note before clicking play
+    this.onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
+  }
+}
+
 ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   if (!currentNote) {
     currentNote = this.abcjs.synth.pitchToNoteName[pitchIndex];
   }
-  console.log({pitchIndex, currentNote});
   const chanterKey = this.sackpipa.getChanterKeyAbbr();
   if ((pitchIndex < this.currentSong?.compatibility?.pitchReached.min ||
     (pitchIndex > this.currentSong?.compatibility?.pitchReached.max))) {
@@ -461,60 +545,59 @@ ABCPlayer.prototype.stop = function(args = {}) {
     this.updateState({
       playerInstance: {
         currentNoteIndex: 0,
-        currentTune: this.currentTune,
+        currentTuneIndex: args.currentTuneIndex || this.currentTuneIndex,
         ...args
       },
       onFinish: () => (window.location.reload()),
-      overideFalsy: args.changeSong
+      changeSong: args.changeSong,
     });
   }
   else {
-    this.assessState({
-      currentNoteIndex: 0,
-      ...args
+    this.updateState({
+      playerInstance: {
+        currentNoteIndex: 0,
+        currentTuneIndex: args.currentTuneIndex || this.currentTuneIndex,
+        ...args
+      },
+      changeSong: args.changeSong,
     });
     this.setTune({userAction: true, calledFrom: "song"});
   }
 }
 
-ABCPlayer.prototype.updateSong = function(args) {
-  //throw "unset transposition and tempo in url";
-  this.stop({
-    changeSong: true,
-    tempo: 0,
-    transposition: 0,
-  });
+ABCPlayer.prototype.changeSong = function(args) {
+  this.stop({changeSong: true, ...args});
+  //in case we do no refresh, unset these functions set by urlparam eveluation
+  delete this.onUnsetUrlParamTransposition;
+  delete this.onUnsetUrlParamTempo;
+  delete this.onUnsetUrlParamChanter;
 }
 
 
 ABCPlayer.prototype.songPrev = function() {
-  if (this.currentTune > 0)
-    this.currentTune--
+  if (this.currentTuneIndex > 0)
+    this.currentTuneIndex = this.currentTuneIndex - 1;
   else
-    this.currentTune = this.songs.length - 1;
-  this.updateSong({currentTune: this.currentTune});
+    this.currentTuneIndex = this.songs.length - 1;
+  this.changeSong({currentTuneIndex: this.currentTuneIndex});
 }
 
 ABCPlayer.prototype.songNext = function() {
-  this.currentTune++;
-  if (this.currentTune >= this.songs.length) this.currentTune = 0;
-  this.updateSong({currentTune: this.currentTune});
+  this.currentTuneIndex = this.currentTuneIndex + 1;
+  if (this.currentTuneIndex >= this.songs.length) this.currentTuneIndex = 0;
+  this.changeSong({currentTuneIndex: this.currentTuneIndex});
 }
 
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.transposition < this.transpositionLimits.max) {
     this.setTransposition(this.transposition + 1);
-    //needed to set transposition to zero with overideFalsy
-    this.updateState({overideFalsy: true});
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
   if (this.transposition > this.transpositionLimits.min) {
     this.setTransposition(this.transposition - 1);
-    //needed to set transposition to zero with overideFalsy
-    this.updateState({overideFalsy: true});
   }
 }
 
@@ -531,6 +614,8 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
     this.setTempo();
   }
 }
+
+
 
 ABCPlayer.prototype.chanterDown = function() {
   const { chanterKey, possibleChanters } = this.sackpipa;
@@ -560,6 +645,7 @@ ABCPlayer.prototype.chanterUp = function() {
 }
 
 ABCPlayer.prototype.getCurrentChanterIndex = function() {
+  if (!this.sackpipa) return 0;
   const { chanterKey, possibleChanters } = this.sackpipa;
   return _.indexOf(possibleChanters, chanterKey);
 }
@@ -578,6 +664,24 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKey) {
     },
     calledFrom: "chanter",
   });
+}
+
+ABCPlayer.prototype.unsetUrlTempo = function() {
+  this.onUnsetUrlParamTempo?.();
+  this.domBinding.unsetUrlTempo.hide();
+  this.updateState();
+}
+
+ABCPlayer.prototype.unsetUrlTransposition = function() {
+  this.onUnsetUrlParamTransposition?.();
+  this.domBinding.unsetUrlTransposition.hide();
+  this.updateState();
+}
+
+ABCPlayer.prototype.unsetUrlChanter = function() {
+  this.onUnsetUrlParamChanter?.();
+  this.domBinding.unsetUrlChanter.hide();
+  this.updateState();
 }
 
 ABCPlayer.prototype.updateControlStats = function updateControlStats() {
@@ -602,6 +706,7 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
       return;
     }
     else {
+      this.updateState();
       shouldSetTune && this.setTune({
         userAction: true,
         isSameSong: true,
@@ -633,10 +738,8 @@ ABCPlayer.prototype.updateState = function(args) {
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   
   if (!currentSong) {
-    const currentTune = this.songs[this.currentTune];
-    this.currentSong = new this.ABCSong(currentTune);
-    this.currentSong.allNotes = [];
-    this.currentSong.entireNoteSequence = [];
+    const song = this.songs[this.currentTuneIndex];
+    this.currentSong = new this.ABCSong(song);
   }
   else {
     this.currentSong = currentSong;
@@ -649,11 +752,14 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     if (tempo) {
       this.setTempo(tempo, {shouldSetTune: false});
     }
-    if (_.isNumber(transposition) && transposition !== this.transposition) {
+    //this will override URLPARAMS
+    if (_.isNumber(transposition) //can contain zero
+        && transposition !== this.transposition //song trans. doesnt match player trans.
+        && !this.onUnsetUrlParamTransposition || transposition === 0) {//the trans. was not set by urlparams
       const setEm = () => {
         this.setTransposition(transposition, {shouldSetTune: true});
         //needed to set tranposition to zero if it is zero
-        this.updateState({overideFalsy: true});
+        this.updateState({});
       }
       if (onSuccess && onSuccess.hasOwnProperty("length")) {
         onSuccess.push(setEm);
@@ -666,8 +772,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         throw new Error("Has no member length");
       }
     }
-    this.transposition = 0;
-    if (tuning) {
+    if (tuning && !this.onUnsetUrlParamChanter) {
        const setEm = () => {
         this._updateChanter(tuning);
       }
@@ -757,7 +862,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
           max: _.max(compatiblePitches.compatible),
         }
       };
-      console.log(this.currentSong);
+      console.log("setTune", this.currentSong);
       onSuccess && onSuccess({response});
     }});
   })

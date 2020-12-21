@@ -154,7 +154,6 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
 Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
   const playableSong = abcSong.getDistinctNotes();
   const playableChanter = this.getPlayableNotes({"notesOnly": true});
-  console.log({playableSong, playableChanter});
   const compatible = _.intersection(playableSong, playableChanter);
   const _incompatible = _.xor(playableSong, playableChanter)
   return {
@@ -169,7 +168,6 @@ Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
 Sackpipa.prototype.getCompatiblePitches = function getCompatiblePitches({abcSong}) {
   const playableSong = abcSong.getDistinctPitches();
   const playableChanter = this.getPlayableNotes({"pitchesOnly": true});
-  console.log({playableSong, playableChanter});
   const compatible = _.intersection(playableSong, playableChanter);
   const _incompatible = _.xor(playableSong, playableChanter)
   return {

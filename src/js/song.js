@@ -16,6 +16,8 @@ function ABCSong(song) {
   this.abc = song.abc;
   this.transposition = song.transposition || 0;
   this.tuning = song.tuning || "E/A";
+  this.allNotes = [];
+  this.entireNoteSequence = [];
   /**
    *  //loaded when the tune is set,
    *    used to peform various analytics and calculations
