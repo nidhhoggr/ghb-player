@@ -424,12 +424,8 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     const urlChanterIndex = urlParam;
     console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
     if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
-      this.domBinding.unsetUrlChanter.show();
-      const { possibleChanters } = this.sackpipa;
-      this._updateChanter(possibleChanters[urlChanterIndex]);
-      this.onUnsetUrlParamChanter = () => {
-        this._updateChanter(possibleChanters[currentChanterIndex]);
-      }
+      toSet.chanterIndex = urlChanterIndex;
+      toSet.from_chanterIndex = currentChanterIndex;
     }
   }
 
@@ -456,6 +452,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   }
 
   this.onSuccesses.push(() => {
+    if (_.isNumber(toSet.chanterIndex)) this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
     if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
     if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
   });
@@ -616,8 +613,6 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
   }
 }
 
-
-
 ABCPlayer.prototype.chanterDown = function() {
   const { chanterKey, possibleChanters } = this.sackpipa;
   const currentIndex = this.getCurrentChanterIndex();
@@ -628,7 +623,7 @@ ABCPlayer.prototype.chanterDown = function() {
   else if (currentIndex === 0 || currentIndex) {
     nextIndex = currentIndex + 1;
   }
-  this._updateChanter(possibleChanters[nextIndex]);
+  this._updateChanter(nextIndex, {from: currentIndex});
 }
 
 ABCPlayer.prototype.chanterUp = function() {
@@ -639,10 +634,9 @@ ABCPlayer.prototype.chanterUp = function() {
     nextIndex = possibleChanters.length - 1;
   }
   else if (currentIndex)  {
-    this.sackpipa.setChanterKey(possibleChanters[currentIndex - 1]);
     nextIndex = currentIndex - 1;
   }
-  this._updateChanter(possibleChanters[nextIndex]);
+  this._updateChanter(nextIndex, {from: currentIndex});
 }
 
 ABCPlayer.prototype.getCurrentChanterIndex = function() {
@@ -651,8 +645,9 @@ ABCPlayer.prototype.getCurrentChanterIndex = function() {
   return _.indexOf(possibleChanters, chanterKey);
 }
 
-ABCPlayer.prototype._updateChanter = function updateChanter(chanterKey) {
-  this.sackpipa.setChanterKey(chanterKey);
+ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex, {from} = {}) {
+  const { possibleChanters } = this.sackpipa;
+  this.sackpipa.setChanterKey(possibleChanters[chanterKeyIndex]);
   this.setTune({
     userAction: true,
     isSameSong: true,
@@ -661,7 +656,13 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKey) {
       visualTranspose: this.transposition
     },
     onSuccess: () => {
-      console.log(`Updated the chanter to ${chanterKey}`);
+      console.log(`Updated the chanter to ${chanterKeyIndex}`);
+      if (!this.onUnsetUrlParamChanter && _.isNumber(from) && !_.isNaN(from) && chanterKeyIndex !== from) {
+        this.onUnsetUrlParamChanter = () => {
+          this._updateChanter(from);
+        }
+        this.domBinding.unsetUrlChanter.show();
+      }
     },
     calledFrom: "chanter",
   });
