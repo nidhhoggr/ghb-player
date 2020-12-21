@@ -450,16 +450,13 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     const urlTempo = urlParam;
     console.log("URL TEMPO", currentTempo, urlTempo, this.currentSong);
     if (currentTempo !== urlTempo && urlTempo !== 0) {
-      this.onUnsetUrlParamTempo = () => {
-        this.setTempo(currentTempo);
-      }
-      this.domBinding.unsetUrlTempo.show();
-      toSet.tempo = urlTempo
+      toSet.tempo = urlTempo;
+      toSet.from_tempo = currentTempo;
     }
   }
 
   this.onSuccesses.push(() => {
-    if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo);
+    if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
     if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
   });
 
