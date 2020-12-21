@@ -255,7 +255,7 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   console.log("onNoteChange:", {pitch, cmd, event});
   if (scrollingNotesWrapper) {
     const index = event.ensIndex + 1;
-    if (!index) return;
+    if (_.isNaN(index)) return;
     this.currentNoteIndex = index;
     this.updateState();
     const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
@@ -466,9 +466,9 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   urlParam = parseInt(this.urlParams["currentNoteIndex"]);
   if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
     const currentNoteIndex = urlParam;
-    if (currentNoteIndex == 0) return;
+    if (_.isNaN(currentNoteIndex)) return;
     function clickItem() {
-      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
+      const nsItem = this.getNoteScrollerItem({currentNoteIndex: currentNoteIndex - 1});
       nsItem && this.utils.simulateClick(nsItem);
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
