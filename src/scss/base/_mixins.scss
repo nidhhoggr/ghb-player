@@ -47,3 +47,7 @@
   ::-moz-placeholder          {@content}
   :-ms-input-placeholder      {@content}
 }
+
+@mixin shadowed {
+  box-shadow: 0 0 1rem rgba(0,0,0,0.6);
+}

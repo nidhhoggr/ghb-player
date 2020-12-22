@@ -331,7 +331,6 @@ ABCPlayer.prototype.load = function() {
   
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   
-
   this.evaluateUrlParams();
   
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
@@ -452,7 +451,12 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   }
 
   this.onSuccesses.push(() => {
-    if (_.isNumber(toSet.chanterIndex)) this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
+    if (_.isNumber(toSet.chanterIndex)) {
+      //this needs to execute later in the stack due to some race condition
+      setTimeout(() => {
+        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
+      });
+    }
     if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
     if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
   });
@@ -783,7 +787,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       }
     }
     if (tuning && !this.onUnsetUrlParamChanter) {
-       const setEm = () => {
+      const setEm = () => {
         this._updateChanter(tuning);
       }
       if (onSuccess && onSuccess.hasOwnProperty("length")) {

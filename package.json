@@ -5,7 +5,7 @@
   "homepage": "https://github.com/WeAreAthlon/frontend-webpack-boilerplate#readme",
   "scripts": {
     "build": "webpack --mode=development",
-    "watch": "./assetize && webpack --mode=development --watch",
+    "watch": "webpack --mode=development --watch",
     "watch:externalServer": "webpack --mode=development --watch --externalServer",
     "bundle": "npm ci && npm run watch",
     "bundle:externalServer": "npm ci && npm run watch:externalServer",
