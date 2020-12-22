@@ -6,11 +6,6 @@ export const tuning = "E/A";
 //everything here loads AFTER the abc files
 const songs = [
   {
-    name: "Tyskan (needs work)",
-    tempo: 120,
-    abc: "tyskan"
-  },
-  {
     name: "Jag blåste i min pipa",
     tempo: 100,
     abc: "jagblaste"
