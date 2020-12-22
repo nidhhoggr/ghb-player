@@ -86,6 +86,12 @@ section.unplayable_note {
       @include shadowed;
     }
   }
+  section.currentNote {
+    box-shadow: none;
+    & > div {
+      box-shadow: none;
+    }
+  }
   section[data-measurestart] > div {
     border: 1px solid green !important;
   }
@@ -158,9 +164,6 @@ section.unplayable_note {
     border-right: 5px solid #fbc500;
     width: 57px !important;
   }
-
-
-
   //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
   //62 63    64 65   66  67 68  69  70   71 72 73  74 75    76
   //#["D", "E", "F#", "G", "Ab", "A", "B", "C", "Db"]
