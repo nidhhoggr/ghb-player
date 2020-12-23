@@ -73,7 +73,7 @@ const config = function(env, args) {
           ],
         },
         {
-          test: /\.(eot|svg|ttf|woff|woff2)$/,
+          test: /\.(eot|ttf|woff|woff2)$/,
           use: [
             {
               loader: 'url-loader',
@@ -92,6 +92,13 @@ const config = function(env, args) {
             }
           ]
         },
+        {
+          test: /\.svg/,
+          use: {
+            loader: "svg-url-loader",
+            options: {},
+          },
+        }
       ],
     },
     optimization: {

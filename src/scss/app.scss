@@ -98,8 +98,12 @@ address {
 .removal-indicator {
   color: red;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 0px !important;
   display: none;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+  background: url("../images/content/delete.svg") no-repeat;
 }
 
 .abcjs-inline-audio {
@@ -135,17 +139,65 @@ address {
 
   .songControls {
     .buttons {
-      min-width: 170px;      
+      min-width: 200px;      
     }
     span.currentBeat {
       display: block;
       text-align: left;
     }
+    span.currentSong {
+      padding-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      display: inline-block;
+    }
   }
-
   .controls {
     display: flex;
     justify-content: space-evenly;
+
+
+    span.songPrev,
+    span.stop,
+    span.start,
+    span.songNext {
+      font-size: 0px !important;
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      border-radius: 50%;
+      box-shadow: 0 0 1rem rgba(0,0,0,0.6);
+      &:hover {
+        box-shadow: none;
+      }
+    }
+
+    span.songPrev {
+      background: url("../images/content/player/next.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/next-active.svg");
+      }
+      transform: scaleX(-1);
+      @include shadowed;
+    }
+    span.songNext {
+      background: url("../images/content/player/next.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/next-active.svg");
+      }
+    }
+    span.stop {
+      background: url("../images/content/player/stop.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/stop-active.svg");
+      }
+    }
+    span.start {
+      background: url("../images/content/player/play.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/play-active.svg");
+      }
+    }
   }
 
   .transposition {
@@ -238,6 +290,40 @@ address {
 
 .unplayable-note {
   @include unplayable-note;
+}
+
+span.transposeDown,
+span.tempoDown,
+span.chanterDown,
+span.keySigDown,
+span.transposeUp,
+span.tempoUp,
+span.chanterUp,
+span.keySigUp {
+  width: 32px;
+  height: 38px;
+  font-size: 0 !important;
+}
+
+span.transposeDown,
+span.tempoDown,
+span.chanterDown,
+span.keySigDown {
+  background: url("../images/content/up-arrow.svg") no-repeat;
+  &:hover {
+    background-image: url("../images/content/up-arrow-active.svg");
+  }
+  transform: scaleY(-1);
+}
+
+span.transposeUp,
+span.tempoUp,
+span.chanterUp,
+span.keySigUp {
+  background: url("../images/content/up-arrow.svg") no-repeat;
+  &:hover {
+    background-image: url("../images/content/up-arrow-active.svg");
+  }
 }
 
 .playable_chanter-ea {

@@ -301,7 +301,7 @@ ABCPlayer.prototype.load = function() {
         this.style.display = "none";
       }
       this.domBinding[name].show = function() {
-        this.style.display = "inline-block";
+        this.style.display = "inline";
       }
     }
   });
