@@ -539,6 +539,7 @@ ABCPlayer.prototype.start = function() {
 }
 
 ABCPlayer.prototype.stop = function(args = {}) {
+  this.synthControl?.stop?.();
   if (this.options.refreshWhenPossible) {
     this.updateState({
       playerInstance: {
@@ -566,6 +567,7 @@ ABCPlayer.prototype.stop = function(args = {}) {
 }
 
 ABCPlayer.prototype.changeSong = function(args) {
+  this.synthControl?.stop?.();
   this.unsetUrlTransposition();
   this.unsetUrlTempo();
   this.unsetUrlChanter();
