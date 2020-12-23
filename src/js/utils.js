@@ -1,4 +1,7 @@
+import _ from "lodash";
+
 export default {
+  isNumber: (number) => (_.isNumber(number) && !_.isNaN(number)),
   domAddClass: function({el, className}) {
     return el.classList.add(className);
   },

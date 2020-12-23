@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import utils from "./utils";
+const { isNumber } = utils;
 
 function Sackpipa({
   chanterKeyIndex = 0,//the key of the chanter, EA, DG, 
@@ -10,7 +12,7 @@ function Sackpipa({
   isSecondGroupPlugged = true,
 }) {
   this.dronesSynth = dronesSynth;
-  this.possibleChanters = ["E/A", "D/G","C/F"];
+  this.possibleChanters = ["E/A","D/G","C/F"];
   this.playableNotes = playableNotes;
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
@@ -186,4 +188,14 @@ Sackpipa.prototype.setChanterKey = function setChanterKey(chanterKey = null) {
   if(this.possibleChanters.includes(chanterKey)) {
     this.chanterKey = chanterKey;
   }
+}
+
+Sackpipa.prototype.getChanterKeyByIndex = function getChanterKeyByIndex(chanterKeyIndex) {
+  if (!isNumber(chanterKeyIndex)) throw new Error(`${chanterKeyIndex} is not numeric`);
+  chanterKeyIndex = chanterKeyIndex % this.possibleChanters.length;
+  return this.possibleChanters[chanterKeyIndex];
+}
+
+Sackpipa.prototype.getChanterKeyIndex = function getChanterKeyIndex({tuning}) {
+  return _.indexOf(this.possibleChanters, tuning);
 }

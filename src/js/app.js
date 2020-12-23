@@ -7,7 +7,6 @@ import ABCSong from "./song";
 import songs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
-import utils from "./utils";
 import config from "./config";
 import HPS from "./hps";
 import StateManagement from "./state";
@@ -21,13 +20,11 @@ const abcPlayer = new ABCPlayer({
   Sackpipa, 
   HPS, 
   stateMgr, 
-  utils,
   options: config.player
 });
 tippy('[data-tooltip]', {
   onShow(instance) {
     const tooltip = _.get(instance, "reference.dataset.tooltip");
-    console.log(instance);
     tooltip && instance.setContent(tooltip);
     return !!tooltip;
   }

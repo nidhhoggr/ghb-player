@@ -33,8 +33,7 @@ songs.map( song => {
 abcFiles.map( file => {
   let abc = getAbc(file);
   if (abc) {
-    const song = new ABCSong({abc});
-    song.load();
+    const song = new ABCSong({abc, tempo, transposition, tuning});
     _abcSongs.push(song);
   }
 });

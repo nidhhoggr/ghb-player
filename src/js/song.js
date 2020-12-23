@@ -18,6 +18,12 @@ function ABCSong(song) {
   this.tuning = song.tuning || "E/A";
   this.allNotes = [];
   this.entireNoteSequence = [];
+  this.original = {
+    tempo: this.tempo,
+    transposition: this.transposition,
+    tuning: this.tuning
+  };
+  console.log("ORIG", song, this.original);
   /**
    *  //loaded when the tune is set,
    *    used to peform various analytics and calculations
@@ -28,6 +34,8 @@ function ABCSong(song) {
     "infoFieldMapping": getInfoFieldMapping(),
     "infoFieldKeyMapping": swap(getInfoFieldMapping())
   };
+
+  this.load();
 }
 
 function getInfoFieldMapping({key} = {}) {
@@ -96,8 +104,11 @@ ABCSong.prototype.load = function() {
         //with all different permutations depending on the song and
         //its musical composition
         matched = line.match(/transposition=(0|-?[1-9])/);
+        let transposition = 0;
         if (matched?.[1]) {
-          this.transposition = parseInt(matched[1]);
+          transposition = parseInt(matched[1]);
+          this.transposition = transposition
+          this.original.transposition ??= transposition;
         }
         break;
       case "Tempo":
@@ -107,8 +118,11 @@ ABCSong.prototype.load = function() {
         //wrapped in double-qoutes which we utilize for parsing
         //the BPM we desire.
         matched = line.match(/"BPM=(\d+)/);
+        let tempo = this.tempo;
         if (matched?.[1]) {
-          this.tempo = parseInt(matched[1]);
+          tempo = parseInt(matched[1]);
+          this.tempo = tempo;
+          this.original.tempo ??= tempo;
         }
         break;
     }

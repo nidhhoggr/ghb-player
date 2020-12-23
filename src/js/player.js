@@ -1,3 +1,6 @@
+import  utils from "./utils";
+const { isNumber } = utils;
+
 function ABCPlayer({
   abcjs,
   songs,
@@ -5,7 +8,6 @@ function ABCPlayer({
   Sackpipa,
   stateMgr,
   HPS,
-  utils,
   options
 }) {
 
@@ -20,8 +22,6 @@ function ABCPlayer({
   this.HPS = HPS;
 
   this.stateMgr = stateMgr;
-
-  this.utils = utils;
 
   this.options = options;
 
@@ -216,7 +216,11 @@ ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}
     onSuccess: () => {
       this.domBinding.currentTempo.innerText = tempo;
       console.log(`Set tempo to ${tempo}.`);
-      if (!this.onUnsetUrlParamTempo && _.isNumber(from) && !_.isNaN(from) && tempo !== from) {
+      if (isNumber(tempo) && tempo === this.currentSong?.original?.tempo) {
+        delete this.onUnsetUrlParamTempo;
+        this.domBinding.unsetUrlTempo.hide();
+      }
+      else if (!this.onUnsetUrlParamTempo && isNumber(from) && tempo !== from) {
         this.onUnsetUrlParamTempo = () => {
           this.setTempo(from);
         }
@@ -311,7 +315,7 @@ ABCPlayer.prototype.load = function() {
   });
 
   this.urlParamNames.map((urlParamName) => {
-    this.urlParams[urlParamName] = this.utils.location_getParameterByName(urlParamName);
+    this.urlParams[urlParamName] = utils.location_getParameterByName(urlParamName);
   });
 
   if (this.abcjs.synth.supportsAudio()) {
@@ -404,12 +408,11 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   //an array of callbacks to be executed in the sequence they are inserted
   this.onSuccesses = [];
   let urlParam = parseInt(this.urlParams["currentTuneIndex"]);
-  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+  if (isNumber(urlParam)) {
     this.currentTuneIndex = urlParam;
     if (this.songs[this.currentTuneIndex]) {
       const song = this.songs[this.currentTuneIndex];
       this.currentSong = new this.ABCSong(song);
-      this.currentSong.load();
     }
     else {
       console.error(`Could not get song from index ${this.currentTuneIndex}`);
@@ -418,7 +421,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
 
   const toSet = {};//stores a set of properties to call in onSuccess
   urlParam = parseInt(this.urlParams["currentChanterIndex"]);
-  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+  if (isNumber(urlParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
     const urlChanterIndex = urlParam;
     console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
@@ -429,7 +432,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   }
 
   urlParam = parseInt(this.urlParams["currentTransposition"]);
-  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+  if (isNumber(urlParam)) {
     const currentTransposition = this.currentSong?.transposition || this.transposition;
     const urlTransposition = urlParam;
     console.log("URL TRANSPOSITION", currentTransposition, urlTransposition);
@@ -440,7 +443,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   }
 
   urlParam = parseInt(this.urlParams["currentTempo"]);
-  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+  if (isNumber(urlParam)) {
     const currentTempo = this.currentSong?.tempo || this.tempo;
     const urlTempo = urlParam;
     console.log("URL TEMPO", currentTempo, urlTempo, this.currentSong);
@@ -451,23 +454,23 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   }
 
   this.onSuccesses.push(() => {
-    if (_.isNumber(toSet.chanterIndex)) {
+    if (isNumber(toSet.chanterIndex)) {
       //this needs to execute later in the stack due to some race condition
       setTimeout(() => {
         this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
       });
     }
-    if (_.isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
-    if (_.isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
+    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
+    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
   });
 
   urlParam = parseInt(this.urlParams["currentNoteIndex"]);
-  if (_.isNumber(urlParam) && !_.isNaN(urlParam)) {
+  if (isNumber(urlParam)) {
     const currentNoteIndex = urlParam;
     if (_.isNaN(currentNoteIndex)) return;
     function clickItem() {
       const nsItem = this.getNoteScrollerItem({currentNoteIndex: currentNoteIndex - 1});
-      nsItem && this.utils.simulateClick(nsItem);
+      nsItem && utils.simulateClick(nsItem);
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
     this.onStartCbQueue.push(clickItem.bind(this));
@@ -663,7 +666,11 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex, {fr
     },
     onSuccess: () => {
       console.log(`Updated the chanter to ${chanterKeyIndex}`);
-      if (!this.onUnsetUrlParamChanter && _.isNumber(from) && !_.isNaN(from) && chanterKeyIndex !== from) {
+      if (isNumber(chanterKeyIndex) && this.sackpipa.getChanterKeyByIndex(chanterKeyIndex) === this.currentSong?.original?.tuning) {
+        delete this.onUnsetUrlParamChanter;
+        this.domBinding.unsetUrlChanter.hide();
+      }
+      else if (!this.onUnsetUrlParamChanter && isNumber(from) && chanterKeyIndex !== from) {
         this.onUnsetUrlParamChanter = () => {
           this._updateChanter(from);
         }
@@ -727,7 +734,11 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
         },
         onSuccess: () => {
           console.log(`Set transposition by ${semitones} half steps.`);
-          if (!this.onUnsetUrlParamTransposition && _.isNumber(from) && !_.isNaN(from) && semitones !== from) {
+          if (isNumber(semitones) && semitones === this.currentSong?.original?.transposition) {
+            this.domBinding.unsetUrlTransposition.hide();
+            delete this.onUnsetUrlParamTransposition;
+          }
+          else if (!this.onUnsetUrlParamTransposition && isNumber(from) && semitones !== from) {
             this.onUnsetUrlParamTransposition = () => {
               this.setTransposition(from);
             }
@@ -769,7 +780,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       this.setTempo(tempo, {shouldSetTune: false});
     }
     //this will override URLPARAMS
-    if (_.isNumber(transposition) //can contain zero
+    if (isNumber(transposition) //can contain zero
         && transposition !== this.transposition //song trans. doesnt match player trans.
         && !this.onUnsetUrlParamTransposition) {//the trans. was not set by urlparams
       const setEm = () => {
@@ -790,7 +801,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     }
     if (tuning && !this.onUnsetUrlParamChanter) {
       const setEm = () => {
-        this._updateChanter(tuning);
+        this._updateChanter(this.sackpipa?.getChanterKeyIndex(tuning));
       }
       if (onSuccess && onSuccess.hasOwnProperty("length")) {
         onSuccess.push(setEm);
@@ -949,7 +960,7 @@ ABCPlayer.prototype.getNoteScrollerItem = function getNoteScrollerItem({currentN
 }
 
 ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e, {currentNoteIndex} = {}) {
-  if (!e && _.isNumber(currentNoteIndex)) {
+  if (!e && isNumber(currentNoteIndex)) {
     const target = this.getNoteScrollerItem({currentNoteIndex});
     e = {target};
   }
