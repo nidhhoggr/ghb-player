@@ -542,6 +542,7 @@ ABCPlayer.prototype.start = function() {
 }
 
 ABCPlayer.prototype.stop = function(args = {}) {
+  this.synthControl?.destroy?.();
   this.synthControl?.stop?.();
   if (this.options.refreshWhenPossible) {
     this.updateState({
