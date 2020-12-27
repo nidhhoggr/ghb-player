@@ -113,6 +113,7 @@ address {
 .playercontrols {
   display: flex;
   justify-content: space-evenly;
+  align-items: center;
   background-color: #fff0f0;
   margin: 0 0 10px;
   padding: 15px;
@@ -138,9 +139,8 @@ address {
   }
 
   .songControls {
-    .buttons {
-      min-width: 200px;      
-    }
+    min-width: 200px;      
+    .buttons {}
     span.currentBeat {
       display: block;
       text-align: left;
@@ -332,6 +332,12 @@ span.keySigUp {
     color: #000;
   }
 
+  @mixin playable-note-alt {
+    background-image: url("../images/content/onescalloped-alt.png");
+    color: #000;
+  }
+
+
   background-image: none;
   background-repeat: no-repeat;
   min-height: 600px;
@@ -390,6 +396,24 @@ span.keySigUp {
     @include playable-note;
     background-position: -1098px 65px;
   }
+
+  &.playable_pitch-63 {
+    @include playable-note-alt;
+    background-position: -154px 65px;
+  }
+  &.playable_pitch-65 {
+    @include playable-note-alt;
+    background-position: -289px 65px;
+  }
+  &.playable_pitch-70 {
+    @include playable-note-alt;
+    background-position: -830px 65px;
+  }
+  &.playable_pitch-75 {
+    @include playable-note-alt;
+    background-position: -1366px 65px;
+  }
+
 }
 
 

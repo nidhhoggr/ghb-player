@@ -43,7 +43,18 @@
 */
 
 
+section {
+  h4 {
+    color: blue;
+    font-size: 12px;
+    padding-left: 2px;
+    position: absolute;
+    top: 10px;
+  }
+}
+
 section.unplayable_note {
+  @include unplayable-note;
   h4 {
     color: yellow;
     font-size: 20px;
@@ -52,6 +63,10 @@ section.unplayable_note {
     position: relative;
     bottom: -60px;
   }
+}
+
+section.incompatible_pitch {
+  background-color: #ff500c !important;
 }
 
 @mixin scrollingNoteDur {
@@ -145,6 +160,13 @@ section.unplayable_note {
     @include pn;
   }
 
+  @mixin playable-note-alt {
+    background-image: url("../images/content/onescalloped-alt.png");
+    opacity: 0.7;
+    @include pn;
+  }
+
+
   background-image: none;
   background-repeat: no-repeat;
   background-color: #7e9fb58a;
@@ -152,7 +174,6 @@ section.unplayable_note {
 
   section {
     margin: 0px 5px 0px 5px;
-    @include unplayable-note;
     &.firstScrollingNote {
       height: 150px;
       width: 400px;
@@ -210,6 +231,36 @@ section.unplayable_note {
   }
   .playable_pitch-76 {//E5
     @include playable-note;
+    background-position: -410px 0px;
+  }
+
+  .unplayable_pitch-72 {
+    @include playable-note;
+    background-position: -288px 0px;
+    background-blend-mode: color-burn;
+  }
+  .unplayable_pitch-73 {
+    @include playable-note;
+    background-position: -328px 0px;
+    background-blend-mode: color-burn;
+  }
+
+  .playable_pitch-63 {
+    background-color: green;
+    @include playable-note-alt;
+    opacity: 0.7;
+    background-position: -38px 0px;
+  }
+  .playable_pitch-65 {
+    @include playable-note-alt;
+    background-position: -81px 0px;
+  }
+  .playable_pitch-70 {
+    @include playable-note-alt;
+    background-position: -246px 0px;
+  }
+  .playable_pitch-75 {
+    @include playable-note-alt;
     background-position: -410px 0px;
   }
 }

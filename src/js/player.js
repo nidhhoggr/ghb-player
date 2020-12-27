@@ -23,7 +23,7 @@ function ABCPlayer({
 
   this.stateMgr = stateMgr;
 
-  this.options = options;
+  this.playerOptions = options.player;
 
   this.currentTuneIndex = 0;
   this.transposition = 0;
@@ -92,7 +92,7 @@ function ABCPlayer({
   /*
    * @TODO look into abctune.formatting.bagpipe
    */
-  this.currentInstrumentIndex = 109 || options.currentInstrumentIndex; //bagpipe
+  this.currentInstrumentIndex = 109 || options.player.currentInstrumentIndex; //bagpipe
 
   this.transpositionLimits = {
     min: -12,
@@ -151,7 +151,7 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { console.log(message) },
     options: {
-      soundFontUrl: this.options.soundFontUrl, 
+      soundFontUrl: this.playerOptions.soundFontUrl, 
       program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
@@ -175,14 +175,7 @@ function ABCPlayer({
 
   this.sackpipaDroneSynth = null; 
 
-  this.sackpipaOptions = {
-    chanterKey: "E/A",
-    dronesEnabled: ["E4","A3"],
-    isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A chanter
-    isSecondGroupPlugged: true,//only on D/G and C/F chanters
-    dronesSynth: null,//should be an instance of the sackpipaDroneSynth above,
-    playableNotes: [],//["F"]
-  };
+  this.sackpipaOptions = options.sackpipa;
 
   this.hpsOptions = {
     ease: 0.08,
@@ -356,7 +349,7 @@ ABCPlayer.prototype.load = function() {
   document.onkeydown = (evt) => {
     evt = evt || window.event;
     const { keyCode } = evt;
-    const { keyCodes } = this.options;
+    const { keyCodes } = this.playerOptions;
     if (!keyCodes) return;
     if (keyCode === keyCodes.esc) { 
       history.replaceState({}, null, `?currentTuneIndex=${this.currentTuneIndex}`);
@@ -544,7 +537,7 @@ ABCPlayer.prototype.start = function() {
 ABCPlayer.prototype.stop = function(args = {}) {
   this.synthControl?.destroy?.();
   this.synthControl?.stop?.();
-  if (this.options.refreshWhenPossible) {
+  if (this.playerOptions.refreshWhenPossible) {
     this.updateState({
       playerInstance: {
         currentNoteIndex: 0,
@@ -941,12 +934,24 @@ function scrollingNoteItemIterator({section, item}) {
   if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") || 
   (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
     section.classList.add(`unplayable_note`);
+    section.classList.add(`exceeds_pitch_range`);
+    section.innerHTML = `<h4>${noteName}</h4>`;
+  }
+  else if (_.get(this.currentSong, "compatibility.compatiblePitches.incompatible")?.includes?.(pitchIndex)) {
+    section.classList.add(`unplayable_pitch-${pitchIndex}`);
+    section.classList.add(`unplayable_note`);
+    section.classList.add(`incompatible_pitch`);
     section.innerHTML = `<h4>${noteName}</h4>`;
   }
   else {
     section.classList.add(`playable_pitch-${pitchIndex}`);
     section.classList.add(`playable_duration-${dur}`);
-    section.innerHTML = `<div></div>`;
+    if (this.playerOptions.showPlayableNoteNamesInScroller) { 
+      section.innerHTML = `<div></div><h4>${noteName}</h4>`;
+    }
+    else {
+      section.innerHTML = `<div></div>`;
+    }
   }
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);

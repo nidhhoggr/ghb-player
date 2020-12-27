@@ -20,7 +20,7 @@ const abcPlayer = new ABCPlayer({
   Sackpipa, 
   HPS, 
   stateMgr, 
-  options: config.player
+  options: config
 });
 tippy('[data-tooltip]', {
   onShow(instance) {

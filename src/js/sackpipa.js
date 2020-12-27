@@ -5,7 +5,7 @@ const { isNumber } = utils;
 function Sackpipa({
   chanterKeyIndex = 0,//the key of the chanter, EA, DG, 
   dronesSynth,//an instance of CreateSynth that plays the drone
-  playableNotes = [],//an array of playable notes because some instruments can play more notes,
+  playableExtraNotes = {},//an array of playable notes because some instruments can play more notes,
   dronesEnabled = [],//an array of notes for the drones enabled, uses ABC for pitches
   canPlayUnpluggedGroupsIndividually = false,//an advanced technique that we disable by default
   isFirstGroupPlugged = true,
@@ -13,7 +13,7 @@ function Sackpipa({
 }) {
   this.dronesSynth = dronesSynth;
   this.possibleChanters = ["E/A","D/G","C/F"];
-  this.playableNotes = playableNotes;
+  this.playableExtraNotes = playableExtraNotes;
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
   this.isFirstGroupPlugged = isFirstGroupPlugged;
@@ -138,17 +138,30 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
       break;
     }
   }
-  if (notesOnly) {
-    return _.keys(notes);
-  }
-  else if (pitchesOnly) {
-    return _.flatten(_.values(notes));
+  if (_.keys(this.playableExtraNotes)?.length > 0) {
+    if (notesOnly) {
+      notes = [
+        ..._.keys(notes),
+        ..._.keys(this.playableExtraNotes),
+      ]
+    }
+    else if (pitchesOnly) {
+      notes = [
+        ..._.flatten(_.values(notes)),
+        ..._.flatten(_.values(this.playableExtraNotes))
+      ]
+    }
   }
   else {
-    return notes;
+    if (notesOnly) {
+      notes = _.keys(notes)
+    }
+    else if (pitchesOnly) {
+      notes = _.flatten(_.values(notes));
+    }
   }
-  //@TODO Playablenote feature
-  //return _.sortedUniq(_.concat(_.values(notes), this.playableNotes));
+    
+  return notes;
 }
 
 
