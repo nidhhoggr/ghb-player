@@ -37,31 +37,6 @@ function ABCPlayer({
 
   this.domBinding = {};
 
-  this.domBindingKeys = [
-    "start",
-    "stop",
-    "songNext",
-    "songPrev",
-    "transposeUp",
-    "transposeDown",
-    "tempoUp",
-    "tempoDown",
-    "chanterUp",
-    "chanterDown",
-    "currentTransposition",
-    "currentTempo",
-    "currentSong",
-    "currentBeat",
-    "currentChanter",
-    "currentKeySig",
-    "audio",
-    "noteDiagram",
-    "scrollingNotesWrapper",
-    "unsetUrlTempo",
-    "unsetUrlTransposition",
-    "unsetUrlChanter",
-  ];
-
   this.domButtonSelectors = [
     "start",
     "stop",
@@ -76,14 +51,31 @@ function ABCPlayer({
     "unsetUrlTempo",
     "unsetUrlTransposition",
     "unsetUrlChanter",
+    "firstGroup",
+    "secondGroup"
   ];
+
+  this.domBindingKeys = [
+    ...this.domButtonSelectors,
+    "currentTransposition",
+    "currentTempo",
+    "currentSong",
+    "currentBeat",
+    "currentChanter",
+    "currentKeySig",
+    "audio",
+    "noteDiagram",
+    "scrollingNotesWrapper",
+  ]
 
   this.urlParamNames = [
     "currentChanterIndex",
     "currentTuneIndex",
     "currentTransposition",
     "currentTempo",
-    "currentNoteIndex"
+    "currentNoteIndex",
+    "fgp",//firstGroupPlugged
+    "sgp",//SecondGroupPlugged
   ];
 
   this.urlParams = {};
@@ -302,9 +294,12 @@ ABCPlayer.prototype.load = function() {
       }
     }
   });
-
   this.domButtonSelectors.map((elName) => {
-    clickBinder({el: this.domBinding[elName], eventCb: this[elName].bind(this)});
+    try {
+      clickBinder({el: this.domBinding[elName], eventCb: this[elName].bind(this)});
+    } catch(err) {
+      console.log(`Error attetmping to bind ${elName} to dom selectors`, err);
+    }
   });
 
   this.urlParamNames.map((urlParamName) => {
@@ -325,8 +320,6 @@ ABCPlayer.prototype.load = function() {
   } else {
     this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
   }
-  
-  this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   
   this.evaluateUrlParams();
   
@@ -397,10 +390,64 @@ ABCPlayer.prototype.load = function() {
   */
 }
 
+ABCPlayer.prototype.sackpipaReload = function(options = {}) {
+  this.sackpipaOptions = _.merge(this.sackpipaOptions,options);
+  const { isFirstGroupPlugged, isSecondGroupPlugged } = this.sackpipaOptions;
+  if (isFirstGroupPlugged) {
+    //this.domBinding.
+  }
+  this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+  if (options.skipUpdate) return;
+  this._updateChanter();
+  this.updateState();
+  if (!this.sackpipa.isFirstGroupPlugged) {
+    this.domBinding.firstGroup.classList.remove("plugged");
+  } 
+  else {
+    updateClasses(this.domBinding, "firstGroup", ["plugged"]);
+  }
+  if (!this.sackpipa.isSecondGroupPlugged) {
+    this.domBinding.secondGroup.classList.remove("plugged");
+  }
+  else {
+    updateClasses(this.domBinding, "secondGroup", ["plugged"]);
+  }
+}
+
 ABCPlayer.prototype.evaluateUrlParams = function() {
   //an array of callbacks to be executed in the sequence they are inserted
   this.onSuccesses = [];
-  let urlParam = parseInt(this.urlParams["currentTuneIndex"]);
+
+  let urlParam = false;
+
+  urlParam = parseInt(this.urlParams["fgp"]);
+  if (isNumber(urlParam)) {
+    this.sackpipaOptions.isFirstGroupPlugged = !(urlParam === 0);
+  }
+
+  urlParam = parseInt(this.urlParams["sgp"]);
+  if (urlParam === 1) {
+    this.sackpipaOptions.isSecondGroupPlugged = !(urlParam === 0);
+  }
+
+  this.sackpipaReload();
+
+  const toSet = {};//stores a set of properties to call in onSuccess
+  urlParam = parseInt(this.urlParams["currentChanterIndex"]);
+  if (isNumber(urlParam)) {
+    const currentChanterIndex = this.getCurrentChanterIndex();
+    const urlChanterIndex = urlParam;
+    console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
+    if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
+      toSet.chanterIndex = urlChanterIndex;
+      toSet.from_chanterIndex = currentChanterIndex;
+      this.sackpipaReload({
+        tuning: this.sackpipa.getChanterKeyByIndex(urlChanterIndex) 
+      });
+    }
+  }
+  
+  urlParam = parseInt(this.urlParams["currentTuneIndex"]);
   if (isNumber(urlParam)) {
     this.currentTuneIndex = urlParam;
     if (this.songs[this.currentTuneIndex]) {
@@ -412,17 +459,6 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  const toSet = {};//stores a set of properties to call in onSuccess
-  urlParam = parseInt(this.urlParams["currentChanterIndex"]);
-  if (isNumber(urlParam)) {
-    const currentChanterIndex = this.getCurrentChanterIndex();
-    const urlChanterIndex = urlParam;
-    console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
-    if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
-      toSet.chanterIndex = urlChanterIndex;
-      toSet.from_chanterIndex = currentChanterIndex;
-    }
-  }
 
   urlParam = parseInt(this.urlParams["currentTransposition"]);
   if (isNumber(urlParam)) {
@@ -525,7 +561,7 @@ ABCPlayer.prototype.start = function() {
   if (this.synthControl) {
     this.synthControl.play();
     if (this.onStartCbQueue.length) {
-      this.synthControl.pause();
+      this.synthControl?.pause();
       _.each(this.onStartCbQueue, (cq, i) => {
         _.isFunction(cq) && cq();
         delete this.onStartCbQueue[i];
@@ -648,8 +684,9 @@ ABCPlayer.prototype.getCurrentChanterIndex = function() {
   return _.indexOf(possibleChanters, chanterKey);
 }
 
-ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex, {from} = {}) {
+ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0, {from} = {}) {
   const { possibleChanters } = this.sackpipa;
+  if (chanterKeyIndex < 0 || !isNumber(chanterKeyIndex)) chanterKeyIndex = 0;
   this.sackpipa.setChanterKey(possibleChanters[chanterKeyIndex]);
   this.setTune({
     userAction: true,
@@ -660,6 +697,17 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex, {fr
     },
     onSuccess: () => {
       console.log(`Updated the chanter to ${chanterKeyIndex}`);
+      if ((chanterKeyIndex % possibleChanters.length) === 0) {
+        this.domBinding.secondGroup.hide();
+
+        //@TODO get plugged holes working
+        this.domBinding.firstGroup.show();
+      }
+      else {
+        //@TODO get plugged holes working
+        this.domBinding.firstGroup.hide();
+        this.domBinding.secondGroup.hide();
+      }
       if (isNumber(chanterKeyIndex) && this.sackpipa.getChanterKeyByIndex(chanterKeyIndex) === this.currentSong?.original?.tuning) {
         delete this.onUnsetUrlParamChanter;
         this.domBinding.unsetUrlChanter.hide();
@@ -694,6 +742,18 @@ ABCPlayer.prototype.unsetUrlChanter = function() {
   this.domBinding.unsetUrlChanter.hide();
   this.updateState();
   delete this.onUnsetUrlParamChanter;
+}
+
+ABCPlayer.prototype.firstGroup = function() {
+  this.sackpipaReload({
+    isFirstGroupPlugged: !this.sackpipa.isFirstGroupPlugged
+  });
+}
+
+ABCPlayer.prototype.secondGroup = function() {
+  this.sackpipaReload({
+    isSecondGroupPlugged: !this.sackpipa.isSecondGroupPlugged
+  });
 }
 
 ABCPlayer.prototype.updateControlStats = function updateControlStats() {
@@ -808,7 +868,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         throw new Error("Has no member length");
       }
     }
-    this.domBinding.currentSong.innerText = this.currentSong.name;
+    _.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
   }
   
   const { abc } = this.currentSong;

@@ -25,6 +25,18 @@
 /* Demo styles */
 @import 'scrollingnotes';
 
+@mixin button-column { 
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  justify-content: space-evenly;
+}
+
+@mixin unplayable-note {
+  background-image: none;
+  color: red !important;
+}
+
 body {
   background: $body-background-color;
   color: $foreground-color;
@@ -206,9 +218,7 @@ address {
       text-align: right;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+      @include button-column;
     }
   }
 
@@ -218,9 +228,7 @@ address {
       text-align: right;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+      @include button-column;
     }
   }
 
@@ -229,10 +237,27 @@ address {
       font-size: 64px;
       text-align: right;
     }
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+    .buttons, .holes {
+      @include button-column;
+    }
+    .holes {
+      span {
+        background: url("../images/content/holes.svg") no-repeat;
+        width: 20px;
+        height: 20px;
+        &:hover {
+          background-image: url("../images/content/holes-filled.svg");
+        }
+      }
+      span.secondGroup {
+        display: none;
+      }
+      span.plugged {
+        background: url("../images/content/holes-filled.svg") no-repeat;
+        &:hover {
+          background-image: url("../images/content/holes.svg");
+        }
+      }
     }
   }
 
@@ -243,10 +268,7 @@ address {
       padding-top: 10px;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
       color: rgba(0,0,0, 0.3);
-      cursor: pointer;
       span:hover {
         color: rgba(0,0,0, 0.3);
       }
@@ -283,10 +305,6 @@ address {
   text-align: left;
 }
 
-@mixin unplayable-note {
-  background-image: none;
-  color: red !important;
-}
 
 .unplayable-note {
   @include unplayable-note;

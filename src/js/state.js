@@ -22,7 +22,8 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     transposition, 
     currentTuneIndex, 
     currentNoteIndex,
-    getCurrentChanterIndex 
+    getCurrentChanterIndex,
+    sackpipaOptions,
   } = playerInstance;
 
   if (changeSong && !_.isNaN(currentTuneIndex)) {
@@ -48,6 +49,8 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     _.isNumber(currentTuneIndex) && stateArray.push(["currentTuneIndex", currentTuneIndex]);//contain zero
     _.isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
     _.isNumber(currentChanterIndex) && stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
+    stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
+    stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
     const queryParams = new URLSearchParams(window.location.search);
     const qpOld = queryParams.toString();
     stateArray.forEach((sa, i) => {

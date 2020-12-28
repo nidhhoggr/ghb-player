@@ -13,11 +13,12 @@ function Sackpipa({
 }) {
   this.dronesSynth = dronesSynth;
   this.possibleChanters = ["E/A","D/G","C/F"];
-  this.playableExtraNotes = playableExtraNotes;
+  this.playableExtraNotes = playableExtraNotes[chanterKeyIndex];
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
   this.isFirstGroupPlugged = isFirstGroupPlugged;
   this.isSecondGroupPlugged = isSecondGroupPlugged;
+  this.chanterKeyIndex = chanterKeyIndex;
   this.chanterKey = this.possibleChanters[chanterKeyIndex];
 }
 
@@ -200,6 +201,7 @@ Sackpipa.prototype.setChanterKey = function setChanterKey(chanterKey = null) {
   }
   if(this.possibleChanters.includes(chanterKey)) {
     this.chanterKey = chanterKey;
+    this.chanterKeyIndex = _.indexOf(this.possibleChanters, chanterKey);
   }
 }
 

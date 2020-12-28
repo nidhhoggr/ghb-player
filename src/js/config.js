@@ -21,12 +21,14 @@ const sackpipa = {
   chanterKey: "E/A",
   dronesEnabled: ["E4","A3"],
   isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A chanter
-  isSecondGroupPlugged: true,//only on D/G and C/F chanters
+  isSecondGroupPlugged: false,//only on D/G and C/F chanters
   dronesSynth: null,//should be an instance of the sackpipaDroneSynth above,
   playableExtraNotes: {
-    "Db": [63, 75],
-    "F": 65,
-    "Bb": [70]
+    0: {//for the E/A chanter
+      "Db": [63, 75],
+      "F": 65,
+      "Bb": [70]
+    },
   }
 }
 
