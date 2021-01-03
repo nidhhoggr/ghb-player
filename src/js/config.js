@@ -1,12 +1,12 @@
 const config = {
-  prodDomain: "folktabs.com",
+  prodDomain: "www.folktabs.com",
   soundFontDir: "midi-js-soundfonts/FluidR3_GM/",
 }
 
 const player = {
   currentInstrumentIndex: 109,
   refreshWhenPossible: false,
-  soundFontDir: "midi-js-soundfonts/FluidR3_GM/",
+  soundFontDir: config.soundFontDir,
   soundFontUrl: window.location.hostname.includes(config.prodDomain) ? `https://${config.prodDomain}/${config.soundFontDir}` : `http://localhost:3000/${config.soundFontDir}`,
   keyCodes: {
     prev: 118,

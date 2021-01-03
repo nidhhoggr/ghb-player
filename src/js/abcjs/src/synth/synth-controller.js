@@ -175,7 +175,7 @@ function SynthController() {
 	self.pause = function() {
 		if (self.timer) {
 			self.timer.pause();
-			self.midiBuffer.pause();
+			self.midiBuffer && self.midiBuffer.pause();
 			if (self.control)
 				self.control.pushPlay(false);
 		}
@@ -190,7 +190,7 @@ function SynthController() {
 	self.restart = function () {
 		if (self.timer) {
 			self.timer.setProgress(0);
-			self.midiBuffer.seek(0);
+			self.midiBuffer && self.midiBuffer.seek(0);
 		}
 	};
 
