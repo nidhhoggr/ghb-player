@@ -1,6 +1,10 @@
 const config = {
   prodDomain: "www.folktabs.com",
   soundFontDir: "midi-js-soundfonts/FluidR3_GM/",
+  errorReloadLimit: 5,
+  errorReloadResetDuration: 20000,//in milliseconds
+  shouldDebug: true,
+  debugDisabledModules: ["state"]//disable debugging in these modules
 }
 
 const player = {
@@ -12,7 +16,8 @@ const player = {
     prev: 118,
     next: 120,
     play: 119,
-    esc: 27
+    esc: 27,
+    refresh: 116,
   },
   showPlayableNoteNamesInScroller: true
 };

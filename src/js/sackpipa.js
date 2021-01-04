@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import utils from "./utils";
-const { isNumber } = utils;
+const { isNumber } = utils({from: "sackpipa"});
 
 function Sackpipa({
   chanterKeyIndex = 0,//the key of the chanter, EA, DG, 

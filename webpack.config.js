@@ -32,7 +32,7 @@ const config = function(env, args) {
   const terserOptions = process.env.NODE_ENV === "production" ? {
     extractComments: "all",
     compress: {
-      drop_console: true
+      drop_console: false
     }
   } : {};
 

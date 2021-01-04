@@ -1,5 +1,12 @@
-import  utils from "./utils";
-const { isNumber } = utils;
+import utils from "./utils";
+const { 
+  isNumber, 
+  isPositiveNumber, 
+  debug, 
+  debugErr, 
+  location_getParameterByName,
+  simulateClick,
+} = utils({from: "player"});
 
 function ABCPlayer({
   abcjs,
@@ -23,6 +30,7 @@ function ABCPlayer({
 
   this.stateMgr = stateMgr;
 
+  this.options = options;
   this.playerOptions = options.player;
 
   this.isSettingTune = true;
@@ -30,6 +38,8 @@ function ABCPlayer({
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
+
+  this.errorReloadCount = 0;
 
   //how often to analyze the state
   this.stateAssessmentLoopInterval = 5000;//milliseconds
@@ -68,6 +78,7 @@ function ABCPlayer({
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
+    "firstScrollingNote",
   ]
 
   this.urlParamNames = [
@@ -77,7 +88,8 @@ function ABCPlayer({
     "currentTempo",
     "currentNoteIndex",
     "fgp",//firstGroupPlugged
-    "sgp",//SecondGroupPlugged
+    "sgp",//SecondGroupPlugged,
+    "erc",//error reload count
   ];
 
   this.urlParams = {};
@@ -132,7 +144,7 @@ function ABCPlayer({
           }
         }
       }).catch((error) => {
-        console.log("error playing note", error);
+        debug("error playing note", error);
       });
     }
   };
@@ -143,7 +155,7 @@ function ABCPlayer({
     //visualObj,
     // sequence: [],
     // millisecondsPerMeasure: 1000,
-    // debugCallback: function(message) { console.log(message) },
+    // debugCallback: function(message) { debug(message) },
     options: {
       soundFontUrl: this.playerOptions.soundFontUrl, 
       program: this.currentInstrumentIndex,
@@ -202,7 +214,7 @@ ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}
     },
     onSuccess: () => {
       this.domBinding.currentTempo.innerText = tempo;
-      console.log(`Set tempo to ${tempo}.`);
+      debug(`Set tempo to ${tempo}.`);
       if (isNumber(tempo) && tempo === this.currentSong?.original?.tempo) {
         delete this.onUnsetUrlParamTempo;
         this.domBinding.unsetUrlTempo.hide();
@@ -220,7 +232,7 @@ ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}
 
 function clickBinder({el, selector, eventCb, eventName = "click"}) {
   if (!el) el = document.querySelector(selector);
-  if (!el) return console.error(`Could not get element from selector: ${selector}`);
+  if (!el) return debugErr(`Could not get element from selector: ${selector}`);
   el.addEventListener(eventName, (e) => {
     eventCb();
   });
@@ -251,7 +263,7 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   //gap,
 }}) {
   const scrollingNotesWrapper = this.domBinding?.scrollingNotesWrapper;
-  console.log("onNoteChange:", {pitch, cmd, event});
+  debug("onNoteChange:", {pitch, cmd, event});
   if (scrollingNotesWrapper) {
     const index = event.ensIndex + 1;
     if (_.isNaN(index)) return;
@@ -263,11 +275,11 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
       const snItemRect = snItem.getBoundingClientRect();
       const offset = (snItemRect.left - firstLeft.left - this.hpsOptions.sectionOffset) * -1;
       const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
-      console.log({offset, targetXPos});
+      debug({offset, targetXPos});
       this.noteScroller.setScrollerXPos({xpos: offset});
     }
     catch (err) {
-      console.error(`Could not calculate offset`);
+      debugErr(`Could not calculate offset`);
     }
     const scrollingNoteDivs = this.domBinding?.scrollingNotesWrapper.children || [];
     const currEl = scrollingNoteDivs[index];
@@ -306,12 +318,12 @@ ABCPlayer.prototype.load = function() {
       });
     } 
     catch(err) {
-      console.log(`Error attetmping to bind ${elName} to dom selectors`, err);
+      debug(`Error attetmping to bind ${elName} to dom selectors`, err);
     }
   });
 
   this.urlParamNames.map((urlParamName) => {
-    this.urlParams[urlParamName] = utils.location_getParameterByName(urlParamName);
+    this.urlParams[urlParamName] = location_getParameterByName(urlParamName);
   });
 
   if (this.abcjs.synth.supportsAudio()) {
@@ -332,28 +344,41 @@ ABCPlayer.prototype.load = function() {
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
   this.setCurrentSongFromUrlParam();
+
+  const _handleErr = (err) => {
+    debug(err);
+    const error = err?.message || err?.error?.mesage || err;
+    debugErr(`Error occurred: ${error}`);
+    if (this.errorReloadCount < this.options?.errorReloadLimit) {
+      this.errorReloadCount = this.errorReloadCount + 1;
+      this.reloadWindow();
+    }
+    else if (this.errorReloadCount === this.options?.errorReloadLimit) {
+      setTimeout(() => {
+        this.errorReloadCount = 0;
+      }, this.errorReloadResetDuration);
+    }
+  };
+  
   this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
     this.evaluateUrlParams();
-    const _handleErr = (err) => {
-      console.error(`Error occurred: ${err}`);
-      this.updateState({onFinish: () => (window.location.reload())});
-    };
     window.onerror = function (message, file, line, col, error) {
-      _handleErr(error.message);
+      _handleErr(error);
     };
     window.addEventListener("error", function (e) {
-      _handleErr(e.error.message);
+      _handleErr(e);
     })
     window.addEventListener('unhandledrejection', function (e) {
-      _handleErr(e.error.message);
+      _handleErr(e);
     })
     this.stateMgr.idleWatcher({
       inactiveTimeout: 60000 * 5, 
       onInaction: () => {
-        console.log("My inaction function"); 
+        debug("My inaction function"); 
       },
       onReactivate: () => {
-        _handleErr("my reactivate function");
+        debug("my reactivate function");
+        this.reloadWindow();
       }
     });
     setInterval(() => {
@@ -379,6 +404,9 @@ ABCPlayer.prototype.load = function() {
     }
     else if (keyCode === keyCodes.next) {
       this.songNext();
+    }
+    else if (keyCode === keyCodes.refresh) {
+      this.reloadWindow();
     }
   };
   /*
@@ -408,6 +436,10 @@ ABCPlayer.prototype.load = function() {
     });
   }});
   */
+}
+
+ABCPlayer.prototype.reloadWindow = function() {
+  this.updateState({onFinish: () => (window.location.reload())});
 }
 
 ABCPlayer.prototype.sackpipaReload = function(options = {}) {
@@ -444,7 +476,7 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
       this.currentSong = new this.ABCSong(song);
     }
     else {
-      console.error(`Could not get song from index ${this.currentTuneIndex}`);
+      debugErr(`Could not get song from index ${this.currentTuneIndex}`);
     }
   }
 }
@@ -465,6 +497,11 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     this.sackpipaOptions.isSecondGroupPlugged = !(urlParam === 0);
   }
 
+  urlParam = parseInt(this.urlParams["erc"]);
+  if (isPositiveNumber(urlParam)) {
+    this.errorReloadCount = urlParam;
+  }
+
   this.sackpipaReload();
 
   const toSet = {};//stores a set of properties to call in onSuccess
@@ -472,7 +509,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   if (isNumber(urlParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
     const urlChanterIndex = urlParam;
-    console.log("URL CHANTER", currentChanterIndex, urlChanterIndex);
+    debug("URL CHANTER", currentChanterIndex, urlChanterIndex);
     if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
       toSet.chanterIndex = urlChanterIndex;
       toSet.from_chanterIndex = currentChanterIndex;
@@ -488,7 +525,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   if (isNumber(urlParam)) {
     const currentTransposition = this.currentSong?.transposition || this.transposition;
     const urlTransposition = urlParam;
-    console.log("URL TRANSPOSITION", currentTransposition, urlTransposition);
+    debug("URL TRANSPOSITION", currentTransposition, urlTransposition);
     if (currentTransposition !== urlTransposition && urlTransposition !== 0) {
       toSet.transposition = urlTransposition;
       toSet.from_transposition = currentTransposition;
@@ -499,7 +536,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   if (isNumber(urlParam)) {
     const currentTempo = this.currentSong?.tempo || this.tempo;
     const urlTempo = urlParam;
-    console.log("URL TEMPO", currentTempo, urlTempo, this.currentSong);
+    debug("URL TEMPO", currentTempo, urlTempo, this.currentSong);
     if (currentTempo !== urlTempo && urlTempo !== 0) {
       toSet.tempo = urlTempo;
       toSet.from_tempo = currentTempo;
@@ -523,7 +560,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     if (_.isNaN(currentNoteIndex)) return;
     function clickItem() {
       const nsItem = this.getNoteScrollerItem({currentNoteIndex: currentNoteIndex - 1});
-      nsItem && utils.simulateClick(nsItem);
+      nsItem && simulateClick(nsItem);
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
     this.onStartCbQueue.push(clickItem.bind(this));
@@ -553,6 +590,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   const linesLength = lines.length;
   const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
   let durationReached = 0;
+  if (lines?.length === 0) return onFinish?.(0)
   lines.map((line, lKey) => {
     if (_.get(line, "midiPitches[0].cmd") === "note") {
       const pitchIndex = line.midiPitches[0].pitch;
@@ -574,8 +612,8 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
       durationReached += duration;
     }
     else {
-      if (line.type == "end" && onFinish) {
-        onFinish();
+      if (line.type == "end") {
+        onFinish?.(lKey + 1);
       }
     }
   });
@@ -583,14 +621,28 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
 
 ABCPlayer.prototype.start = function() {
   if (this.isSettingTune) return;
-  if (this.synthControl) {
-    this.synthControl.play();
-    if (this.onStartCbQueue.length) {
-      this.synthControl?.pause();
-      _.each(this.onStartCbQueue, (cq, i) => {
-        _.isFunction(cq) && cq();
-        delete this.onStartCbQueue[i];
-      });
+  if (!document.querySelector(".firstScrollingNote")) {
+    //the loader didn't load properly
+    const q = this.stop();
+    setTimeout(() => {
+      if (q) {
+        q.then(this.start.bind(this));
+      }
+      else {
+        this.start();
+      }
+    }, 2000);
+  }
+  else {
+    if (this.synthControl) {
+      this.synthControl.play();
+      if (this.onStartCbQueue.length) {
+        this.synthControl?.pause();
+        _.each(this.onStartCbQueue, (cq, i) => {
+          _.isFunction(cq) && cq();
+          delete this.onStartCbQueue[i];
+        });
+      }
     }
   }
 }
@@ -605,7 +657,7 @@ ABCPlayer.prototype.stop = function(args = {}) {
         currentTuneIndex: args.currentTuneIndex || this.currentTuneIndex,
         ...args
       },
-      onFinish: () => (window.location.reload()),
+      onFinish: this.reloadWindow.bind(this),
       changeSong: args.changeSong,
     });
   }
@@ -620,7 +672,7 @@ ABCPlayer.prototype.stop = function(args = {}) {
       },
       changeSong: args.changeSong,
     });
-    this.setTune({userAction: true, calledFrom: args.changeSong ? "song" : "stop"});
+    return Promise.resolve(this.setTune({userAction: true, calledFrom: args.changeSong ? "song" : "stop"}));
   }
 }
 
@@ -729,7 +781,7 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
       visualTranspose: this.transposition
     },
     onSuccess: () => {
-      console.log(`Updated the chanter to ${chanterKeyIndex}`);
+      debug(`Updated the chanter to ${chanterKeyIndex}`);
       if ((chanterKeyIndex % possibleChanters.length) === 0) {
         this.domBinding.secondGroup.hide();
 
@@ -807,7 +859,7 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
   this.transposition = semitones;
   this.currentSong.setTransposition(semitones, ({isSet}) => {
     if (!isSet) {
-      console.error(`Could not set transposition by ${semitones}`)
+      debugErr(`Could not set transposition by ${semitones}`)
       return;
     }
     else {
@@ -820,7 +872,7 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
           visualTranspose: semitones
         },
         onSuccess: () => {
-          console.log(`Set transposition by ${semitones} half steps.`);
+          debug(`Set transposition by ${semitones} half steps.`);
           if (isNumber(semitones) && semitones === this.currentSong?.original?.transposition) {
             this.domBinding.unsetUrlTransposition.hide();
             delete this.onUnsetUrlParamTransposition;
@@ -889,7 +941,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
           onSuccess = [setEm];
         }
         else {
-          console.error(onSuccess);
+          debugErr(onSuccess);
           throw new Error("Has no member length");
         }
       }
@@ -904,7 +956,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
           onSuccess = [setEm];
         }
         else {
-          console.error(onSuccess);
+          debugErr(onSuccess);
           throw new Error("Has no member length");
         }
       }
@@ -917,52 +969,53 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     try {
 
       if (shouldReuseInstances(calledFrom) && this.audioParams.visualObj) { 
-        console.log(`reusing visual obj`);
+        debug(`reusing visual obj`);
       }
       else {
         this.audioParams.visualObj = this.abcjs.renderAbc("paper", abc, {
           ...this.abcOptions,
           ...abcOptions
         })[0];
-        console.log(`recreating visual obj`, this.audioParams.visualObj, calledFrom);
+        debug(`recreating visual obj`, this.audioParams.visualObj, calledFrom);
       }
     } catch(err) {
-      console.error(err);
+      debugErr(err);
       this.isSettingTune = false;
       reject(err);
-      return console.log("Couldn't get midi file", {err});
+      return debug("Couldn't get midi file", {err});
     }
     this.updateControlStats();
     const tuneArgs = arguments[0];
     const _onSuccess = onSuccess;
     tuneArgs.onSuccess = (response) => {
-      this.setNoteScroller({calledFrom});
-      this.updateControlStats();
-      console.log("Audio successfully loaded.", this.synthControl);
-      if (_onSuccess) {
-        if (_.isArray(_onSuccess)) {
-          _.each(_onSuccess, (onS) => {
-            try {
-              _.isFunction(onS) && onS();
-            }
-            catch(err) {
-              console.error(err);
-            }
-          });
+      this.setNoteScroller({calledFrom}).then((noteScrollerInit) => {
+        this.updateControlStats();
+        debug("Audio successfully loaded.", this.synthControl);
+        if (_onSuccess) {
+          if (_.isArray(_onSuccess)) {
+            _.each(_onSuccess, (onS) => {
+              try {
+                _.isFunction(onS) && onS();
+              }
+              catch(err) {
+                debugErr(err);
+              }
+            });
+          }
+          else {
+            _onSuccess(response);
+          }
         }
-        else {
-          _onSuccess(response);
-        }
-      }
+      });
     }
     //only reuse if the chanter chnaged
     if (shouldReuseInstances(calledFrom) && this.midiBuffer) { 
-      console.log(`resuing midiBuffer instance`);
+      debug(`resuing midiBuffer instance`);
       this._setTune({...tuneArgs, resolve, reject}); 
     } 
     else {
       this.createMidiBuffer().then((response) => {
-        console.log(`creating new midiBuffer instance`, this.midiBuffer);
+        debug(`creating new midiBuffer instance`, this.midiBuffer);
         this._setTune({...tuneArgs, resolve, reject}); 
       }).catch(reject);
     }
@@ -971,10 +1024,11 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
 
 ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSuccess, onError, resolve, reject} = {}) {
   this.isSettingTune = true;
-  this.synthControl && this.synthControl.setTune(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
+  this.synthControl?.setTune?.(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
+    debug("setTune 1:", response);
     //if its called by anything other than  tempo
-    this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj, onFinish: () => {
-      console.log("Set current note sequence");
+    this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj, onFinish: (result) => {
+      debug(`Set current note sequence ${result}`);
       const compatiblePitches = this.sackpipa && this.sackpipa.getCompatiblePitches({abcSong: this.currentSong});
       const pitches = this.currentSong.getDistinctPitches();
       this.currentSong.compatibility = {
@@ -987,7 +1041,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
           max: _.max(compatiblePitches.compatible),
         }
       };
-      console.log("setTune", this.currentSong);
+      debug("setTune 2:", this.currentSong);
       onSuccess && onSuccess({response});
       resolve?.(response);
       this.isSettingTune = false;
@@ -1001,20 +1055,34 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
   });
 }
 
-  ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
-  if (!["tempo"].includes(calledFrom)) {
-    //set the current scrolling chanter css and html element if eniteNoteSequence 
-    if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
-      const cK = this.sackpipa.getChanterKeyAbbr();
-      updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
-      this.noteScrollerClear({
-        onFinish: () => {
-          console.log("clear onFinish");
-          this.noteScrollerAddItems();
-        }
-      });
+ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
+  return new Promise((resolve, reject) => {
+    if (!["tempo"].includes(calledFrom)) {
+      //set the current scrolling chanter css and html element if eniteNoteSequence 
+      if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
+        const cK = this.sackpipa.getChanterKeyAbbr();
+        updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
+        this.noteScrollerClear({
+          onFinish: () => {
+            debug("clear onFinish");
+            this.noteScrollerAddItems({
+              onFinish: (noteScrollerInit) => {
+                resolve(noteScrollerInit);
+              }
+            });
+          }
+        });
+      }
+      else {
+        //either the scroller dom was missing or the entireNoteSequence is empty
+        resolve();
+      }
     }
-  }
+    else {
+      //its called from something we're not interested in.
+      resolve();
+    }
+  });
 }
 
 function shouldReuseInstances(calledFrom, from = ["chanter"]) {
@@ -1089,18 +1157,19 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
       this.synthControl.randomAccessBy({percent});
     }
     else {
-      console.error(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`);
+      debugErr(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`);
     }
   }
 }
 
-ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems() {
+ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems({onFinish} = {}) {
   this.noteScroller && this.noteScroller.addItems({
     firstEl: this.firstScrollingNoteSection,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: scrollingNoteItemIterator.bind(this),
     onFinish: () => {
-      this.noteScroller && this.noteScroller.init();
+      const init = this.noteScroller?.init?.();
+      onFinish?.(init);
     }
   });
 }

@@ -405,7 +405,9 @@ HPS.prototype.init = function() {
 
   self.setupListeners();
 
-  self.animate();
+  self.animate()
+    
+  return self;
 };
 
 HPS.prototype.isHoveringWithinWrapper = function(e) {
