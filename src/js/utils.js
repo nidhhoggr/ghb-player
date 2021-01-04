@@ -33,7 +33,27 @@ export default function({from} = {}) {
       (shouldDebug && !debugDisabledModules.includes(from)) && console.log.apply(undefined, arguments);
     },
     debugErr: function() {
-      (shouldDebug) && console.error.apply(undefined, arguments);
+      (shouldDebug && !debugDisabledModules.includes(from)) && console.error.apply(undefined, arguments);
+    },
+    debugAll: function() {
+      console.log.apply(undefined, arguments);
+    },
+    callEvery: function(_every) {
+      if (_every) {
+        if (_.isArray(_every)) {
+          _.each(_every, (onS) => {
+            try {
+              _.isFunction(onS) && onS();
+            }
+            catch(err) {
+              debugErr(err);
+            }
+          });
+        }
+        else {
+          _every?.();
+        }
+      }
     }
   }
 }

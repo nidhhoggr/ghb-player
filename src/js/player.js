@@ -6,6 +6,7 @@ const {
   debugErr, 
   location_getParameterByName,
   simulateClick,
+  callEvery
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -351,7 +352,9 @@ ABCPlayer.prototype.load = function() {
     debugErr(`Error occurred: ${error}`);
     if (this.errorReloadCount < this.options?.errorReloadLimit) {
       this.errorReloadCount = this.errorReloadCount + 1;
-      this.reloadWindow();
+      setTimeout(() => {
+        this.reloadWindow();
+      }, 2000);
     }
     else if (this.errorReloadCount === this.options?.errorReloadLimit) {
       setTimeout(() => {
@@ -360,8 +363,10 @@ ABCPlayer.prototype.load = function() {
     }
   };
   
+  const urlProcessing = this.evaluateUrlParams();
   this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
-    this.evaluateUrlParams();
+    debug(urlProcessing);
+    this.processUrlParams(urlProcessing);
     window.onerror = function (message, file, line, col, error) {
       _handleErr(error);
     };
@@ -481,30 +486,73 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
   }
 }
 
+ABCPlayer.prototype.processUrlParams = function(toSet) {
+  if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
+    this.sackpipaOptions.isFirstGroupPlugged = toSet["sackpipaOptions.isFirstGroupPlugged"];
+  }
+  if (toSet["sackpipaOptions.isSecondGroupPlugged"]) {
+    this.sackpipaOptions.isSecondGroupPlugged = toSet["sackpipaOptions.isSecondGroupPlugged"];
+  }
+  if (toSet["errorReloadCount"]) {
+    this.errorReloadCount = toSet["errorReloadCount"];
+  }
+
+  if (toSet["sackpipa.tuning"]) {
+    this.sackpipaReload({tuning: toSet["sackpipa.tuning"]});
+  }
+  else {
+    this.sackpipaReload();
+  }
+  
+  this.setCurrentSongFromUrlParam();
+
+  const onSuccesses = [];
+  onSuccesses.push(() => {
+    if (isNumber(toSet.chanterIndex)) {
+      //this needs to execute later in the stack due to some race condition
+      setTimeout(() => {
+        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
+      });
+    }
+    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
+    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
+  });
+
+  if (toSet["setNoteScrollerItem"]) {
+    const currentNoteIndex = toSet["setNoteScrollerItem"];
+    function clickItem() {
+      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
+      nsItem && simulateClick(nsItem);
+    }
+    //this will be fired when the user clicks play is needed in addtion to the call below
+    this.onStartCbQueue.push(clickItem.bind(this));
+    //this will be fired first to set the note before clicking play
+    onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
+  }
+
+  callEvery(onSuccesses);
+}
+
 ABCPlayer.prototype.evaluateUrlParams = function() {
-  //an array of callbacks to be executed in the sequence they are inserted
-  this.onSuccesses = [];
 
   let urlParam = false;
 
+  const toSet = {};//stores a set of properties to perform logic on
   urlParam = parseInt(this.urlParams["fgp"]);
   if (isNumber(urlParam)) {
-    this.sackpipaOptions.isFirstGroupPlugged = !(urlParam === 0);
+    toSet["sackpipaOptions.isFirstGroupPlugged"] = !(urlParam === 0);
   }
 
   urlParam = parseInt(this.urlParams["sgp"]);
   if (urlParam === 1) {
-    this.sackpipaOptions.isSecondGroupPlugged = !(urlParam === 0);
+    toSet["sackpipaOptions.isSecondGroupPlugged"] = !(urlParam === 0);
   }
 
   urlParam = parseInt(this.urlParams["erc"]);
   if (isPositiveNumber(urlParam)) {
-    this.errorReloadCount = urlParam;
+    toSet["errorReloadCount"] = urlParam;
   }
 
-  this.sackpipaReload();
-
-  const toSet = {};//stores a set of properties to call in onSuccess
   urlParam = parseInt(this.urlParams["currentChanterIndex"]);
   if (isNumber(urlParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
@@ -513,13 +561,10 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
       toSet.chanterIndex = urlChanterIndex;
       toSet.from_chanterIndex = currentChanterIndex;
-      this.sackpipaReload({
-        tuning: this.sackpipa.getChanterKeyByIndex(urlChanterIndex) 
-      });
+      const tuning = this.sackpipa.getChanterKeyByIndex(urlChanterIndex);
+      toSet["sackpipa.tuning"] = tuning;
     }
   }
-
-  this.setCurrentSongFromUrlParam();
 
   urlParam = parseInt(this.urlParams["currentTransposition"]);
   if (isNumber(urlParam)) {
@@ -543,30 +588,15 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  this.onSuccesses.push(() => {
-    if (isNumber(toSet.chanterIndex)) {
-      //this needs to execute later in the stack due to some race condition
-      setTimeout(() => {
-        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
-      });
-    }
-    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
-    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
-  });
-
   urlParam = parseInt(this.urlParams["currentNoteIndex"]);
   if (isNumber(urlParam)) {
     const currentNoteIndex = urlParam;
-    if (_.isNaN(currentNoteIndex)) return;
-    function clickItem() {
-      const nsItem = this.getNoteScrollerItem({currentNoteIndex: currentNoteIndex - 1});
-      nsItem && simulateClick(nsItem);
+    if (isNumber(currentNoteIndex)) {
+      toSet["setNoteScrollerItem"] = currentNoteIndex - 1;
     }
-    //this will be fired when the user clicks play is needed in addtion to the call below
-    this.onStartCbQueue.push(clickItem.bind(this));
-    //this will be fired first to set the note before clicking play
-    this.onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
   }
+
+  return toSet;
 }
 
 ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
@@ -991,21 +1021,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       this.setNoteScroller({calledFrom}).then((noteScrollerInit) => {
         this.updateControlStats();
         debug("Audio successfully loaded.", this.synthControl);
-        if (_onSuccess) {
-          if (_.isArray(_onSuccess)) {
-            _.each(_onSuccess, (onS) => {
-              try {
-                _.isFunction(onS) && onS();
-              }
-              catch(err) {
-                debugErr(err);
-              }
-            });
-          }
-          else {
-            _onSuccess(response);
-          }
-        }
+        callEvery(_onSuccess);
       });
     }
     //only reuse if the chanter chnaged

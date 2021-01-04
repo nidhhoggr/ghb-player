@@ -5,7 +5,8 @@ const {
   isNumber, 
   isPositiveNumber, 
   debug,
-  debugErr 
+  debugErr,
+  debugAll,
 } = utils({from: "state"});
 
 var idleInterval;
@@ -29,7 +30,10 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     getCurrentChanterIndex,
     sackpipaOptions,
     errorReloadCount,
+    isSettingTune,
   } = playerInstance;
+
+  if (isSettingTune) return debugAll(`Cannot modify state when setting tune`);
 
   if (changeSong && isNumber(currentTuneIndex)) {
     if (this.options?.player?.refreshWhenPossible) {
