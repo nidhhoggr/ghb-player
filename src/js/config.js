@@ -37,8 +37,16 @@ const sackpipa = {
   }
 }
 
+const hps = {
+  ease: 0.025,
+  sectionWidth: 58,
+  sectionOffset: 420,
+  wrapperName: ".scrollingNotesWrapper"
+}
+
 export default {
   ...config,
   player,
-  sackpipa
+  sackpipa,
+  hps,
 };

@@ -183,13 +183,7 @@ function ABCPlayer({
   this.sackpipaDroneSynth = null; 
 
   this.sackpipaOptions = options.sackpipa;
-
-  this.hpsOptions = {
-    ease: 0.08,
-    sectionWidth: 58,
-    sectionOffset: 420,
-    wrapperName: ".scrollingNotesWrapper"
-  };
+  this.hpsOptions = options.hps;
 }
 
 export default ABCPlayer;
@@ -276,7 +270,7 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
       const snItemRect = snItem.getBoundingClientRect();
       const offset = (snItemRect.left - firstLeft.left - this.hpsOptions.sectionOffset) * -1;
       const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
-      debug({offset, targetXPos});
+      //debug({offset, targetXPoos});
       this.noteScroller.setScrollerXPos({xpos: offset});
     }
     catch (err) {
