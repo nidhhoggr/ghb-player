@@ -444,9 +444,6 @@ ABCPlayer.prototype.reloadWindow = function() {
 ABCPlayer.prototype.sackpipaReload = function(options = {}) {
   this.sackpipaOptions = _.merge(this.sackpipaOptions,options);
   const { isFirstGroupPlugged, isSecondGroupPlugged } = this.sackpipaOptions;
-  if (isFirstGroupPlugged) {
-    //this.domBinding.
-  }
   this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
   if (options.skipUpdate) return;
   this._updateChanter();
@@ -944,8 +941,15 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
    
     if (!isSameSong) {
       this.noteScroller?.setScrollerXPos({xpos: 0});
-      const { tempo, transposition, tuning } = this.currentSong;
+      const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
+      console.log("ISSAME", fgp, sgp, this.sackpipaOptions.isFirstGroupPlugged);
       //the shouldSetTune flag ensures that it will not call setTune, were already here!
+      if (isNumber(fgp) && !!fgp !== this.sackpipaOptions.isFirstGroupPlugged) {
+        this.firstGroup();
+      }
+      if (isNumber(sgp) && !!sgp !== this.sackpipaOptions.isSecondGroupPlugged) {
+        this.secondGroup();
+      }
       if (tempo) {
         this.setTempo(tempo, {shouldSetTune: false});
       }
@@ -1117,10 +1121,11 @@ function scrollingNoteItemIterator({section, item}) {
     measureStart 
   } = item;
   const dur = _.ceil(duration * 100);
-  if ((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") || 
-  (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max")))) {
+  if (((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") && pitchIndex < this.sackpipa.getLowestPlayablePitch()) || 
+  (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max") && pitchIndex > this.sackpipa.getHighestPlayablePitch()))) {
     section.classList.add(`unplayable_note`);
     section.classList.add(`exceeds_pitch_range`);
+    section.classList.add(`exceeded-pitch-${pitchIndex}`);
     section.innerHTML = `<h4>${noteName}</h4>`;
   }
   else if (_.get(this.currentSong, "compatibility.compatiblePitches.incompatible")?.includes?.(pitchIndex)) {

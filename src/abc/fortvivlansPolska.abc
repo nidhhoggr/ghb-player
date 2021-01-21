@@ -1,0 +1,16 @@
+%%abc-charset utf-8
+X:0
+T:Förtvivlans polska
+R:slängpolska
+H:efter Johan Jakob Bruun (1818-1889), Särslöv, Södervidinge,
+H:som hört den av "tattaren och rackaren" Bolin i Särslöv.
+B:SvL Skåne 574
+O:Skåne
+M:3/4
+L:1/16
+K:Dm =b transposition=-5
+{b}a^g(ab) (c'b)ag a4 | {e}d(^cd)e (fe)dc d4 | ^f3e d2e2 f2g2 |
+a2(ab) g2(ga) ^f4 :||: .a2.f2 .f2.f2 (ac').c'2 |
+.g2.e2 .e2.e2 (gc').c'2 | .^g2.e2 .e2.e2 (gc')c'c' |
+{b}a2a^g a2ab (c'b)(ag) | {b}a2ag f2fe (d{ed}^c)de | 
+(fe)d^c [A2A2][d2D2] [d4D4]:|

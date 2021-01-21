@@ -35,6 +35,16 @@ Sackpipa.prototype.getChanterKeyAbbr = function getChanterKeyAbbr() {
   }
 }
 
+Sackpipa.prototype.getLowestPlayablePitch = function() {
+  const notes = this.getPlayableNotes({pitchesOnly: true});
+  return _.min(notes);
+}
+
+Sackpipa.prototype.getHighestPlayablePitch = function() {
+  const notes = this.getPlayableNotes({pitchesOnly: true});
+  return _.max(notes);
+}
+
 Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, notesOnly, pitchesOnly} = {}) {
   if (!chanterKey) chanterKey = this.chanterKey;
   let notes = {};

@@ -110,6 +110,23 @@ ABCSong.prototype.load = function() {
           this.transposition = transposition
           this.original.transposition ??= transposition;
         }
+        
+        matched = line.match(/fgp=(0|1)/);
+        let fgp = 0;
+        if (matched?.[1]) {
+          fgp = parseInt(matched[1]);
+          this.fgp = fgp;
+          this.original.fgp ??= fgp;
+        }
+
+        matched = line.match(/sgp=(0|1)/);
+        let sgp = 0;
+        if (matched?.[1]) {
+          sgp = parseInt(matched[1]);
+          this.sgp = sgp;
+          this.original.sgp ??= sgp;
+        }
+
         break;
       case "Tempo":
         if (this.tempo) return;
