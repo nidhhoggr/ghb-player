@@ -90,7 +90,8 @@ function ABCPlayer({
     "currentNoteIndex",
     "fgp",//firstGroupPlugged
     "sgp",//SecondGroupPlugged,
-    "erc",//error reload count
+    "erc",//error reload count,
+    "imb",//isMobileBuild
   ];
 
   this.urlParams = {};
@@ -293,148 +294,128 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
 
 
 ABCPlayer.prototype.load = function() {
+  return new Promise((resolve) => {
+    this.domBindingKeys.map((name) => {
+      this.domBinding[name] = document.querySelector(`.${name}`);
+      if (this.domBinding[name]) { 
+        this.domBinding[name].hide = function() {
+          this.style.display = "none";
+        }
+        this.domBinding[name].show = function() {
+          this.style.display = "inline";
+        }
+      }
+    });
+    this.domButtonSelectors.map((elName) => {
+      try {
+        clickBinder({
+          el: this.domBinding[elName], 
+          eventCb: this[elName].bind(this)
+        });
+      } 
+      catch(err) {
+        debug(`Error attetmping to bind ${elName} to dom selectors`, err);
+      }
+    });
 
-  this.domBindingKeys.map((name) => {
-    this.domBinding[name] = document.querySelector(`.${name}`);
-    if (this.domBinding[name]) { 
-      this.domBinding[name].hide = function() {
-        this.style.display = "none";
-      }
-      this.domBinding[name].show = function() {
-        this.style.display = "inline";
-      }
-    }
-  });
-  this.domButtonSelectors.map((elName) => {
-    try {
-      clickBinder({
-        el: this.domBinding[elName], 
-        eventCb: this[elName].bind(this)
+    this.urlParamNames.map((urlParamName) => {
+      this.urlParams[urlParamName] = location_getParameterByName(urlParamName);
+    });
+
+    if (this.abcjs.synth.supportsAudio()) {
+      this.synthControl = new this.abcjs.synth.SynthController();
+      const cursorControl = new CursorControl({
+        playerInstance: this,
+        onBeatChange: ({beatNumber, totalBeats, totalTime}) => {
+          this.domBinding["currentBeat"].innerText = `Beat: ${beatNumber}/${totalBeats}`;
+        }
       });
-    } 
-    catch(err) {
-      debug(`Error attetmping to bind ${elName} to dom selectors`, err);
+      this.synthControl.load("#audio", cursorControl, this.visualOptions);
+    } else {
+      this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
     }
-  });
+    
+    this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+    this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
+    this.setCurrentSongFromUrlParam();
 
-  this.urlParamNames.map((urlParamName) => {
-    this.urlParams[urlParamName] = location_getParameterByName(urlParamName);
-  });
-
-  if (this.abcjs.synth.supportsAudio()) {
-    this.synthControl = new this.abcjs.synth.SynthController();
-    const cursorControl = new CursorControl({
-      onNoteChange: this.onNoteChange.bind(this),
-      onBeatChange: ({beatNumber, totalBeats, totalTime}) => {
-        if(beatNumber == 0) {}
-        totalTime = totalTime && _.round(totalTime / 60);
-        this.domBinding["currentBeat"].innerText = `Beat: ${beatNumber}/${totalBeats}`;
+    const _handleErr = (err) => {
+      debug(err);
+      const error = err?.message || err?.error?.mesage || err;
+      debugErr(`Error occurred: ${error}`);
+      if (this.errorReloadCount < this.options?.errorReloadLimit) {
+        this.errorReloadCount = this.errorReloadCount + 1;
+        setTimeout(() => {
+          this.reloadWindow();
+        }, 2000);
       }
-    });
-    this.synthControl.load("#audio", cursorControl, this.visualOptions);
-  } else {
-    this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
-  }
-  
-  this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
-  this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
-  this.setCurrentSongFromUrlParam();
-
-  const _handleErr = (err) => {
-    debug(err);
-    const error = err?.message || err?.error?.mesage || err;
-    debugErr(`Error occurred: ${error}`);
-    if (this.errorReloadCount < this.options?.errorReloadLimit) {
-      this.errorReloadCount = this.errorReloadCount + 1;
-      setTimeout(() => {
-        this.reloadWindow();
-      }, 2000);
-    }
-    else if (this.errorReloadCount === this.options?.errorReloadLimit) {
-      setTimeout(() => {
-        this.errorReloadCount = 0;
-      }, this.errorReloadResetDuration);
-    }
-  };
-  
-  const urlProcessing = this.evaluateUrlParams();
-  this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
-    debug(urlProcessing);
-    this.processUrlParams(urlProcessing);
-    window.onerror = function (message, file, line, col, error) {
-      _handleErr(error);
+      else if (this.errorReloadCount === this.options?.errorReloadLimit) {
+        setTimeout(() => {
+          this.errorReloadCount = 0;
+        }, this.errorReloadResetDuration);
+      }
     };
-    window.addEventListener("error", function (e) {
-      _handleErr(e);
+    
+    const urlProcessing = this.evaluateUrlParams();
+
+    if (this.options.isMobileBuild) {
+      this.playerOptions.showSheetMusic = false;
+      this.playerOptions.showNoteDiagram = false;
+    }
+
+    this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
+      debug("URL Processing", urlProcessing);
+      this.processUrlParams(urlProcessing);
+      window.onerror = function (message, file, line, col, error) {
+        _handleErr(error);
+      };
+      window.addEventListener("error", function (e) {
+        _handleErr(e);
+      })
+      window.addEventListener('unhandledrejection', function (e) {
+        _handleErr(e);
+      })
+      this.stateMgr.idleWatcher({
+        inactiveTimeout: 60000 * 5, 
+        onInaction: () => {
+          debug("My inaction function"); 
+        },
+        onReactivate: () => {
+          debug("my reactivate function");
+          this.reloadWindow();
+        }
+      });
+      setInterval(() => {
+        this.updateState();
+      }, this.stateAssessmentLoopInterval);
     })
-    window.addEventListener('unhandledrejection', function (e) {
-      _handleErr(e);
-    })
-    this.stateMgr.idleWatcher({
-      inactiveTimeout: 60000 * 5, 
-      onInaction: () => {
-        debug("My inaction function"); 
-      },
-      onReactivate: () => {
-        debug("my reactivate function");
+    document.onkeydown = (evt) => {
+      evt = evt || window.event;
+      const { keyCode } = evt;
+      const { keyCodes } = this.playerOptions;
+      if (!keyCodes) return;
+      if (keyCode === keyCodes.esc) { 
+        history.replaceState({}, null, `?currentTuneIndex=${this.currentTuneIndex}`);
+        setTimeout(() => {
+          window.location.reload();
+        }, 100);
+      }
+      else if (keyCode === keyCodes.prev) {
+        this.songPrev();
+      }
+      else if (keyCode === keyCodes.play) {
+        this.start();
+      }
+      else if (keyCode === keyCodes.next) {
+        this.songNext();
+      }
+      else if (keyCode === keyCodes.refresh) {
         this.reloadWindow();
       }
-    });
-    setInterval(() => {
-      this.updateState();
-    }, this.stateAssessmentLoopInterval);
-  })
-  document.onkeydown = (evt) => {
-    evt = evt || window.event;
-    const { keyCode } = evt;
-    const { keyCodes } = this.playerOptions;
-    if (!keyCodes) return;
-    if (keyCode === keyCodes.esc) { 
-      history.replaceState({}, null, `?currentTuneIndex=${this.currentTuneIndex}`);
-      setTimeout(() => {
-        window.location.reload();
-      }, 100);
-    }
-    else if (keyCode === keyCodes.prev) {
-      this.songPrev();
-    }
-    else if (keyCode === keyCodes.play) {
-      this.start();
-    }
-    else if (keyCode === keyCodes.next) {
-      this.songNext();
-    }
-    else if (keyCode === keyCodes.refresh) {
-      this.reloadWindow();
-    }
-  };
-  /*
-  ({}) => {
-    /*
-     * Was attempting to load a bass done here
-    const noteNameToPitch = _.invert(this.abcjs.synth.pitchToNoteName);
-    const pitches = [];
-    pitches.push(noteNameToPitch["A4"]);
+    };
 
-    var sequence = new this.abcjs.synth.SynthSequence();
-
-    for (var i = 0; i < pitches.length; i++) {
-      var trackNum = sequence.addTrack();
-      sequence.setInstrument(trackNum, this.currentInstrumentIndex);
-      sequence.appendNote(trackNum, pitches[i], 12000, 64);
-    }
-
-    var buffer = new this.abcjs.synth.CreateSynth();
-    return buffer.init({
-      sequence: sequence,
-      millisecondsPerMeasure: 1000
-    }).then(function () {
-      return buffer.prime();
-    }).then(function () {
-      return buffer.start();
-    });
-  }});
-  */
+    resolve({player: this});
+  });
 }
 
 ABCPlayer.prototype.reloadWindow = function() {
@@ -544,6 +525,11 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     toSet["errorReloadCount"] = urlParam;
   }
 
+  urlParam = parseInt(this.urlParams["imb"]);
+  if (urlParam === 1) {
+    this.options.isMobileBuild = true;
+  }
+
   urlParam = parseInt(this.urlParams["currentChanterIndex"]);
   if (isNumber(urlParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
@@ -591,6 +577,8 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
 }
 
 ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
+  if (!this.playerOptions.showNoteDiagram) return;
+
   if (!currentNote) {
     currentNote = this.abcjs.synth.pitchToNoteName[pitchIndex];
   }
@@ -942,7 +930,6 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     if (!isSameSong) {
       this.noteScroller?.setScrollerXPos({xpos: 0});
       const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
-      console.log("ISSAME", fgp, sgp, this.sackpipaOptions.isFirstGroupPlugged);
       //the shouldSetTune flag ensures that it will not call setTune, were already here!
       if (isNumber(fgp) && !!fgp !== this.sackpipaOptions.isFirstGroupPlugged) {
         this.firstGroup();
@@ -1000,11 +987,13 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         debug(`reusing visual obj`);
       }
       else {
-        this.audioParams.visualObj = this.abcjs.renderAbc("paper", abc, {
+        const selector = this.playerOptions.showSheetMusic ? "paper" : "*";
+        const rendered = this.abcjs.renderAbc(selector, abc, {
           ...this.abcOptions,
           ...abcOptions
-        })[0];
-        debug(`recreating visual obj`, this.audioParams.visualObj, calledFrom);
+        });
+        this.audioParams.visualObj = rendered?.[0];
+        debug(`recreating visual obj on selector ${selector}`, this.audioParams.visualObj, calledFrom);
       }
     } catch(err) {
       debugErr(err);
@@ -1216,24 +1205,15 @@ function updateClasses(domBinding, elClassName, classes = []) {
 }
 
 function CursorControl({
-  onNoteChange,
   onBeatChange,
+  playerInstance,
 }) {
   var self = this;
-
-  self.onReady = function() {
-  };
-  self.onStart = function() {
-    var svg = document.querySelector("#paper svg");
-    var cursor = document.createElementNS("https://www.w3.org/2000/svg", "line");
-    cursor.setAttribute("class", "abcjs-cursor");
-    cursor.setAttributeNS(null, 'x1', 0);
-    cursor.setAttributeNS(null, 'y1', 0);
-    cursor.setAttributeNS(null, 'x2', 0);
-    cursor.setAttributeNS(null, 'y2', 0);
-    svg.appendChild(cursor);
-
-  };
+  const shouldShowSheetMusic = playerInstance?.playerOptions?.showSheetMusic;
+  if (shouldShowSheetMusic) {
+    self.onStart = onStart;
+    self.onFinished = onFinished;
+  }
   self.beatSubdivisions = 2;
   self.onBeat = function(beatNumber = 0, totalBeats = 0, totalTime = 0) {
     if (onBeatChange) onBeatChange({beatNumber, totalBeats, totalTime});
@@ -1242,8 +1222,10 @@ function CursorControl({
     if (ev.measureStart && ev.left === null)
       return; // abcPlayer was the second part of a tie across a measure line. Just ignore it.
     if(ev.midiPitches && ev.midiPitches.length && ev.midiPitches[0].cmd == "note") {
-      onNoteChange({event: ev, midiPitch: ev.midiPitches[0]});
+      playerInstance?.onNoteChange({event: ev, midiPitch: ev.midiPitches[0]});
     }
+    
+    if (!shouldShowSheetMusic) return; 
 
     var lastSelection = document.querySelectorAll("#paper svg .highlight");
     for (var k = 0; k < lastSelection.length; k++)
@@ -1265,7 +1247,18 @@ function CursorControl({
       cursor.setAttribute("y2", ev.top + ev.height);
     }
   };
-  self.onFinished = function() {
+  function onStart() {
+    var svg = document.querySelector("#paper svg");
+    if (!svg) return;
+    var cursor = document.createElementNS("https://www.w3.org/2000/svg", "line");
+    cursor.setAttribute("class", "abcjs-cursor");
+    cursor.setAttributeNS(null, 'x1', 0);
+    cursor.setAttributeNS(null, 'y1', 0);
+    cursor.setAttributeNS(null, 'x2', 0);
+    cursor.setAttributeNS(null, 'y2', 0);
+    svg.appendChild(cursor);
+  }
+  function onFinished() {
     var els = document.querySelectorAll("svg .highlight");
     for (var i = 0; i < els.length; i++ ) {
       els[i].classList.remove("highlight");

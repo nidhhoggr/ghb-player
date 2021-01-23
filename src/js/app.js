@@ -22,11 +22,12 @@ const abcPlayer = new ABCPlayer({
   stateMgr, 
   options: config
 });
-tippy('[data-tooltip]', {
-  onShow(instance) {
-    const tooltip = _.get(instance, "reference.dataset.tooltip");
-    tooltip && instance.setContent(tooltip);
-    return !!tooltip;
-  }
+abcPlayer.load().then(({player}) => {
+  if (!player.options.isMobileBuild) tippy('[data-tooltip]', {
+    onShow(instance) {
+      const tooltip = _.get(instance, "reference.dataset.tooltip");
+      tooltip && instance.setContent(tooltip);
+      return !!tooltip;
+    }
+  });
 });
-abcPlayer.load();

@@ -4,7 +4,8 @@ const config = {
   errorReloadLimit: 5,
   errorReloadResetDuration: 20000,//in milliseconds
   shouldDebug: true,
-  debugDisabledModules: ["state"]//disable debugging in these modules
+  debugDisabledModules: ["state"],//disable debugging in these modules,
+  isMobileBuild: false,
 }
 
 const player = {
@@ -19,7 +20,9 @@ const player = {
     esc: 27,
     refresh: 116,
   },
-  showPlayableNoteNamesInScroller: true
+  showPlayableNoteNamesInScroller: true,
+  showSheetMusic: true,
+  showNoteDiagram: true,
 };
 
 const sackpipa = {
