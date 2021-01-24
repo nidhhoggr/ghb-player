@@ -159,7 +159,7 @@ function ABCPlayer({
     // millisecondsPerMeasure: 1000,
     // debugCallback: function(message) { debug(message) },
     options: {
-      soundFontUrl: this.playerOptions.soundFontUrl, 
+      soundFontUrl: this.playerOptions.getSoundFontUrl(this.options), 
       program: this.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import config from "./config";
+import config from "config";
 const { shouldDebug, debugDisabledModules } = config;
 
 export default function({from} = {}) {

@@ -1,18 +1,7 @@
-const config = {
-  prodDomain: "www.folktabs.com",
-  soundFontDir: "midi-js-soundfonts/FluidR3_GM/",
-  errorReloadLimit: 5,
-  errorReloadResetDuration: 20000,//in milliseconds
-  shouldDebug: true,
-  debugDisabledModules: ["state"],//disable debugging in these modules,
-  isMobileBuild: false,
-}
-
-const player = {
+export const player = {
   currentInstrumentIndex: 109,
   refreshWhenPossible: false,
-  soundFontDir: config.soundFontDir,
-  soundFontUrl: window.location.hostname.includes(config.prodDomain) ? `https://${config.prodDomain}/${config.soundFontDir}` : `http://localhost:3000/${config.soundFontDir}`,
+  getSoundFontUrl: (config) =>  window.location.hostname.includes(config.prodDomain) ? `https://${config.prodDomain}/${config.soundFontDir}` : `http://localhost:3000/${config.soundFontDir}`,
   keyCodes: {
     prev: 118,
     next: 120,
@@ -25,7 +14,7 @@ const player = {
   showNoteDiagram: true,
 };
 
-const sackpipa = {
+export const sackpipa = {
   chanterKey: "E/A",
   dronesEnabled: ["E4","A3"],
   isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A chanter
@@ -40,16 +29,9 @@ const sackpipa = {
   }
 }
 
-const hps = {
+export const hps = {
   ease: 0.025,
   sectionWidth: 58,
   sectionOffset: 420,
   wrapperName: ".scrollingNotesWrapper"
 }
-
-export default {
-  ...config,
-  player,
-  sackpipa,
-  hps,
-};

@@ -7,7 +7,7 @@ import ABCSong from "./song";
 import songs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
-import config from "./config";
+import config from "config";
 import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';

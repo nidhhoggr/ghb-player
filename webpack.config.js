@@ -48,6 +48,11 @@ const config = function(env, args) {
       filename: 'js/[name].js',
       path: path.resolve(__dirname, 'dist'),
     },
+    resolve: {
+      alias: {
+        config: path.resolve(__dirname, "src/js/config/config.".concat((process.env.ISMOBILE) ? "mobile.js" : "prod.js"))
+      }
+    },
     module: {
       rules: [
         {
@@ -160,6 +165,7 @@ const config = function(env, args) {
           },
         ],
       }),
+
     ],
     devtool: hasSourceMaps && "inline-source-map"
   };
