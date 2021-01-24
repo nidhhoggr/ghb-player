@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=development",
     "watch": "webpack --mode=development --watch",
-    "watch:externalServer": "webpack --mode=development --watch --externalServer",
+    "watch:mobile": "ISMOBILE=1 webpack --mode=development --watch",
     "bundle": "npm ci && npm run watch",
     "bundle:externalServer": "npm ci && npm run watch:externalServer",
     "production": "cross-env NODE_ENV=production webpack --mode=production",

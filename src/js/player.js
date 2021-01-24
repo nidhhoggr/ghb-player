@@ -1,5 +1,6 @@
 import utils from "./utils";
 const { 
+  isMobileUserAgent,
   isNumber, 
   isPositiveNumber, 
   debug, 
@@ -76,6 +77,7 @@ function ABCPlayer({
     "currentBeat",
     "currentChanter",
     "currentKeySig",
+    "playernotes",
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
@@ -361,6 +363,15 @@ ABCPlayer.prototype.load = function() {
     if (this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
+    }
+
+    if (isMobileUserAgent()) {
+      document.body.requestFullscreen().then(console.log).catch(console.log);
+      screen.orientation.lock('landscape').then(console.log).catch(console.log)
+    }
+
+    if(!this.playerOptions.showSheetMusic) {
+      this.domBinding["playernotes"].hide();
     }
 
     this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
