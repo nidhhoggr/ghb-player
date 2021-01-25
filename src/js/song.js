@@ -129,7 +129,8 @@ ABCSong.prototype.load = function() {
 
         break;
       case "Tempo":
-        if (this.tempo) return;
+        //we already set the custom tempo for this song
+        if (this.hasCustomTempo) return;
         //this is not to be confused with the native directive
         //for tempo which uses meters and allows arbitrary comments 
         //wrapped in double-qoutes which we utilize for parsing
@@ -137,9 +138,10 @@ ABCSong.prototype.load = function() {
         matched = line.match(/"BPM=(\d+)/);
         let tempo = this.tempo;
         if (matched?.[1]) {
+          this.hasCustomTempo = true;
           tempo = parseInt(matched[1]);
           this.tempo = tempo;
-          this.original.tempo ??= tempo;
+          this.original.tempo = tempo;
         }
         break;
     }

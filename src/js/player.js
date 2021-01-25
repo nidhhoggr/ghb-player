@@ -365,7 +365,9 @@ ABCPlayer.prototype.load = function() {
       this.playerOptions.showNoteDiagram = false;
     }
 
+    //this seems to do nothing
     if (isMobileUserAgent()) {
+      //requires a user gesture
       document.body.requestFullscreen().then(console.log).catch(console.log);
       screen.orientation.lock('landscape').then(console.log).catch(console.log)
     }
