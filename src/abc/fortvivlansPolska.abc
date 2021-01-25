@@ -8,9 +8,9 @@ B:SvL Skåne 574
 O:Skåne
 M:3/4
 L:1/16
-K:Dm =b transposition=-5
-{b}a^g(ab) (c'b)ag a4 | {e}d(^cd)e (fe)dc d4 | ^f3e d2e2 f2g2 |
-a2(ab) g2(ga) ^f4 :||: .a2.f2 .f2.f2 (ac').c'2 |
-.g2.e2 .e2.e2 (gc').c'2 | .^g2.e2 .e2.e2 (gc')c'c' |
-{b}a2a^g a2ab (c'b)(ag) | {b}a2ag f2fe (d{ed}^c)de | 
-(fe)d^c [A2A2][d2D2] [d4D4]:|
+K:Em
+{c}B^A(Bc) (dc)BA B4 | {F}E(^DE)F (GF)ED E4 | ^G3F E2F2 G2A2 |
+B2(Bc) A2(AB) ^G4 :||: .B2.G2 .G2.G2 (Bd).d2 |
+.A2.F2 .F2.F2 (Ad).d2 | .^A2.F2 .F2.F2 (Ad)dd |
+{c}B2B^A B2Bc (dc)(BA) | {c}B2BA G2GF (E{FE}^D)EF |
+(GF)E^D B2 E2 E4:|
