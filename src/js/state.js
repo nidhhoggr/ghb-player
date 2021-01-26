@@ -17,6 +17,7 @@ var state = {
 
 function StateManagement({options} = {}) {
   this.options = options;
+  this.activityQueue = [];
 }
 
 StateManagement.prototype.getState = () => (state);
@@ -90,11 +91,23 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
   }
 }
 
-StateManagement.prototype.idleWatcher = function idleWatcher({onInaction, inactiveTimeout = 20000, onReactivate}) {
+StateManagement.prototype.idleWatcher = function idleWatcher({onInaction, inactiveTimeout = 20000, onReactivate, playerInstance}) {
+  const self = this;
   function resetTimer () {
     state.isActive = true;
     debug("activity detected", {onInaction, inactiveTimeout});
     clearTimeout(idleInterval);
+    let i, aqcb;
+    if (self.activityQueue?.length > 0)  {
+      for (i in self.activityQueue) {
+        setTimeout(() => {
+          aqcb = self.activityQueue[i];
+          if (!aqcb) return;
+          aqcb?.call(playerInstance);
+          delete self.activityQueue[i];
+        }, 1000);
+      }
+    }
     if (onReactivate && state.wasInactive) {
       onReactivate();
     }

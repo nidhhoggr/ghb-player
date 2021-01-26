@@ -36,15 +36,11 @@ function ABCPlayer({
   this.playerOptions = options.player;
 
   this.isSettingTune = true;
-  this.tuneSetTimeout = 5000;
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
 
   this.errorReloadCount = 0;
-
-  //how often to analyze the state
-  this.stateAssessmentLoopInterval = 5000;//milliseconds
 
   //used to store events to dispatch when play button is fired
   this.onStartCbQueue = [];
@@ -360,20 +356,25 @@ ABCPlayer.prototype.load = function() {
     
     const urlProcessing = this.evaluateUrlParams();
 
+
+    //this seems to do nothing
+    if (isMobileUserAgent()) {
+      //requires a user gesture
+      this.options.isMobileBuild = true;
+      this.stateMgr.activityQueue.push(() => { 
+        document.body.requestFullscreen().then(console.log).catch(console.log);
+        screen.orientation.lock('landscape').then(console.log).catch(console.log)
+      });
+    }
+
     if (this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
     }
 
-    //this seems to do nothing
-    if (isMobileUserAgent()) {
-      //requires a user gesture
-      document.body.requestFullscreen().then(console.log).catch(console.log);
-      screen.orientation.lock('landscape').then(console.log).catch(console.log)
-    }
-
     if(!this.playerOptions.showSheetMusic) {
       this.domBinding["playernotes"].hide();
+      document.querySelector("main").style.marginBottom = "35px";
     }
 
     this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
@@ -389,6 +390,7 @@ ABCPlayer.prototype.load = function() {
         _handleErr(e);
       })
       this.stateMgr.idleWatcher({
+        playerInstance: this,
         inactiveTimeout: 60000 * 5, 
         onInaction: () => {
           debug("My inaction function"); 
@@ -400,7 +402,7 @@ ABCPlayer.prototype.load = function() {
       });
       setInterval(() => {
         this.updateState();
-      }, this.stateAssessmentLoopInterval);
+      }, this.playerOptions.stateAssessmentLoopInterval);
     })
     document.onkeydown = (evt) => {
       evt = evt || window.event;
@@ -927,11 +929,6 @@ ABCPlayer.prototype.updateState = function(args) {
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   return new Promise((resolve, reject) => {
     this.isSettingTune = true;
-    /*
-    isNumber(this.tuneSetTimeout) && setTimeout(() => {
-        this.isSettingTune = false;
-    }, this.tuneSetTimeout);
-    */
     if (!currentSong) {
       const song = this.songs[this.currentTuneIndex];
       this.currentSong = new this.ABCSong(song);

@@ -1,3 +1,12 @@
+export const _base = {
+  soundFontDir: "midi-js-soundfonts/FluidR3_GM/",
+  errorReloadLimit: 5,
+  errorReloadResetDuration: 20000,//in milliseconds
+  shouldDebug: true,
+  debugDisabledModules: [],//"state"],//disable debugging in these modules,
+  mobileMaxWidth: 555//width exceeding beyond are not considered mobile
+}
+
 export const player = {
   currentInstrumentIndex: 109,
   refreshWhenPossible: false,
@@ -12,6 +21,7 @@ export const player = {
   showPlayableNoteNamesInScroller: true,
   showSheetMusic: true,
   showNoteDiagram: true,
+  stateAssessmentLoopInterval: 5000,//how often to check the state
 };
 
 export const sackpipa = {
