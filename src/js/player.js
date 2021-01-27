@@ -144,7 +144,7 @@ function ABCPlayer({
           }
         }
       }).catch((error) => {
-        debug("error playing note", error);
+        debugErr("error playing note", error);
       });
     }
   };
@@ -312,7 +312,7 @@ ABCPlayer.prototype.load = function() {
         });
       } 
       catch(err) {
-        debug(`Error attetmping to bind ${elName} to dom selectors`, err);
+        debugErr(`Error attetmping to bind ${elName} to dom selectors`, err);
       }
     });
 
@@ -338,7 +338,7 @@ ABCPlayer.prototype.load = function() {
     this.setCurrentSongFromUrlParam();
 
     const _handleErr = (err) => {
-      debug(err);
+      debugErr(err);
       const error = err?.message || err?.error?.mesage || err;
       debugErr(`Error occurred: ${error}`);
       if (this.errorReloadCount < this.options?.errorReloadLimit) {
@@ -362,8 +362,8 @@ ABCPlayer.prototype.load = function() {
       //requires a user gesture
       this.options.isMobileBuild = true;
       this.stateMgr.activityQueue.push(() => { 
-        document.body.requestFullscreen().then(console.log).catch(console.log);
-        screen.orientation.lock('landscape').then(console.log).catch(console.log)
+        document.body.requestFullscreen().then(debug).catch(debugErr);
+        screen.orientation.lock('landscape').then(debug).catch(debugErr)
       });
     }
 

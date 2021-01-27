@@ -32,7 +32,7 @@ const config = function(env, args) {
   const terserOptions = process.env.NODE_ENV === "production" ? {
     extractComments: "all",
     compress: {
-      drop_console: false
+      drop_console: true
     }
   } : {};
 
@@ -50,7 +50,7 @@ const config = function(env, args) {
     },
     resolve: {
       alias: {
-        config: path.resolve(__dirname, "src/js/config/config.".concat((process.env.ISMOBILE) ? "mobile.js" : "prod.js"))
+        config: path.resolve(__dirname, "src/js/config/config.".concat((process.env.ISMOBILE) ? "mobile.js" : (process.env.NODE_ENV === "production") ? "prod.js" : "dev.js"))
       }
     },
     module: {

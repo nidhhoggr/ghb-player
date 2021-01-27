@@ -1,5 +1,10 @@
-export default HPS;
+import utils from "./utils";
+const {
+  debug,
+  debugErr,
+} = utils({from: "hps"});
 
+export default HPS;
 function HPS(wrapperName, options) {
 
   var self = Object.create(HPS.prototype);
@@ -206,7 +211,7 @@ HPS.prototype.addItems = function addItems({items, itemIterator, onFinish, first
     self.wrapper.appendChild(itemSection);
     //last iteration;
     if (i == (items.length - 1)) {
-      console.log("Finished", i, items.length);
+      debug("Finished", i, items.length);
       onFinish({
         el: self.wrapper
       });
@@ -249,14 +254,14 @@ HPS.prototype.setScrollerXPos = function setScrollerXPos({xpos}) {
       setElTransformStyle({styling, xpos});
     }
     else if (wouldExceedWidth && !isDirectionLtr) {//would exceed but scrolling left
-      //console.log({width, xpos}, width - (self.lastXpos - xpos));
+      //debug({width, xpos}, width - (self.lastXpos - xpos));
       const nextX = ((width - 1000) * -1); 
       self.currentX = nextX;
       self.targetX = nextX;
       setElTransformStyle({styling, xpos: nextX });
     }
     else {//would exceed width
-      //console.log(`${width} is less than ${xpos}`);
+      //debug(`${width} is less than ${xpos}`);
       setElTransformStyle({styling, xpos: (width - 800) * -1});
     }
   }

@@ -1,5 +1,10 @@
 import _ from "lodash";
 import ABCSong from "./song";
+import utils from "./utils";
+const {
+  debug,
+  debugErr,
+} = utils({from: "songs"});
 import songs, { tempo, transposition, tuning } from "./../abc/songs.js";
 let abcFiles = require.context("./../abc/", true, /\.abc$/);
 abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled-")));
@@ -7,7 +12,7 @@ abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disab
 export function getAbc(file) {
   if (!abcFiles.includes(file)) return;
   const _file = file.replace("./","");
-  console.log(`requiring ${_file}`);
+  debug(`requiring ${_file}`);
   const abc = require(`./../abc/${_file}`);
   abcFiles = _.without(abcFiles, file);
   return abc;

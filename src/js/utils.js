@@ -36,10 +36,10 @@ export default function({from} = {}) {
       return { cancelled, evt };
     },
     debug: function() {
-      (shouldDebug && !debugDisabledModules.includes(from)) && console.log.apply(undefined, arguments);
+      (shouldDebug && !debugDisabledModules.includes(from)) && console.log.apply(undefined, [from, ...arguments]);
     },
     debugErr: function() {
-      (shouldDebug && !debugDisabledModules.includes(from)) && console.error.apply(undefined, arguments);
+      (shouldDebug && !debugDisabledModules.includes(from)) && console.error.apply(undefined, [from, ...arguments]);
     },
     debugAll: function() {
       console.log.apply(undefined, arguments);

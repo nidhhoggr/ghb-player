@@ -1,5 +1,11 @@
 import _ from 'lodash';
 
+import utils from "./utils";
+const {
+  debug,
+  debugErr,
+} = utils({from: "song"});
+
 String.prototype.getInfoField = function(key) {
   return this.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
 }
@@ -7,7 +13,7 @@ String.prototype.getInfoField = function(key) {
 function ABCSong(song) {
   //prevent reloading twice
   if (song instanceof ABCSong) {
-    console.log(`preventing ${song.abc} from loading twice`);
+    debug(`preventing ${song.abc} from loading twice`);
     return song
   }
   if (!song) throw new Error("Song object is required ");
@@ -23,7 +29,7 @@ function ABCSong(song) {
     transposition: this.transposition,
     tuning: this.tuning
   };
-  console.log("ORIG", song, this.original);
+  debug("ORIG", song, this.original);
   /**
    *  //loaded when the tune is set,
    *    used to peform various analytics and calculations
@@ -165,21 +171,21 @@ String.prototype.withoutPrefix = function(prefix) {
 ABCSong.prototype.insertInformationField = function({line}) {
   if (!line.isInfoField()) {
     return false;
-    console.error(`prefix is malformed and requires a : delimiter: ${line}`);
+    debugErr(`prefix is malformed and requires a : delimiter: ${line}`);
   }
   
   const key = line[0];
   const mappingValue = getInfoFieldMapping({key});
 
   if (!mappingValue) {
-    console.error(`Could not get mapping from prefix: ${key}`); 
+    debugErr(`Could not get mapping from prefix: ${key}`); 
   }
   const newLineDelimited = this.abc.toString().split("\n");
   const newLineDelimitedLength = newLineDelimited.length; 
   const infoFields = _.dropRightWhile(newLineDelimited, (o) => !o.isInfoField());
   infoFields.push(line);
   const songLines = _.takeRight(newLineDelimited, newLineDelimitedLength - (infoFields.length - 1));
-  console.log({infoFields, songLines});
+  debug({infoFields, songLines});
   this.abc = [
     ...infoFields,
     ...songLines
@@ -237,13 +243,13 @@ ABCSong.prototype.setTempo = function(tempo) {
   const fieldKey = this.options.infoFieldKeyMapping["tempo"];
   this.lineIterator((line, {isLastLine}) => {
     if (line.containsPrefix(fieldKey)){
-      console.log(`Replacing existing tempo ${line}`);
+      debug(`Replacing existing tempo ${line}`);
       this.abc = this.abc.replace(line, `${fieldKey}: ${tempo}`);
     }
     else if (isLastLine) {
-      console.log(`Inserting info field for tempo: ${tempo}`);
+      debug(`Inserting info field for tempo: ${tempo}`);
       const inserted = this.insertInformationField({line: `${fieldKey}: ${tempo}`});
-      console.log({inserted});
+      debug({inserted});
     }
   });
 }
@@ -256,12 +262,12 @@ ABCSong.prototype.setTransposition = function(semitones, cb) {
     if (line.containsPrefix(fieldKey)){
       const transpoisitionMatched = line.match(/transpose=(?:-?\d+)?$/);
       if (transpoisitionMatched) {//transposition already exists
-        console.log(`Replacing existing transposition ${line}`);
+        debug(`Replacing existing transposition ${line}`);
         this.abc = this.abc.replace(transpoisitionMatched[0], stringReplacement);
         isSet = true;
       }
       else {//transpoisition doesnt exist so we simply add it
-        console.log(`Transposition does exist so well add it to ${line}`);
+        debug(`Transposition does exist so well add it to ${line}`);
         this.abc = this.abc.replace(line, `${line} ${stringReplacement}`);
         isSet = true;
       }
