@@ -21,7 +21,28 @@ export const player = {
   showPlayableNoteNamesInScroller: true,
   showSheetMusic: true,
   showNoteDiagram: true,
-  stateAssessmentLoopInterval: 5000,//how often to check the state
+  stateAssessmentLoopInterval: 5000,//how often to check the state,
+  firstScrollingNoteSection: `<section class="firstScrollingNote"></section>`,
+  tempoLimits: {
+    min: 20,
+    max: 180,
+  },
+  transpositionLimits: {
+    min: -12,
+    max: 12
+  },
+  visualOptions: {
+    displayWarp: false,
+    displayLoop: false,
+    displayRestart: false,
+    displayPlay: false,
+    displayProgress: false
+  },
+  abcOptions: {
+    bagpipes: true,
+    add_classes: true,
+    responsive: "resize",
+  }
 };
 
 export const sackpipa = {

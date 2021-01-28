@@ -1,3 +1,4 @@
+import _ from "lodash";
 import utils from "./utils";
 const { 
   isMobileUserAgent,
@@ -7,7 +8,9 @@ const {
   debugErr, 
   location_getParameterByName,
   simulateClick,
-  callEvery
+  callEvery,
+  updateClasses,
+  bindEl,
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -34,12 +37,15 @@ function ABCPlayer({
 
   this.options = options;
   this.playerOptions = options.player;
+  this.sackpipaOptions = options.sackpipa;
+  this.hpsOptions = options.hps;
 
   this.isSettingTune = true;
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
 
+  //stores how many times the player was reloaded due to an error
   this.errorReloadCount = 0;
 
   //used to store events to dispatch when play button is fired
@@ -94,30 +100,12 @@ function ABCPlayer({
 
   this.urlParams = {};
 
-  this.firstScrollingNoteSection = `<section class="firstScrollingNote"></section>`;
-  /*
-   * @TODO look into abctune.formatting.bagpipe
-   */
-  this.currentInstrumentIndex = 109 || options.player.currentInstrumentIndex; //bagpipe
-
-  this.transpositionLimits = {
-    min: -12,
-    max: 12
-  };
-
-  this.tempoLimits = {
-    min: 20,
-    max: 180,
-  }
-
   this.synthControl = null;
 
   this.audioContext = new AudioContext();
 
   this.abcOptions = {
-    bagpipes: true,
-    add_classes: true,
-    responsive: "resize",
+    ...options.player.abcOptions,
     clickListener: (abcElem, tuneNumber, classes, analysis, drag, mouseEvent) => {
       
       /*
@@ -158,7 +146,7 @@ function ABCPlayer({
     // debugCallback: function(message) { debug(message) },
     options: {
       soundFontUrl: this.playerOptions.getSoundFontUrl(this.options), 
-      program: this.currentInstrumentIndex,
+      program: this.playerOptions.currentInstrumentIndex,
       // soundFontUrl: "https://paulrosen.github.io/midi-js-soundfonts/FluidR3_GM/" ,
       // sequenceCallback: function(noteMapTracks, callbackContext) { return noteMapTracks; },
       // callbackContext: this,
@@ -171,58 +159,11 @@ function ABCPlayer({
     }
   }
 
-  this.visualOptions = {
-    displayWarp: false,
-    displayLoop: false,
-    displayRestart: false,
-    displayPlay: false,
-    displayProgress: false
-  };
-
-  this.sackpipaDroneSynth = null; 
-
-  this.sackpipaOptions = options.sackpipa;
-  this.hpsOptions = options.hps;
 }
 
 export default ABCPlayer;
 
 
-ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}) {
-  if (!tempo) {
-    tempo = this.tempo;
-  }
-  else if (tempo) {
-    this.tempo = tempo;
-  }
-  //difference between QPM and BPM?
-  this.audioParams.options.qpm = tempo;
-  this.audioParams.options.defaultQpm = tempo;
-  this.currentSong.setTempo(tempo);
-  shouldSetTune && this.setTune({
-    userAction: true,
-    isSameSong: true,
-    currentSong: this.currentSong,
-    abcOptions: {
-      visualTranspose: this.transposition
-    },
-    onSuccess: () => {
-      this.domBinding.currentTempo.innerText = tempo;
-      debug(`Set tempo to ${tempo}.`);
-      if (isNumber(tempo) && tempo === this.currentSong?.original?.tempo) {
-        delete this.onUnsetUrlParamTempo;
-        this.domBinding.unsetUrlTempo.hide();
-      }
-      else if (!this.onUnsetUrlParamTempo && isNumber(from) && tempo !== from) {
-        this.onUnsetUrlParamTempo = () => {
-          this.setTempo(from);
-        }
-        this.domBinding.unsetUrlTempo.show();
-      }
-    },
-    calledFrom: "tempo"
-  });
-}
 
 function clickBinder({el, selector, eventCb, eventName = "click"}) {
   if (!el) el = document.querySelector(selector);
@@ -290,17 +231,23 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   return this.setNoteDiagram({pitchIndex: pitch, duration});
 }
 
-
 ABCPlayer.prototype.load = function() {
   return new Promise((resolve) => {
-    this.domBindingKeys.map((name) => {
-      this.domBinding[name] = document.querySelector(`.${name}`);
-      if (this.domBinding[name]) { 
-        this.domBinding[name].hide = function() {
-          this.style.display = "none";
+    const _domBinding = {};
+    this.domBindingKeys.map((className) => {
+      const el = bindEl({className});
+      if (el) _domBinding[className] = el;
+    });
+    this.domBinding = new Proxy(_domBinding, {
+      get(target, prop) {
+        if (prop in target) {
+          return target[prop]
         }
-        this.domBinding[name].show = function() {
-          this.style.display = "inline";
+        else {
+          debug("RETRY", prop);
+          const el = bindEl({className: prop});
+          if (el) target[prop] = el;
+          return el;
         }
       }
     });
@@ -328,7 +275,7 @@ ABCPlayer.prototype.load = function() {
           this.domBinding["currentBeat"].innerText = `Beat: ${beatNumber}/${totalBeats}`;
         }
       });
-      this.synthControl.load("#audio", cursorControl, this.visualOptions);
+      this.synthControl.load("#audio", cursorControl, this.playerOptions.visualOptions);
     } else {
       this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
     }
@@ -361,7 +308,7 @@ ABCPlayer.prototype.load = function() {
     if (isMobileUserAgent()) {
       //requires a user gesture
       this.options.isMobileBuild = true;
-      this.stateMgr.activityQueue.push(() => { 
+      this.onStartCbQueue.push(() => { 
         document.body.requestFullscreen().then(debug).catch(debugErr);
         screen.orientation.lock('landscape').then(debug).catch(debugErr)
       });
@@ -370,11 +317,15 @@ ABCPlayer.prototype.load = function() {
     if (this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
+      this.stateMgr.activityQueue.push(() => {
+        debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
+        this.domBinding.firstScrollingNote.style.width = "100px";
+        this.domBinding.playercontrols.style.transform = "scale(0.8)";
+      });
     }
 
     if(!this.playerOptions.showSheetMusic) {
-      this.domBinding["playernotes"].hide();
-      document.querySelector("main").style.marginBottom = "35px";
+      this.domBinding.playernotes.hide();
     }
 
     this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
@@ -459,19 +410,7 @@ ABCPlayer.prototype.sackpipaReload = function(options = {}) {
 }
 
 
-ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
-  const urlParam = parseInt(this.urlParams["currentTuneIndex"]);
-  if (isNumber(urlParam)) {
-    this.currentTuneIndex = urlParam;
-    if (this.songs[this.currentTuneIndex]) {
-      const song = this.songs[this.currentTuneIndex];
-      this.currentSong = new this.ABCSong(song);
-    }
-    else {
-      debugErr(`Could not get song from index ${this.currentTuneIndex}`);
-    }
-  }
-}
+
 
 ABCPlayer.prototype.processUrlParams = function(toSet) {
   if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
@@ -512,7 +451,6 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
       nsItem && simulateClick(nsItem);
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
-    this.onStartCbQueue.push(clickItem.bind(this));
     //this will be fired first to set the note before clicking play
     onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
   }
@@ -645,7 +583,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
 
 ABCPlayer.prototype.start = function() {
   if (this.isSettingTune) return;
-  if (!document.querySelector(".firstScrollingNote")) {
+  if (!this.domBinding.firstScrollingNote) {
     //the loader didn't load properly
     const q = this.stop();
     setTimeout(() => {
@@ -729,21 +667,21 @@ ABCPlayer.prototype.songNext = function() {
 
 ABCPlayer.prototype.transposeUp = function() {
   if (this.isSettingTune) return;
-  if (this.transposition < this.transpositionLimits.max) {
+  if (this.transposition < this.playerOptions.transpositionLimits.max) {
     this.setTransposition(this.transposition + 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
   if (this.isSettingTune) return;
-  if (this.transposition > this.transpositionLimits.min) {
+  if (this.transposition > this.playerOptions.transpositionLimits.min) {
     this.setTransposition(this.transposition - 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.tempoUp = function(by = 1) {
   if (this.isSettingTune) return;
-  if ((this.tempo + by) <= this.tempoLimits.max) {
+  if ((this.tempo + by) <= this.playerOptions.tempoLimits.max) {
     const from = this.tempo;
     this.tempo += by;
     this.setTempo(undefined, {from});
@@ -752,7 +690,7 @@ ABCPlayer.prototype.tempoUp = function(by = 1) {
 
 ABCPlayer.prototype.tempoDown = function(by = 1) {
   if (this.isSettingTune) return;
-  if ((this.tempo - by) >= this.tempoLimits.min) {
+  if ((this.tempo - by) >= this.playerOptions.tempoLimits.min) {
     const from = this.tempo;
     this.tempo -= by;
     this.setTempo(undefined, {from});
@@ -913,6 +851,57 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
     }
   }); 
 }
+
+ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
+  const urlParam = parseInt(this.urlParams["currentTuneIndex"]);
+  if (isNumber(urlParam)) {
+    this.currentTuneIndex = urlParam;
+    if (this.songs[this.currentTuneIndex]) {
+      const song = this.songs[this.currentTuneIndex];
+      this.currentSong = new this.ABCSong(song);
+    }
+    else {
+      debugErr(`Could not get song from index ${this.currentTuneIndex}`);
+    }
+  }
+}
+
+ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}) {
+  if (!tempo) {
+    tempo = this.tempo;
+  }
+  else if (tempo) {
+    this.tempo = tempo;
+  }
+  //difference between QPM and BPM?
+  this.audioParams.options.qpm = tempo;
+  this.audioParams.options.defaultQpm = tempo;
+  this.currentSong.setTempo(tempo);
+  shouldSetTune && this.setTune({
+    userAction: true,
+    isSameSong: true,
+    currentSong: this.currentSong,
+    abcOptions: {
+      visualTranspose: this.transposition
+    },
+    onSuccess: () => {
+      this.domBinding.currentTempo.innerText = tempo;
+      debug(`Set tempo to ${tempo}.`);
+      if (isNumber(tempo) && tempo === this.currentSong?.original?.tempo) {
+        delete this.onUnsetUrlParamTempo;
+        this.domBinding.unsetUrlTempo.hide();
+      }
+      else if (!this.onUnsetUrlParamTempo && isNumber(from) && tempo !== from) {
+        this.onUnsetUrlParamTempo = () => {
+          this.setTempo(from);
+        }
+        this.domBinding.unsetUrlTempo.show();
+      }
+    },
+    calledFrom: "tempo"
+  });
+}
+
 
 ABCPlayer.prototype.assessState = function(args = {}) {
   let i, j;
@@ -1178,7 +1167,7 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
 
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems({onFinish} = {}) {
   this.noteScroller && this.noteScroller.addItems({
-    firstEl: this.firstScrollingNoteSection,
+    firstEl: this.playerOptions.firstScrollingNoteSection,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: scrollingNoteItemIterator.bind(this),
     onFinish: () => {
@@ -1207,11 +1196,6 @@ ABCPlayer.prototype.noteScrollerClear = function noteScrollerClear({onFinish}) {
   else {
     onFinish && onFinish();
   }
-}
-
-
-function updateClasses(domBinding, elClassName, classes = []) {
-  domBinding[elClassName].className = `${elClassName} `.concat(classes.join(" "));
 }
 
 function CursorControl({

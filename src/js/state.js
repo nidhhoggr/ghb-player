@@ -3,10 +3,11 @@ import config from "config";
 
 const {
   isNumber, 
-  isPositiveNumber, 
+  isPositiveNumber,
   debug,
   debugErr,
   debugAll,
+  callEvery,
 } = utils({from: "state"});
 
 var idleInterval;
@@ -98,16 +99,7 @@ StateManagement.prototype.idleWatcher = function idleWatcher({onInaction, inacti
     debug("activity detected", {onInaction, inactiveTimeout});
     clearTimeout(idleInterval);
     let i, aqcb;
-    if (self.activityQueue?.length > 0)  {
-      for (i in self.activityQueue) {
-        setTimeout(() => {
-          aqcb = self.activityQueue[i];
-          if (!aqcb) return;
-          aqcb?.call(playerInstance);
-          delete self.activityQueue[i];
-        }, 1000);
-      }
-    }
+    callEvery(self.activityQueue, {timeout: 100, dequeue: true});
     if (onReactivate && state.wasInactive) {
       onReactivate();
     }
