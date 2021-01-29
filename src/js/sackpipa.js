@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import utils from "./utils";
 const { isNumber } = utils({from: "sackpipa"});
+export const possibleChanters = ["E/A","D/G","C/F"];
 
 function Sackpipa({
   chanterKeyIndex = 0,//the key of the chanter, EA, DG, 
@@ -12,7 +13,7 @@ function Sackpipa({
   isSecondGroupPlugged = true,
 }) {
   this.dronesSynth = dronesSynth;
-  this.possibleChanters = ["E/A","D/G","C/F"];
+  this.possibleChanters = possibleChanters;
   this.playableExtraNotes = playableExtraNotes[chanterKeyIndex];
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;

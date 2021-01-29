@@ -16,7 +16,6 @@ const {
 function ABCPlayer({
   abcjs,
   songs,
-  ABCSong,
   Sackpipa,
   stateMgr,
   HPS,
@@ -26,8 +25,6 @@ function ABCPlayer({
   this.abcjs = abcjs;
 
   this.songs = songs;
-
-  this.ABCSong = ABCSong;
 
   this.Sackpipa = Sackpipa;
 
@@ -653,14 +650,14 @@ ABCPlayer.prototype.songPrev = function() {
   if (this.currentTuneIndex > 0)
     this.currentTuneIndex = this.currentTuneIndex - 1;
   else
-    this.currentTuneIndex = this.songs.length - 1;
+    this.currentTuneIndex = this.songs.getCount() - 1;
   this.changeSong({currentTuneIndex: this.currentTuneIndex});
 }
 
 ABCPlayer.prototype.songNext = function() {
   if (this.isSettingTune) return;
   this.currentTuneIndex = this.currentTuneIndex + 1;
-  if (this.currentTuneIndex >= this.songs.length) this.currentTuneIndex = 0;
+  if (this.currentTuneIndex >= this.songs.getCount()) this.currentTuneIndex = 0;
   this.changeSong({currentTuneIndex: this.currentTuneIndex});
 }
 
@@ -755,7 +752,7 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
         this.domBinding.firstGroup.hide();
         this.domBinding.secondGroup.hide();
       }
-      if (isNumber(chanterKeyIndex) && this.sackpipa.getChanterKeyByIndex(chanterKeyIndex) === this.currentSong?.original?.tuning) {
+      if (isNumber(chanterKeyIndex) && chanterKeyIndex === this.currentSong?.original?.tuning) {
         delete this.onUnsetUrlParamChanter;
         this.domBinding.unsetUrlChanter.hide();
       }
@@ -856,9 +853,9 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
   const urlParam = parseInt(this.urlParams["currentTuneIndex"]);
   if (isNumber(urlParam)) {
     this.currentTuneIndex = urlParam;
-    if (this.songs[this.currentTuneIndex]) {
-      const song = this.songs[this.currentTuneIndex];
-      this.currentSong = new this.ABCSong(song);
+    const song =  this.songs.loadSong({songIndex: this.currentTuneIndex});
+    if (song) {
+      this.currentSong = song;
     }
     else {
       debugErr(`Could not get song from index ${this.currentTuneIndex}`);
@@ -919,8 +916,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
   return new Promise((resolve, reject) => {
     this.isSettingTune = true;
     if (!currentSong) {
-      const song = this.songs[this.currentTuneIndex];
-      this.currentSong = new this.ABCSong(song);
+      this.currentSong = this.songs.loadSong({songIndex: this.currentTuneIndex});
     }
     else {
       this.currentSong = currentSong;
@@ -959,9 +955,9 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
           throw new Error("Has no member length");
         }
       }
-      if (tuning && !this.onUnsetUrlParamChanter) {
+      if (isNumber(tuning) && !this.onUnsetUrlParamChanter) {
         const setEm = () => {
-          this._updateChanter(this.sackpipa?.getChanterKeyIndex(tuning));
+          this._updateChanter(tuning);
         }
         if (onSuccess && onSuccess.hasOwnProperty("length")) {
           onSuccess.push(setEm);

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-
+import { possibleChanters } from "./sackpipa";
 import utils from "./utils";
 const {
   debug,
@@ -21,7 +21,7 @@ function ABCSong(song) {
   this.tempo = song.tempo;
   this.abc = song.abc;
   this.transposition = song.transposition || 0;
-  this.tuning = song.tuning || "E/A";
+  this.tuning = song.tuning || 0;//the chnater key index
   this.allNotes = [];
   this.entireNoteSequence = [];
   this.original = {
@@ -131,6 +131,16 @@ ABCSong.prototype.load = function() {
           sgp = parseInt(matched[1]);
           this.sgp = sgp;
           this.original.sgp ??= sgp;
+        }
+
+        matched = line.match(/tuning=(0|1|2)/);//@TODO make dynamic to match any chanter key
+        let tuning = 0;
+        if (matched?.[1]) {
+          debug(matched, possibleChanters);
+          tuning = parseInt(matched[1]);
+          this.tuning = tuning;
+          this._tuning = possibleChanters[tuning];
+          this.original.tuning ??= tuning;
         }
 
         break;

@@ -5,50 +5,62 @@ const {
   debug,
   debugErr,
 } = utils({from: "songs"});
-import songs, { tempo, transposition, tuning } from "./../abc/songs.js";
+
+export const tempo = 80;
+export const transposition = 0;
+export const tuning = "E/A";
+
 let abcFiles = require.context("./../abc/", true, /\.abc$/);
 abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled-")));
 
+const preserved = [];
 export function getAbc(file) {
   if (!abcFiles.includes(file)) return;
   const _file = file.replace("./","");
   debug(`requiring ${_file}`);
   const abc = require(`./../abc/${_file}`);
   abcFiles = _.without(abcFiles, file);
+  preserved.push(file);
   return abc;
 }
 
-const _jsonSongs = [];
-const _abcSongs = [];
-
-songs.map( song => {
-  let abc = "";
-  if (_.startsWith(song?.abc,"X:")) {
-    abc = song?.abc;
-  } 
-  else {
-    abc = getAbc(`./${song.abc}.abc`);
-  }
-  if (abc) _jsonSongs.push({
-    ...song,
-    abc
-  });
-});
-
+const abcSongs = [];
 abcFiles.map( file => {
   let abc = getAbc(file);
   if (abc) {
-    const song = new ABCSong({abc, tempo, transposition, tuning});
-    _abcSongs.push(song);
+    debug(`loading file ${file}`);
+    abcSongs.push(abc);
   }
 });
 
+function ABCSongs() {
+  this.abcFiles = preserved;
+  this.abcSongs = abcSongs;
+  //will store songs loaded (abc -> ABCSong) by thier index
+  this.loaded = [];
+  debug(this);
+}
 
+export default ABCSongs;
 
-//apply defaults
-export default _.concat(_abcSongs, _jsonSongs)?.map( song => {
+ABCSongs.prototype.loadSong = function({songIndex}) {
+  let song;
+  if(this.loaded[songIndex]) {
+    song = this.loaded[songIndex];
+  }
+  else {
+    song = new ABCSong({abc: this.abcSongs[songIndex]});
+    if (song) {
+      this.loaded[songIndex] = song;
+      debug(`Loading new song at ${songIndex}`, this.loaded);
+    }
+  }
   song.tempo ??= tempo;
   song.transposition ??= transposition;
   song.tuning ??= tuning;
   return song;
-});
+}
+
+ABCSongs.prototype.getCount = function() {
+  return this.abcFiles.length;
+}

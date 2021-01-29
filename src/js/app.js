@@ -3,8 +3,7 @@ import "../scss/app.scss";
 import abcjs from "./abcjs";
 import "./abcjs/abcjs-audio.css";
 import "../scss/audio.css";
-import ABCSong from "./song";
-import songs from "./songs";
+import ABCSongs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
 import config from "config";
@@ -15,8 +14,7 @@ import "tippy.js/dist/tippy.css";
 const stateMgr = new StateManagement({options: config});
 const abcPlayer = new ABCPlayer({
   abcjs, 
-  songs, 
-  ABCSong, 
+  songs: new ABCSongs(), 
   Sackpipa, 
   HPS, 
   stateMgr, 
