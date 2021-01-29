@@ -136,7 +136,6 @@ ABCSong.prototype.load = function() {
         matched = line.match(/tuning=(0|1|2)/);//@TODO make dynamic to match any chanter key
         let tuning = 0;
         if (matched?.[1]) {
-          debug(matched, possibleChanters);
           tuning = parseInt(matched[1]);
           this.tuning = tuning;
           this._tuning = possibleChanters[tuning];

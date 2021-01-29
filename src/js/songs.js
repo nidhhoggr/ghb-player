@@ -8,7 +8,7 @@ const {
 
 export const tempo = 80;
 export const transposition = 0;
-export const tuning = "E/A";
+export const tuning = 0;
 
 let abcFiles = require.context("./../abc/", true, /\.abc$/);
 abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled-")));
