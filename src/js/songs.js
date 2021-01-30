@@ -66,7 +66,7 @@ ABCSongs.prototype.getCount = function() {
   return this.abcFiles.length;
 }
 
-ABCSongs.prototype.loadPlayerDropdown = function({playerInstance, onChange}) {
+ABCSongs.prototype.loadPlayerDropdown = function({playerInstance, onFinish}) {
   const selector = playerInstance.domBinding.currentSong;
   let title;
   for (var i in this.abcSongs) {
@@ -76,4 +76,5 @@ ABCSongs.prototype.loadPlayerDropdown = function({playerInstance, onChange}) {
     opt.text = title || this.abcFiles[i];
     selector.add(opt);
   }
+  onFinish?.();
 }

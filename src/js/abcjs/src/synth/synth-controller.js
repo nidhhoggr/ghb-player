@@ -113,7 +113,7 @@ function SynthController() {
 
 		return startPromise.then(function (response) {
 			loadingResponse = response;
-			return self.midiBuffer.prime();
+      if (self.midiBuffer) return self.midiBuffer.prime();
 		}).then(function () {
 			var subdivisions = 16;
 			if (self.cursorControl &&

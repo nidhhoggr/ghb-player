@@ -28,8 +28,8 @@ export default function({from} = {}) {
         el.hide = function() {
           el.style.display = "none";
         }
-        el.show = function() {
-          el.style.display = "inline";
+        el.show = function(display = "inline") {
+          el.style.display = display;
         }
       }
       else {
@@ -72,12 +72,16 @@ export default function({from} = {}) {
       const cancelled = !elem.dispatchEvent(evt);
       return { cancelled, evt };
     },
-    callEvery: function callEvery(_every, {timeout = 0, dequeue = false, bind = null} = {}) {
+    callEvery: function callEvery(_every, {timeout = 0, dequeue = false, bind = null, callbackArgs = null} = {}) {
       if (_every) {
         if (_.isArray(_every)) {
           let i, onS;
           for (i in _every) {
             onS = _every[i];
+            if (onS?.fn) {
+              onS = onS.fn;
+              timeout = onS.timeout;
+            }
             if (!_.isFunction(onS)) return debugErr(`onS is not a function`, i, onS)
             debug("callEvery - func", onS);
             if (timeout) {
@@ -85,7 +89,7 @@ export default function({from} = {}) {
                 if (bind) {
                   onS = onS.bind(bind);
                 }
-                const result = onS();
+                const result = onS(callbackArgs);
                 debug("callEvery - result", result); 
               }, timeout * i);
             }
@@ -93,7 +97,7 @@ export default function({from} = {}) {
               if (bind) {
                 onS = onS.bind(bind);
               }
-              const result = onS();
+              const result = onS(callbackArgs);
               debug("callEvery - result", result); 
             }
             if (dequeue) delete _every[i];
@@ -105,7 +109,7 @@ export default function({from} = {}) {
       }
     },
     getInfoField: function getInfoField(abc, key) {
-      return abc.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
+      return abc.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.shift()?.replace(`${key}:`,"");
     }
   }
 }

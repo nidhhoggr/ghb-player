@@ -132,6 +132,14 @@ main.mobile {
   }
 }
 
+//hides the song selector before it loads
+select {
+  display: inline;;
+}
+.js-Dropdown {
+  padding-top: 5px;
+}
+
 .playercontrols {
   display: flex;
   justify-content: space-evenly;

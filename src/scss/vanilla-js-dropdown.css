@@ -24,7 +24,7 @@
   display: block;
   height: 0;
   position: absolute;
-  right: 1em;
+  right: .3em;
   top: 45%;
   width: 0;
 }
@@ -48,6 +48,8 @@
   display: block;
   height: auto;
   opacity: 1;
+  overflow-y: scroll;
+  max-height: 500px;
 }
 .js-Dropdown-list li {
   border-bottom: 1px solid #a5a5a5;

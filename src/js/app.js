@@ -18,8 +18,11 @@ const songs = new ABCSongs();
 const abcPlayer = new ABCPlayer({
   abcjs, 
   songs,
-  Sackpipa, 
-  HPS, 
+  ioc: {//classes that need instantation (inversion of control)
+    Sackpipa, 
+    HPS, 
+    CustomSelect,
+  },
   stateMgr, 
   options: config
 });
@@ -31,14 +34,4 @@ abcPlayer.load().then(({player}) => {
       return !!tooltip;
     }
   });
-  setTimeout(() => {
-    player.setSongSelector(new CustomSelect({
-      elem: player.domBinding.currentSong,
-      onChange: (songIndex) => {
-        console.log("APP", songIndex);
-        player.currentTuneIndex = songIndex;
-        player.changeSong({currentTuneIndex: songIndex});
-      }
-    }));
-  }, 1000);
 });

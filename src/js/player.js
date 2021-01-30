@@ -17,9 +17,8 @@ const {
 function ABCPlayer({
   abcjs,
   songs,
-  Sackpipa,
+  ioc,
   stateMgr,
-  HPS,
   options
 }) {
 
@@ -27,9 +26,7 @@ function ABCPlayer({
 
   this.songs = songs;
 
-  this.Sackpipa = Sackpipa;
-
-  this.HPS = HPS;
+  this.ioc = ioc;
 
   this.stateMgr = stateMgr;
 
@@ -41,6 +38,7 @@ function ABCPlayer({
   this.playerOptions = options.player;
   this.sackpipaOptions = options.sackpipa;
   this.hpsOptions = options.hps;
+  this.hpsOptions.disableScrolling = this.disableScrolling;
 
   this.isSettingTune = true;
   this.currentTuneIndex = 0;
@@ -187,7 +185,16 @@ function clickBinder({el, selector, eventCb, eventName = "click"}) {
   el.addEventListener("mouseup", () => {
     clearInterval(pressHoldInterval);
   });
+}
 
+ABCPlayer.prototype.disableScrolling = function disableScrolling() {
+  document.querySelector('body').style["overflow"] = "hidden";
+  document.querySelector('html').style["overflow"] = "hidden";
+}
+
+ABCPlayer.prototype.enableScrolling = function enableScrolling() {
+  document.querySelector('body').style["overflow"] = "visible";
+  document.querySelector('html').style["overflow"] = "visible";
 }
 
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
@@ -287,8 +294,8 @@ ABCPlayer.prototype.load = function() {
       this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
     }
     
-    this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
-    this.noteScroller = new this.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
+    this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
+    this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
     this.setCurrentSongFromUrlParam();
 
     const _handleErr = (err) => {
@@ -330,8 +337,8 @@ ABCPlayer.prototype.load = function() {
         //fires when an activity is detected
         debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
       });
-      onSuccesses.push(() => {
-        setTimeout(() => {
+      onSuccesses.push({
+        fn: () => {
           try {
             //decrese the width of the section
             domAddClass({el: document.querySelector("main"), className: "mobile"});
@@ -340,7 +347,8 @@ ABCPlayer.prototype.load = function() {
           } catch(err) {
             debugErr(err);
           }
-        }, 3000);
+        },
+        timeout: 3000
       });
     }
 
@@ -348,11 +356,38 @@ ABCPlayer.prototype.load = function() {
       this.domBinding.playernotes.hide();
     }
 
-    this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(() => {
+    this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(({playerInstance: player}) => {
       debug("URL Processing", urlProcessing);
       this.processUrlParams(urlProcessing);
       this.songs.loadPlayerDropdown({
         playerInstance: this,
+        onFinish: () => {
+          const selector = new player.ioc.CustomSelect({
+            elem: player.domBinding.currentSong,
+            onChange: (songIndex) => {
+              player.currentTuneIndex = songIndex;
+              player.changeSong({currentTuneIndex: songIndex});
+            },
+            onOpen: () => {
+              player.enableScrolling();
+              player.domBinding.scrollingNotesWrapper.hide();
+            },
+            onClose: () => {
+              player.disableScrolling();
+              player.domBinding.scrollingNotesWrapper.show("inline-block");
+              window.scrollTo({
+                top: 0,
+                left: 0,
+                behavior: 'smooth'
+              });
+            },
+            onFinish: (selector) => {
+              debug("CustomSelect", selector);
+              player.setSongSelector(selector);
+              selector.selectByIndex(player.currentTuneIndex);
+            }
+          });
+        }
       });
       window.onerror = function (message, file, line, col, error) {
         _handleErr(error);
@@ -414,7 +449,7 @@ ABCPlayer.prototype.reloadWindow = function() {
 ABCPlayer.prototype.sackpipaReload = function(options = {}) {
   this.sackpipaOptions = _.merge(this.sackpipaOptions,options);
   const { isFirstGroupPlugged, isSecondGroupPlugged } = this.sackpipaOptions;
-  this.sackpipa = new this.Sackpipa(this.sackpipaOptions);
+  this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
   if (options.skipUpdate) return;
   this._updateChanter();
   this.updateState();
@@ -1032,7 +1067,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
           this.domBinding.scrollingNotesWrapper.style.transform = "translateX(0px)";
         }
         debug("Audio successfully loaded.", this.synthControl);
-        callEvery(onSuccess);
+        callEvery(onSuccess, {callbackArgs: this});
       });
     }
     //only reuse if the chanter chnaged
@@ -1070,7 +1105,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
       };
       debug("setTune 2:", this.currentSong);
       onSuccess && onSuccess({response});
-      resolve?.(response);
+      resolve?.({response, playerInstance: this});
       this.isSettingTune = false;
     }});
   })

@@ -48,8 +48,8 @@ section {
     color: blue;
     font-size: 12px;
     padding-left: 2px;
-    position: absolute;
-    top: 10px;
+    position: relative;
+    top: -30px;
   }
 }
 
@@ -61,7 +61,7 @@ section.unplayable_note {
     padding-left: 5px;
     overflow: hidden;
     position: relative;
-    bottom: -60px;
+    top: 0px;
   }
 }
 

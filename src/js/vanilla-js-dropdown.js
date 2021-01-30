@@ -1,16 +1,8 @@
-/**
- * @fileOverview
- * @author Zoltan Toth
- * @version 2.2.0
- */
-
-/**
- * @description
- * Vanilla JavaScript dropdown - a tiny (~600 bytes gzipped) select tag replacement.
- *
- * @class
- * @param {(string|Object)} options.elem - HTML id of the select or the DOM element.
- */
+import utils from "./utils";
+const {
+  debug,
+  debugErr,
+} = utils({from: "dropdown"});
 
 export default CustomSelect
 
@@ -26,9 +18,10 @@ function CustomSelect(options) {
       selectOpgroups = elem.getElementsByTagName('optgroup'),
       selectOptions = elem.options,
       optionsLength = selectOptions.length,
-      index = 0,
-      onChange = options.onChange;
-  
+      index = 0;
+    
+    const { onChange, onOpen, onClose, onFinish } = options;
+
     // creating the pseudo-select container
     var selectContainer = document.createElement('div');
   
@@ -95,7 +88,7 @@ function CustomSelect(options) {
         ul.appendChild(li);
       }
     }
-  
+
     /**
      * Closes the current select on any click outside of it.
      *
@@ -121,7 +114,7 @@ function CustomSelect(options) {
       if (t.tagName === 'LI') {
         selectContainer.querySelector('.' + titleClass).innerText = t.innerText;
         elem.options.selectedIndex = t.getAttribute('data-index');
-        onChange( elem.options.selectedIndex); 
+        onChange?.(elem.options.selectedIndex); 
         //trigger 'change' event
         var evt = new CustomEvent('change');
         elem.dispatchEvent(evt);
@@ -143,6 +136,12 @@ function CustomSelect(options) {
      */
     function toggle() {
       ul.classList.toggle(openClass);
+      if (ul.className.includes(openClass)) {
+        onOpen?.();
+      }
+      else {
+        onClose?.();
+      }
     }
   
     /**
@@ -152,6 +151,7 @@ function CustomSelect(options) {
      */
     function open() {
       ul.classList.add(openClass);
+      onOpen?.();
     }
   
     /**
@@ -161,13 +161,18 @@ function CustomSelect(options) {
      */
     function close() {
       ul.classList.remove(openClass);
+      onClose?.();
     }
   
-    return {
+    const obj = {
       toggle: toggle,
       close: close,
       open: open,
       getSelectedIndex: () => (parseInt(document.querySelector(".js-Dropdown-list li.is-selected")?.dataset?.index)),
-      selectByIndex: (index) => (document.querySelector(`.js-Dropdown-list li[data-index="${index}"]`).click())
+      selectByIndex: (index) => (document.querySelector(`.js-Dropdown-list li[data-index="${index}"]`)?.click())
     };
+
+    onFinish?.(obj);
+
+    return obj;
 };
