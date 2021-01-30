@@ -122,6 +122,16 @@ address {
   display: none !important;
 }
 
+main.mobile {
+  .playercontrols {
+    margin: 0px;
+    padding: 0px;
+    justify-content: left;
+    position: relative;
+    left: -35px;
+  }
+}
+
 .playercontrols {
   display: flex;
   justify-content: space-evenly;

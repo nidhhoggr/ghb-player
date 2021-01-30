@@ -154,6 +154,12 @@ section.incompatible_pitch {
   }
 }
 
+main.mobile {
+  section.firstScrollingNote {
+    width: 100px !important;
+  }
+}
+
 .scrolling_notes-playable_chanter-ea {
   @mixin playable-note {
     background-image: url("../images/content/onescalloped.png");
@@ -176,7 +182,7 @@ section.incompatible_pitch {
     margin: 0px 5px 0px 5px;
     &.firstScrollingNote {
       height: 150px;
-      width: 400px;
+      width: 400px;//may be overridden by directive above
       background-color: #3e3e3e;
     }
   }

@@ -11,6 +11,7 @@ const {
   callEvery,
   updateClasses,
   bindEl,
+  domAddClass,
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -65,7 +66,7 @@ function ABCPlayer({
     "unsetUrlTransposition",
     "unsetUrlChanter",
     "firstGroup",
-    "secondGroup"
+    "secondGroup",
   ];
 
   this.domBindingKeys = [
@@ -305,7 +306,8 @@ ABCPlayer.prototype.load = function() {
     if (isMobileUserAgent()) {
       //requires a user gesture
       this.options.isMobileBuild = true;
-      this.onStartCbQueue.push(() => { 
+      this.onStartCbQueue.push(() => {
+        //fires after player.start is called
         document.body.requestFullscreen().then(debug).catch(debugErr);
         screen.orientation.lock('landscape').then(debug).catch(debugErr)
       });
@@ -317,15 +319,14 @@ ABCPlayer.prototype.load = function() {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
       this.stateMgr.activityQueue.push(() => {
+        //fires when an activity is detected
         debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
       });
       onSuccesses.push(() => {
         setTimeout(() => {
           try {
             //decrese the width of the section
-            this.domBinding.firstScrollingNote.style.width = "100px";
-            //push the section back to the left of the main block
-            this.domBinding.scrollingNotesWrapper.style.transform = "translateX(0px)";
+            domAddClass({el: document.querySelector("main"), className: "mobile"});
             //zoom out of the playercontrols for better mobile visibility
             this.domBinding.playercontrols.style.transform = "scale(0.8)";
           } catch(err) {
@@ -1015,6 +1016,9 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     tuneArgs.onSuccess = (response) => {
       this.setNoteScroller({calledFrom}).then((noteScrollerInit) => {
         this.updateControlStats();
+        if (this.options.isMobileBuild) {
+          this.domBinding.scrollingNotesWrapper.style.transform = "translateX(0px)";
+        }
         debug("Audio successfully loaded.", this.synthControl);
         callEvery(onSuccess);
       });

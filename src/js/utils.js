@@ -38,7 +38,8 @@ export default function({from} = {}) {
       return el;
     },
     updateClasses: (domBinding, elClassName, classes = []) => {
-        domBinding[elClassName].className = `${elClassName} `.concat(classes.join(" "));
+        const el = _.get(domBinding, elClassName);
+        if (el) el.className = `${elClassName} `.concat(classes.join(" "));
     },
     isMobileUserAgent: () => {
       let check = false;
@@ -71,7 +72,7 @@ export default function({from} = {}) {
       const cancelled = !elem.dispatchEvent(evt);
       return { cancelled, evt };
     },
-    callEvery: function(_every, {timeout = 0, dequeue = false, bind = null} = {}) {
+    callEvery: function callEvery(_every, {timeout = 0, dequeue = false, bind = null} = {}) {
       if (_every) {
         if (_.isArray(_every)) {
           let i, onS;
