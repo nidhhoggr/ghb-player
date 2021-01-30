@@ -3,6 +3,7 @@ import "../scss/app.scss";
 import abcjs from "./abcjs";
 import "./abcjs/abcjs-audio.css";
 import "../scss/audio.css";
+import "../scss/vanilla-js-dropdown.css";
 import ABCSongs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
@@ -11,10 +12,12 @@ import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
+import CustomSelect from "./vanilla-js-dropdown";
 const stateMgr = new StateManagement({options: config});
+const songs = new ABCSongs();
 const abcPlayer = new ABCPlayer({
   abcjs, 
-  songs: new ABCSongs(), 
+  songs,
   Sackpipa, 
   HPS, 
   stateMgr, 
@@ -28,4 +31,14 @@ abcPlayer.load().then(({player}) => {
       return !!tooltip;
     }
   });
+  setTimeout(() => {
+    player.setSongSelector(new CustomSelect({
+      elem: player.domBinding.currentSong,
+      onChange: (songIndex) => {
+        console.log("APP", songIndex);
+        player.currentTuneIndex = songIndex;
+        player.changeSong({currentTuneIndex: songIndex});
+      }
+    }));
+  }, 1000);
 });

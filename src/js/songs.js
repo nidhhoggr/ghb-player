@@ -4,6 +4,7 @@ import utils from "./utils";
 const {
   debug,
   debugErr,
+  getInfoField,
 } = utils({from: "songs"});
 
 export const tempo = 80;
@@ -63,4 +64,16 @@ ABCSongs.prototype.loadSong = function({songIndex}) {
 
 ABCSongs.prototype.getCount = function() {
   return this.abcFiles.length;
+}
+
+ABCSongs.prototype.loadPlayerDropdown = function({playerInstance, onChange}) {
+  const selector = playerInstance.domBinding.currentSong;
+  let title;
+  for (var i in this.abcSongs) {
+    title = getInfoField(this.abcSongs[i], "T");
+    const opt = document.createElement("option");
+    opt.value = i;
+    opt.text = title || this.abcFiles[i];
+    selector.add(opt);
+  }
 }

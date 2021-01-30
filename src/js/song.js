@@ -6,10 +6,6 @@ const {
   debugErr,
 } = utils({from: "song"});
 
-String.prototype.getInfoField = function(key) {
-  return this.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
-}
-
 function ABCSong(song) {
   //prevent reloading twice
   if (song instanceof ABCSong) {

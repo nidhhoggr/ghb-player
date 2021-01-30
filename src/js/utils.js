@@ -103,6 +103,9 @@ export default function({from} = {}) {
           _every?.();
         }
       }
+    },
+    getInfoField: function getInfoField(abc, key) {
+      return abc.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
     }
   }
 }

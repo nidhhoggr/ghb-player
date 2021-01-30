@@ -33,6 +33,10 @@ function ABCPlayer({
 
   this.stateMgr = stateMgr;
 
+  //stores and instance to vaniallljsdropdown
+  //available after player is loaded
+  this.songSelector = null;
+
   this.options = options;
   this.playerOptions = options.player;
   this.sackpipaOptions = options.sackpipa;
@@ -184,6 +188,10 @@ function clickBinder({el, selector, eventCb, eventName = "click"}) {
     clearInterval(pressHoldInterval);
   });
 
+}
+
+ABCPlayer.prototype.setSongSelector = function(songSelector) {
+  this.songSelector = songSelector;
 }
 
 ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
@@ -343,6 +351,9 @@ ABCPlayer.prototype.load = function() {
     this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(() => {
       debug("URL Processing", urlProcessing);
       this.processUrlParams(urlProcessing);
+      this.songs.loadPlayerDropdown({
+        playerInstance: this,
+      });
       window.onerror = function (message, file, line, col, error) {
         _handleErr(error);
       };
@@ -656,6 +667,7 @@ ABCPlayer.prototype.changeSong = function(args) {
   this.unsetUrlTempo();
   this.unsetUrlChanter();
   this.stop({changeSong: true, ...args});
+  this.songSelector.selectByIndex(this.currentTuneIndex);
   //in case we do no refresh, unset these functions set by urlparam eveluation
 }
 
@@ -818,7 +830,7 @@ ABCPlayer.prototype.secondGroup = function() {
 ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   this.domBinding.currentTransposition.innerText = this.transposition;
   this.domBinding.currentTempo.innerText = this.tempo;
-  this.domBinding.currentSong.innerText = this.currentSong.name;
+  //this.domBinding.currentSong.innerText = this.currentSong.name;
   this.domBinding.currentChanter.innerText = _.get(this.sackpipa, "chanterKey", "");
   if (this.audioParams.visualObj) {
     const keySig = this.audioParams.visualObj.getKeySignature();
@@ -985,7 +997,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
           throw new Error("Has no member length");
         }
       }
-      _.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
+      //_.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
     }
     
     const { abc } = this.currentSong;
