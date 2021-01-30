@@ -77,6 +77,7 @@ function ABCPlayer({
     "currentChanter",
     "currentKeySig",
     "playernotes",
+    "playercontrols",
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
@@ -300,7 +301,6 @@ ABCPlayer.prototype.load = function() {
     
     const urlProcessing = this.evaluateUrlParams();
 
-
     //this seems to do nothing
     if (isMobileUserAgent()) {
       //requires a user gesture
@@ -311,13 +311,27 @@ ABCPlayer.prototype.load = function() {
       });
     }
 
+    const onSuccesses = [];
+    
     if (this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
       this.stateMgr.activityQueue.push(() => {
         debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
-        this.domBinding.firstScrollingNote.style.width = "100px";
-        this.domBinding.playercontrols.style.transform = "scale(0.8)";
+      });
+      onSuccesses.push(() => {
+        setTimeout(() => {
+          try {
+            //decrese the width of the section
+            this.domBinding.firstScrollingNote.style.width = "100px";
+            //push the section back to the left of the main block
+            this.domBinding.scrollingNotesWrapper.style.transform = "translateX(0px)";
+            //zoom out of the playercontrols for better mobile visibility
+            this.domBinding.playercontrols.style.transform = "scale(0.8)";
+          } catch(err) {
+            debugErr(err);
+          }
+        }, 3000);
       });
     }
 
@@ -325,7 +339,7 @@ ABCPlayer.prototype.load = function() {
       this.domBinding.playernotes.hide();
     }
 
-    this.setTune({userAction: true, onSuccess: this.onSuccesses, calledFrom: "load"}).then(() => {
+    this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(() => {
       debug("URL Processing", urlProcessing);
       this.processUrlParams(urlProcessing);
       window.onerror = function (message, file, line, col, error) {
@@ -429,8 +443,8 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
   
   this.setCurrentSongFromUrlParam();
 
-  const onSuccesses = [];
-  onSuccesses.push(() => {
+  const queueCallbacks = [];
+  queueCallbacks.push(() => {
     if (isNumber(toSet.chanterIndex)) {
       //this needs to execute later in the stack due to some race condition
       setTimeout(() => {
@@ -449,10 +463,10 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
     //this will be fired first to set the note before clicking play
-    onSuccesses.push(setTimeout(clickItem.bind(this), 2000));
+    queueCallbacks.push(setTimeout(clickItem.bind(this), 2000));
   }
 
-  callEvery(onSuccesses);
+  callEvery(queueCallbacks);
 }
 
 ABCPlayer.prototype.evaluateUrlParams = function() {
@@ -998,12 +1012,11 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
     }
     this.updateControlStats();
     const tuneArgs = arguments[0];
-    const _onSuccess = onSuccess;
     tuneArgs.onSuccess = (response) => {
       this.setNoteScroller({calledFrom}).then((noteScrollerInit) => {
         this.updateControlStats();
         debug("Audio successfully loaded.", this.synthControl);
-        callEvery(_onSuccess);
+        callEvery(onSuccess);
       });
     }
     //only reuse if the chanter chnaged

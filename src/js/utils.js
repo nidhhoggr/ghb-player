@@ -3,11 +3,17 @@ import config from "config";
 const { shouldDebug, debugDisabledModules } = config;
 
 export default function({from} = {}) {
+  function _d(method, args) {
+    (shouldDebug && !debugDisabledModules.includes(from)) && console[method].apply(undefined, [from, ...args]);
+  }
   function debug() {
-    (shouldDebug && !debugDisabledModules.includes(from)) && console.log.apply(undefined, [from, ...arguments]);
+    return _d("log", arguments);
+  }
+  function debugWarn() {
+    return _d("warn", arguments);
   }
   function debugErr() {
-    (shouldDebug && !debugDisabledModules.includes(from)) && console.error.apply(undefined, [from, ...arguments]);
+    return _d("error", arguments);
   }
   function debugAll() {
     console.log.apply(undefined, arguments);
@@ -65,14 +71,30 @@ export default function({from} = {}) {
       const cancelled = !elem.dispatchEvent(evt);
       return { cancelled, evt };
     },
-    callEvery: function(_every, {timeout = 0, dequeue = false} = {}) {
+    callEvery: function(_every, {timeout = 0, dequeue = false, bind = null} = {}) {
       if (_every) {
         if (_.isArray(_every)) {
           let i, onS;
           for (i in _every) {
             onS = _every[i];
             if (!_.isFunction(onS)) return debugErr(`onS is not a function`, i, onS)
-            setTimeout(onS, timeout);
+            debug("callEvery - func", onS);
+            if (timeout) {
+              setTimeout(() => {
+                if (bind) {
+                  onS = onS.bind(bind);
+                }
+                const result = onS();
+                debug("callEvery - result", result); 
+              }, timeout * i);
+            }
+            else {
+              if (bind) {
+                onS = onS.bind(bind);
+              }
+              const result = onS();
+              debug("callEvery - result", result); 
+            }
             if (dequeue) delete _every[i];
           }
         }
