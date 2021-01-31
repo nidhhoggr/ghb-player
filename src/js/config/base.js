@@ -17,6 +17,7 @@ export const player = {
     play: 119,
     esc: 27,
     refresh: 116,
+    fullscreen: 70,
   },
   showPlayableNoteNamesInScroller: true,
   showSheetMusic: true,

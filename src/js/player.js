@@ -4,6 +4,7 @@ const {
   isMobileUserAgent,
   isNumber, 
   isPositiveNumber, 
+  isFullScreen,
   debug, 
   debugErr, 
   location_getParameterByName,
@@ -12,6 +13,8 @@ const {
   updateClasses,
   bindEl,
   domAddClass,
+  dQ,
+  dQAll
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -38,12 +41,18 @@ function ABCPlayer({
   this.playerOptions = options.player;
   this.sackpipaOptions = options.sackpipa;
   this.hpsOptions = options.hps;
-  this.hpsOptions.disableScrolling = this.disableScrolling;
+  this.hpsOptions.disableScrolling = this.disableScrolling.bind(this);
 
   this.isSettingTune = true;
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
+
+  //stores boolean flags of whether things are enabled
+  this.isEnabled = {
+    scrolling: false,//overflow scroll is disabled by default for HPS
+    pageView: false,
+  };
 
   //stores how many times the player was reloaded due to an error
   this.errorReloadCount = 0;
@@ -96,7 +105,8 @@ function ABCPlayer({
     "fgp",//firstGroupPlugged
     "sgp",//SecondGroupPlugged,
     "erc",//error reload count,
-    "imb",//isMobileBuild
+    "imb",//isMobileBuild,
+    "pve",//pageViewEnabled
   ];
 
   this.urlParams = {};
@@ -114,7 +124,7 @@ function ABCPlayer({
         "midiPitches: " + JSON.stringify(abcElem.midiPitches, null, 4) + "<br>" +
         "gracenotes: " + JSON.stringify(abcElem.gracenotes, null, 4) + "<br>" +
         "midiGraceNotePitches: " + JSON.stringify(abcElem.midiGraceNotePitches, null, 4) + "<br>";
-      document.querySelector(".clicked-info").innerHTML = "<div class='label'>Clicked info:</div>" +output;
+      dQ(".clicked-info").innerHTML = "<div class='label'>Clicked info:</div>" +output;
       */
 
       var lastClicked = abcElem.midiPitches;
@@ -167,7 +177,7 @@ export default ABCPlayer;
 
 
 function clickBinder({el, selector, eventCb, eventName = "click"}) {
-  if (!el) el = document.querySelector(selector);
+  if (!el) el = dQ(selector);
   if (!el) return debugErr(`Could not get element from selector: ${selector}`);
   el.addEventListener(eventName, (e) => {
     eventCb();
@@ -188,13 +198,38 @@ function clickBinder({el, selector, eventCb, eventName = "click"}) {
 }
 
 ABCPlayer.prototype.disableScrolling = function disableScrolling() {
-  document.querySelector('body').style["overflow"] = "hidden";
-  document.querySelector('html').style["overflow"] = "hidden";
+  dQ('body').style["overflow"] = "hidden";
+  dQ('html').style["overflow"] = "hidden";
+  this.isEnabled.scrolling = false;
 }
 
 ABCPlayer.prototype.enableScrolling = function enableScrolling() {
-  document.querySelector('body').style["overflow"] = "visible";
-  document.querySelector('html').style["overflow"] = "visible";
+  dQ('body').style["overflow"] = "visible";
+  dQ('html').style["overflow"] = "visible";
+  this.isEnabled.scrolling = true;
+}
+
+ABCPlayer.prototype.enablePageView = function enablePageView() {
+  setTimeout(() => {
+    dQ(".firstScrollingNote").style.display = "none";
+  }, 1000);
+  this.domBinding.scrollingNotesWrapper.show("inline");
+  this.enableScrolling();
+  this.isEnabled.pageView = true;
+  dQ("main").style["max-width"] = "2000px";
+  dQ("main").style["width"] = "85%";
+  dQAll(".scrollingNotesWrapper section").forEach(el => el.style.margin = "5px");
+}
+
+ABCPlayer.prototype.enableHPSView = function enableHPSView() {
+  this.domBinding.firstScrollingNote.show();
+  this.domBinding.scollingNotesWrapper.show("inline-block");
+  this.disableScrolling();
+  this.isEnabled.pageView = false;
+}
+
+ABCPlayer.prototype.enableFullscreen = function enableFullscreen() {
+  document.body.requestFullscreen().then(debug).catch(debugErr);
 }
 
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
@@ -317,20 +352,18 @@ ABCPlayer.prototype.load = function() {
     
     const urlProcessing = this.evaluateUrlParams();
 
-    //this seems to do nothing
-    if (isMobileUserAgent()) {
+    if (!urlProcessing.enablePageView && isMobileUserAgent()) {
       //requires a user gesture
       this.options.isMobileBuild = true;
       this.onStartCbQueue.push(() => {
         //fires after player.start is called
-        document.body.requestFullscreen().then(debug).catch(debugErr);
-        screen.orientation.lock('landscape').then(debug).catch(debugErr)
+        this.enableFullscreen();
       });
     }
-
+    
     const onSuccesses = [];
     
-    if (this.options.isMobileBuild) {
+    if (!urlProcessing.enablePageView && this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
       this.stateMgr.activityQueue.push(() => {
@@ -341,7 +374,7 @@ ABCPlayer.prototype.load = function() {
         fn: () => {
           try {
             //decrese the width of the section
-            domAddClass({el: document.querySelector("main"), className: "mobile"});
+            domAddClass({el: dQ("main"), className: "mobile"});
             //zoom out of the playercontrols for better mobile visibility
             this.domBinding.playercontrols.style.transform = "scale(0.8)";
           } catch(err) {
@@ -350,6 +383,10 @@ ABCPlayer.prototype.load = function() {
         },
         timeout: 3000
       });
+    }
+    else if(urlProcessing.enablePageView) {
+      this.playerOptions.showSheetMusic = false;
+      this.playerOptions.showNoteDiagram = false;
     }
 
     if(!this.playerOptions.showSheetMusic) {
@@ -373,8 +410,16 @@ ABCPlayer.prototype.load = function() {
               player.domBinding.scrollingNotesWrapper.hide();
             },
             onClose: () => {
-              player.disableScrolling();
-              player.domBinding.scrollingNotesWrapper.show("inline-block");
+              player.domBinding.scrollingNotesWrapper.show();
+              if (this.isEnabled.pageView) {
+                setTimeout(() => {//to wait for the song to load
+                  this.enablePageView();
+                });
+              }
+              else {
+                player.disableScrolling();
+                player.domBinding.scrollingNotesWrapper.show("inline-block");
+              }
               window.scrollTo({
                 top: 0,
                 left: 0,
@@ -435,6 +480,9 @@ ABCPlayer.prototype.load = function() {
       }
       else if (keyCode === keyCodes.refresh) {
         this.reloadWindow();
+      }
+      else if (keyCode === keyCodes.fullscreen) {
+        this.enableFullscreen();
       }
     };
 
@@ -513,6 +561,13 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
     queueCallbacks.push(setTimeout(clickItem.bind(this), 2000));
   }
 
+  if (isNumber(toSet["enablePageView"])) {
+    queueCallbacks.push({
+      fn: this.enablePageView.bind(this),
+      timeout: 3000
+    });
+  }
+
   callEvery(queueCallbacks);
 }
 
@@ -539,6 +594,11 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   urlParam = parseInt(this.urlParams["imb"]);
   if (urlParam === 1) {
     this.options.isMobileBuild = true;
+  }
+
+  urlParam = parseInt(this.urlParams["pve"]);
+  if (urlParam === 1) {
+    toSet["enablePageView"] = urlParam;
   }
 
   urlParam = parseInt(this.urlParams["currentChanterIndex"]);
@@ -1201,7 +1261,7 @@ function scrollingNoteItemIterator({section, item}) {
 }
 
 ABCPlayer.prototype.getNoteScrollerItem = function getNoteScrollerItem({currentNoteIndex} = {}) {
-  return document.querySelector(`[data-ensindex="${currentNoteIndex}"]`);
+  return dQ(`[data-ensindex="${currentNoteIndex}"]`);
 }
 
 ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e, {currentNoteIndex} = {}) {
@@ -1281,11 +1341,11 @@ function CursorControl({
     
     if (!shouldShowSheetMusic) return; 
 
-    var lastSelection = document.querySelectorAll("#paper svg .highlight");
+    var lastSelection = dQAll("#paper svg .highlight");
     for (var k = 0; k < lastSelection.length; k++)
       lastSelection[k].classList.remove("highlight");
 
-    //var el = document.querySelector(".feedback").innerHTML = "<div class='label'>Current Note:</div>" + JSON.stringify(ev, null, 4);
+    //var el = dQ(".feedback").innerHTML = "<div class='label'>Current Note:</div>" + JSON.stringify(ev, null, 4);
     for (var i = 0; i < ev.elements.length; i++ ) {
       var note = ev.elements[i];
       for (var j = 0; j < note.length; j++) {
@@ -1293,7 +1353,7 @@ function CursorControl({
       }
     }
 
-    var cursor = document.querySelector("#paper svg .abcjs-cursor");
+    var cursor = dQ("#paper svg .abcjs-cursor");
     if (cursor) {
       cursor.setAttribute("x1", ev.left - 2);
       cursor.setAttribute("x2", ev.left - 2);
@@ -1302,7 +1362,7 @@ function CursorControl({
     }
   };
   function onStart() {
-    var svg = document.querySelector("#paper svg");
+    var svg = dQ("#paper svg");
     if (!svg) return;
     var cursor = document.createElementNS("https://www.w3.org/2000/svg", "line");
     cursor.setAttribute("class", "abcjs-cursor");
@@ -1313,11 +1373,11 @@ function CursorControl({
     svg.appendChild(cursor);
   }
   function onFinished() {
-    var els = document.querySelectorAll("svg .highlight");
+    var els = dQAll("svg .highlight");
     for (var i = 0; i < els.length; i++ ) {
       els[i].classList.remove("highlight");
     }
-    var cursor = document.querySelector("#paper svg .abcjs-cursor");
+    var cursor = dQ("#paper svg .abcjs-cursor");
     if (cursor) {
       cursor.setAttribute("x1", 0);
       cursor.setAttribute("x2", 0);

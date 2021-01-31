@@ -110,6 +110,11 @@ export default function({from} = {}) {
     },
     getInfoField: function getInfoField(abc, key) {
       return abc.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.shift()?.replace(`${key}:`,"");
-    }
+    },
+    isFullScreen: function isFullScreen() {
+      return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement)
+    },
+    dQ: (arg) => document.querySelector(arg),
+    dQAll: (arg) => document.querySelectorAll(arg),
   }
 }

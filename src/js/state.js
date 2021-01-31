@@ -33,6 +33,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     sackpipaOptions,
     errorReloadCount,
     isSettingTune,
+    isEnabled,
   } = playerInstance;
 
   if (isSettingTune) return debugAll(`Cannot modify state when setting tune`);
@@ -60,6 +61,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     isNumber(currentTuneIndex) && stateArray.push(["currentTuneIndex", currentTuneIndex]);//contain zero
     isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
     isNumber(currentChanterIndex) && stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
+    isEnabled?.pageView && stateArray.push(["pve", 1]);
     stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
     stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
     if (isPositiveNumber(errorReloadCount)) {
