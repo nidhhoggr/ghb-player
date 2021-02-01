@@ -98,11 +98,11 @@ function ABCPlayer({
   ]
 
   this.urlParamNames = [
-    "currentChanterIndex",
-    "currentTuneIndex",
-    "currentTransposition",
-    "currentTempo",
-    "currentNoteIndex",
+    "cci",//currentChanterIndex
+    "cti",//currentTuneIndex
+    "ctp",//currentTransposition
+    "ct",//currentTempo
+    "cni",//currentNoteIndex
     "fgp",//firstGroupPlugged
     "sgp",//SecondGroupPlugged,
     "erc",//error reload count,
@@ -461,7 +461,7 @@ ABCPlayer.prototype.load = function() {
       const { keyCodes } = this.playerOptions;
       if (!keyCodes) return;
       if (keyCode === keyCodes.esc) { 
-        history.replaceState({}, null, `?currentTuneIndex=${this.currentTuneIndex}`);
+        history.replaceState({}, null, `?cti=${this.currentTuneIndex}`);
         setTimeout(() => {
           window.location.reload();
         }, 100);
@@ -603,7 +603,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     toSet["enablePageView"] = urlParam;
   }
 
-  urlParam = parseInt(this.urlParams["currentChanterIndex"]);
+  urlParam = parseInt(this.urlParams["cci"]);
   if (isNumber(urlParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
     const urlChanterIndex = urlParam;
@@ -616,7 +616,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["currentTransposition"]);
+  urlParam = parseInt(this.urlParams["ctp"]);
   if (isNumber(urlParam)) {
     const currentTransposition = this.currentSong?.transposition || this.transposition;
     const urlTransposition = urlParam;
@@ -627,7 +627,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["currentTempo"]);
+  urlParam = parseInt(this.urlParams["ct"]);
   if (isNumber(urlParam)) {
     const currentTempo = this.currentSong?.tempo || this.tempo;
     const urlTempo = urlParam;
@@ -638,7 +638,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["currentNoteIndex"]);
+  urlParam = parseInt(this.urlParams["cni"]);
   if (isNumber(urlParam)) {
     const currentNoteIndex = urlParam;
     if (isNumber(currentNoteIndex)) {
@@ -974,7 +974,7 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
 }
 
 ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
-  const urlParam = parseInt(this.urlParams["currentTuneIndex"]);
+  const urlParam = parseInt(this.urlParams["cti"]);
   if (isNumber(urlParam)) {
     this.currentTuneIndex = urlParam;
     const song =  this.songs.loadSong({songIndex: this.currentTuneIndex});

@@ -40,10 +40,10 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
 
   if (changeSong && isNumber(currentTuneIndex)) {
     if (this.options?.player?.refreshWhenPossible) {
-      window.location.href = window.location.origin + window.location.pathname + `?currentTuneIndex=${currentTuneIndex}`
+      window.location.href = window.location.origin + window.location.pathname + `?cti=${currentTuneIndex}`
     }
     else {
-      history.replaceState({}, null, `?currentTuneIndex=${currentTuneIndex}`);
+      history.replaceState({}, null, `?cti=${currentTuneIndex}`);
       setTimeout(() => {
         onFinish && onFinish();
       }, 100);
@@ -56,11 +56,11 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
   else {
     const stateArray = [];
     const currentChanterIndex = getCurrentChanterIndex?.call(playerInstance, undefined);
-    isNumber(tempo) && stateArray.push(["currentTempo", tempo]);//contains zero to reset for next initialization
-    isNumber(transposition) && stateArray.push(["currentTransposition", transposition]);//contains zero
-    isNumber(currentTuneIndex) && stateArray.push(["currentTuneIndex", currentTuneIndex]);//contain zero
-    isNumber(currentNoteIndex) && stateArray.push(["currentNoteIndex", currentNoteIndex]);
-    isNumber(currentChanterIndex) && stateArray.push(["currentChanterIndex", currentChanterIndex]);//contains zero
+    isNumber(tempo) && stateArray.push(["ct", tempo]);//contains zero to reset for next initialization
+    isNumber(transposition) && stateArray.push(["ctp", transposition]);//contains zero
+    isNumber(currentTuneIndex) && stateArray.push(["cti", currentTuneIndex]);//contain zero
+    isNumber(currentNoteIndex) && stateArray.push(["cni", currentNoteIndex]);
+    isNumber(currentChanterIndex) && stateArray.push(["cci", currentChanterIndex]);//contains zero
     isEnabled?.pageView && stateArray.push(["pve", 1]);
     stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
     stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
