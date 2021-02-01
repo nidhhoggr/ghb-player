@@ -76,13 +76,14 @@ export default function({from} = {}) {
       if (_every) {
         if (_.isArray(_every)) {
           let i, onS;
+          //debug("callEvery", _every) ;
           for (i in _every) {
             onS = _every[i];
-            if (onS?.fn) {
-              onS = onS.fn;
+            if (_.isFunction(onS?.fn)) {
               timeout = onS.timeout;
+              onS = onS.fn;
             }
-            if (!_.isFunction(onS)) return debugErr(`onS is not a function`, i, onS)
+            if (!_.isFunction(onS)) return debugErr(`onS is not a function`, i, _every)
             debug("callEvery - func", onS);
             if (timeout) {
               setTimeout(() => {
@@ -91,7 +92,7 @@ export default function({from} = {}) {
                 }
                 const result = onS(callbackArgs);
                 debug("callEvery - result", result); 
-              }, timeout * i);
+              }, timeout);
             }
             else {
               if (bind) {
@@ -116,5 +117,23 @@ export default function({from} = {}) {
     },
     dQ: (arg) => document.querySelector(arg),
     dQAll: (arg) => document.querySelectorAll(arg),
+    timeoutElOp: ({el, fn, timeout} = {}) => {
+      let ic = 0;
+      const interval = setInterval(() => {
+        if(!el && ic < 4) {
+          debug(`timeoutElOp retrying`, fn);
+          ic++;
+        }
+        else if (!el && ic > 4) {
+          debugErr(`Could not perform on el`, fn);
+          clearInterval(interval);
+        }
+        else if(el) {
+          debug("timeoutElOp:", el);
+          fn(el);
+          clearInterval(interval);
+        }
+      }, (timeout < 1000) ?  _.min(timeout, 500)  : 1000);
+    }
   }
 }

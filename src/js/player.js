@@ -14,7 +14,8 @@ const {
   bindEl,
   domAddClass,
   dQ,
-  dQAll
+  dQAll,
+  timeoutElOp,
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -210,15 +211,16 @@ ABCPlayer.prototype.enableScrolling = function enableScrolling() {
 }
 
 ABCPlayer.prototype.enablePageView = function enablePageView() {
-  setTimeout(() => {
-    dQ(".firstScrollingNote").style.display = "none";
-  }, 1000);
   this.domBinding.scrollingNotesWrapper.show("inline");
   this.enableScrolling();
   this.isEnabled.pageView = true;
   dQ("main").style["max-width"] = "2000px";
   dQ("main").style["width"] = "85%";
   dQAll(".scrollingNotesWrapper section").forEach(el => el.style.margin = "5px");
+  timeoutElOp({
+    el: dQ(".firstScrollingNote"),
+    fn: (el) => el.style.display = "none",
+  });
 }
 
 ABCPlayer.prototype.enableHPSView = function enableHPSView() {
@@ -253,17 +255,19 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
     if (_.isNaN(index)) return;
     this.currentNoteIndex = index;
     this.updateState();
-    const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
-    try { 
-      const firstLeft = scrollingNotesWrapper.getBoundingClientRect();
-      const snItemRect = snItem.getBoundingClientRect();
-      const offset = (snItemRect.left - firstLeft.left - this.hpsOptions.sectionOffset) * -1;
-      const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
-      //debug({offset, targetXPoos});
-      this.noteScroller.setScrollerXPos({xpos: offset});
+    if (!this.isEnabled.pageView) {
+      const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
+      try {
+        const firstLeft = scrollingNotesWrapper.getBoundingClientRect();
+        const snItemRect = snItem.getBoundingClientRect();
+        const offset = (snItemRect.left - firstLeft.left - this.hpsOptions.sectionOffset) * -1;
+        const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
+        //debug({offset, targetXPoos});
+        this.noteScroller.setScrollerXPos({xpos: offset});
     }
     catch (err) {
       debugErr(`Could not calculate offset`);
+    }
     }
     const scrollingNoteDivs = this.domBinding?.scrollingNotesWrapper.children || [];
     const currEl = scrollingNoteDivs[index];
@@ -370,18 +374,11 @@ ABCPlayer.prototype.load = function() {
         //fires when an activity is detected
         debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
       });
-      onSuccesses.push({
-        fn: () => {
-          try {
-            //decrese the width of the section
-            domAddClass({el: dQ("main"), className: "mobile"});
-            //zoom out of the playercontrols for better mobile visibility
-            this.domBinding.playercontrols.style.transform = "scale(0.8)";
-          } catch(err) {
-            debugErr(err);
-          }
-        },
-        timeout: 3000
+      //decrese the width of the section
+      onSuccesses.push(() => domAddClass({el: dQ("main"), className: "mobile"}));
+      timeoutElOp({
+        el: this.domBinding.playercontrols,
+        fn: (el) => el.style.transform = "scale(0.8)",
       });
     }
     else if(urlProcessing.enablePageView) {
@@ -552,19 +549,24 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
 
   if (toSet["setNoteScrollerItem"]) {
     const currentNoteIndex = toSet["setNoteScrollerItem"];
-    function clickItem() {
+    const clickItem = () => {
       const nsItem = this.getNoteScrollerItem({currentNoteIndex});
       nsItem && simulateClick(nsItem);
     }
     //this will be fired when the user clicks play is needed in addtion to the call below
     //this will be fired first to set the note before clicking play
-    queueCallbacks.push(setTimeout(clickItem.bind(this), 2000));
+    queueCallbacks.push({
+      fn: clickItem.bind(this),
+      timeout: 2000
+    });
   }
 
   if (isNumber(toSet["enablePageView"])) {
-    queueCallbacks.push({
-      fn: this.enablePageView.bind(this),
-      timeout: 3000
+    queueCallbacks.push(() => {
+      timeoutElOp({
+        el: this.domBinding.firstScrollingNote,
+        fn: this.enablePageView.bind(this),
+      });
     });
   }
 
@@ -1280,7 +1282,7 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
       this.synthControl.randomAccessBy({percent});
     }
     else {
-      debugErr(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`);
+      debugErr(`Both noteTimingIndex and percentage required ${noteTimingIndex} ${percentage}`, noteEvent);
     }
   }
 }
