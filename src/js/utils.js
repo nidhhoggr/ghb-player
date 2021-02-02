@@ -50,7 +50,10 @@ export default function({from} = {}) {
     isNumber: (number) => (_.isNumber(number) && !_.isNaN(number)),
     isPositiveNumber: (number) => (_.isNumber(number) && !_.isNaN(number) && number > 0),
     domAddClass: function({el, className}) {
-      return el.classList.add(className);
+      return el?.classList && el.classList.add(className);
+    },
+    domRemClass: function({el, className}) {
+      return el?.classList.contains(className) && el.classList.remove(className);
     },
     location_getParameterByName: function location_getParameterByName(name, url) {
       if (!url) url = window.location.href;
@@ -117,23 +120,25 @@ export default function({from} = {}) {
     },
     dQ: (arg) => document.querySelector(arg),
     dQAll: (arg) => document.querySelectorAll(arg),
-    timeoutElOp: ({el, fn, timeout} = {}) => {
+    timeoutElOp: ({el, fn, timeout = 500, waitStart = 0} = {}) => {
       let ic = 0;
-      const interval = setInterval(() => {
-        if(!el && ic < 4) {
-          debug(`timeoutElOp retrying`, fn);
-          ic++;
-        }
-        else if (!el && ic > 4) {
-          debugErr(`Could not perform on el`, fn);
-          clearInterval(interval);
-        }
-        else if(el) {
-          debug("timeoutElOp:", el);
-          fn(el);
-          clearInterval(interval);
-        }
-      }, (timeout < 1000) ?  _.min(timeout, 500)  : 1000);
+      setTimeout(() => {
+        const interval = setInterval(() => {
+          if(!el && ic < 4) {
+            debug(`timeoutElOp retrying`, fn);
+            ic++;
+          }
+          else if (!el && ic > 4) {
+            debugErr(`Could not perform on el`, fn);
+            clearInterval(interval);
+          }
+          else if(el) {
+            debug("timeoutElOp:", el);
+            fn(el);
+            clearInterval(interval);
+          }
+        }, (timeout < 1000) ?  _.min(timeout, 500)  : timeout);
+      }, waitStart);
     }
   }
 }

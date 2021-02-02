@@ -61,6 +61,21 @@ main {
   max-width: 770px;
   min-width: 420px;
   margin: 0 auto;
+
+  &.pageView {
+    max-width: 2000px;
+    width: 80%;
+    min-width: 500px;
+    .scrollingNotesWrapper {
+      display: inline;
+      & > section {
+        margin: 5px;
+      }
+      .firstScrollingNote {
+        display: none;
+      }
+    }
+  }
 }
 
 a {

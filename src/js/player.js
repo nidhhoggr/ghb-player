@@ -13,6 +13,7 @@ const {
   updateClasses,
   bindEl,
   domAddClass,
+  domRemClass,
   dQ,
   dQAll,
   timeoutElOp,
@@ -53,7 +54,7 @@ function ABCPlayer({
   this.isEnabled = {
     scrolling: false,//overflow scroll is disabled by default for HPS
     pageView: false,
-    disableRepeatingSegments: true,
+    disableRepeatingSegments: false,
   };
 
   //stores how many times the player was reloaded due to an error
@@ -109,6 +110,7 @@ function ABCPlayer({
     "erc",//error reload count,
     "imb",//isMobileBuild,
     "pve",//pageViewEnabled
+    "drs",//disableRepeatingSegments
   ];
 
   this.urlParams = {};
@@ -212,23 +214,15 @@ ABCPlayer.prototype.enableScrolling = function enableScrolling() {
 }
 
 ABCPlayer.prototype.enablePageView = function enablePageView() {
-  this.domBinding.scrollingNotesWrapper.show("inline");
-  this.enableScrolling();
   this.isEnabled.pageView = true;
-  dQ("main").style["max-width"] = "2000px";
-  dQ("main").style["width"] = "85%";
-  dQAll(".scrollingNotesWrapper section").forEach(el => el.style.margin = "5px");
-  timeoutElOp({
-    el: dQ(".firstScrollingNote"),
-    fn: (el) => el.style.display = "none",
-  });
+  domAddClass({el: dQ("main"), className: "pageView"})
+  this.enableScrolling();
 }
 
 ABCPlayer.prototype.enableHPSView = function enableHPSView() {
-  this.domBinding.firstScrollingNote.show();
-  this.domBinding.scollingNotesWrapper.show("inline-block");
-  this.disableScrolling();
+  domRemClass({el: dQ("main"), className: "pageView"})
   this.isEnabled.pageView = false;
+  this.disableScrolling();
 }
 
 ABCPlayer.prototype.enableFullscreen = function enableFullscreen() {
@@ -358,7 +352,9 @@ ABCPlayer.prototype.load = function() {
     
     const urlProcessing = this.evaluateUrlParams();
 
-    if (!urlProcessing.enablePageView && isMobileUserAgent()) {
+    const shouldEnablePageView = this.isEnabled.pageView;
+
+    if (!shouldEnablePageView && isMobileUserAgent()) {
       //requires a user gesture
       this.options.isMobileBuild = true;
       this.onStartCbQueue.push(() => {
@@ -369,7 +365,7 @@ ABCPlayer.prototype.load = function() {
     
     const onSuccesses = [];
     
-    if (!urlProcessing.enablePageView && this.options.isMobileBuild) {
+    if (!shouldEnablePageView && this.options.isMobileBuild) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
       this.stateMgr.activityQueue.push(() => {
@@ -383,7 +379,7 @@ ABCPlayer.prototype.load = function() {
         fn: (el) => el.style.transform = "scale(0.8)",
       });
     }
-    else if(urlProcessing.enablePageView) {
+    else if(shouldEnablePageView) {
       this.playerOptions.showSheetMusic = false;
       this.playerOptions.showNoteDiagram = false;
     }
@@ -395,6 +391,13 @@ ABCPlayer.prototype.load = function() {
     this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(({playerInstance: player}) => {
       debug("URL Processing", urlProcessing);
       this.processUrlParams(urlProcessing);
+      if (this.isEnabled.pageView) {
+        timeoutElOp({
+          el: this.domBinding.scrollingNotesWrapper,
+          fn: this.enablePageView.bind(this),
+          waitStart: 2000,
+        });
+      }
       this.songs.loadPlayerDropdown({
         playerInstance: this,
         onFinish: () => {
@@ -514,66 +517,38 @@ ABCPlayer.prototype.sackpipaReload = function(options = {}) {
   }
 }
 
-
-
-
-ABCPlayer.prototype.processUrlParams = function(toSet) {
-  if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
-    this.sackpipaOptions.isFirstGroupPlugged = toSet["sackpipaOptions.isFirstGroupPlugged"];
-  }
-  if (toSet["sackpipaOptions.isSecondGroupPlugged"]) {
-    this.sackpipaOptions.isSecondGroupPlugged = toSet["sackpipaOptions.isSecondGroupPlugged"];
-  }
-  if (toSet["errorReloadCount"]) {
-    this.errorReloadCount = toSet["errorReloadCount"];
-  }
-
-  if (toSet["sackpipa.tuning"]) {
-    this.sackpipaReload({tuning: toSet["sackpipa.tuning"]});
-  }
-  else {
-    this.sackpipaReload();
-  }
-  
-  this.setCurrentSongFromUrlParam();
-
-  const queueCallbacks = [];
-  queueCallbacks.push(() => {
-    if (isNumber(toSet.chanterIndex)) {
-      //this needs to execute later in the stack due to some race condition
-      setTimeout(() => {
-        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
-      });
+//this is called before URL parsing and once after
+ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
+  this.enablePageViewFromUrlParam();
+  this.disableRepeatingSegmentsFromUrlParam();
+  const urlParam = parseInt(this.urlParams["cti"]);
+  if (isNumber(urlParam)) {
+    this.currentTuneIndex = urlParam;
+    const song =  this.songs.loadSong({songIndex: this.currentTuneIndex});
+    if (song) {
+      this.currentSong = song;
     }
-    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
-    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
-  });
-
-  if (toSet["setNoteScrollerItem"]) {
-    const currentNoteIndex = toSet["setNoteScrollerItem"];
-    const clickItem = () => {
-      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
-      nsItem && simulateClick(nsItem);
+    else {
+      debugErr(`Could not get song from index ${this.currentTuneIndex}`);
     }
-    //this will be fired when the user clicks play is needed in addtion to the call below
-    //this will be fired first to set the note before clicking play
-    queueCallbacks.push({
-      fn: clickItem.bind(this),
-      timeout: 2000
-    });
   }
-
-  if (isNumber(toSet["enablePageView"])) {
-    queueCallbacks.push(() => {
-      timeoutElOp({
-        el: this.domBinding.firstScrollingNote,
-        fn: this.enablePageView.bind(this),
-      });
-    });
-  }
-
-  callEvery(queueCallbacks);
 }
+
+ABCPlayer.prototype.disableRepeatingSegmentsFromUrlParam = function() {
+  const urlParam = parseInt(this.urlParams["drs"]);
+  if (urlParam === 1) {
+    this.isEnabled.disableRepeatingSegments = true;
+  }
+}
+
+ABCPlayer.prototype.enablePageViewFromUrlParam = function() {
+  const urlParam = parseInt(this.urlParams["pve"]);
+  if (urlParam === 1) {
+    this.isEnabled.pageView = true;
+  }
+}
+
+
 
 ABCPlayer.prototype.evaluateUrlParams = function() {
 
@@ -598,11 +573,6 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   urlParam = parseInt(this.urlParams["imb"]);
   if (urlParam === 1) {
     this.options.isMobileBuild = true;
-  }
-
-  urlParam = parseInt(this.urlParams["pve"]);
-  if (urlParam === 1) {
-    toSet["enablePageView"] = urlParam;
   }
 
   urlParam = parseInt(this.urlParams["cci"]);
@@ -650,6 +620,57 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
 
   return toSet;
 }
+
+ABCPlayer.prototype.processUrlParams = function(toSet) {
+  
+  if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
+    this.sackpipaOptions.isFirstGroupPlugged = toSet["sackpipaOptions.isFirstGroupPlugged"];
+  }
+  if (toSet["sackpipaOptions.isSecondGroupPlugged"]) {
+    this.sackpipaOptions.isSecondGroupPlugged = toSet["sackpipaOptions.isSecondGroupPlugged"];
+  }
+  if (toSet["errorReloadCount"]) {
+    this.errorReloadCount = toSet["errorReloadCount"];
+  }
+
+  if (toSet["sackpipa.tuning"]) {
+    this.sackpipaReload({tuning: toSet["sackpipa.tuning"]});
+  }
+  else {
+    this.sackpipaReload();
+  }
+ 
+  this.setCurrentSongFromUrlParam();
+
+  const queueCallbacks = [];
+  queueCallbacks.push(() => {
+    if (isNumber(toSet.chanterIndex)) {
+      //this needs to execute later in the stack due to some race condition
+      setTimeout(() => {
+        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
+      });
+    }
+    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
+    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
+  });
+
+  if (toSet["setNoteScrollerItem"]) {
+    const currentNoteIndex = toSet["setNoteScrollerItem"];
+    const clickItem = () => {
+      const nsItem = this.getNoteScrollerItem({currentNoteIndex});
+      nsItem && simulateClick(nsItem);
+    }
+    //this will be fired when the user clicks play is needed in addtion to the call below
+    //this will be fired first to set the note before clicking play
+    queueCallbacks.push({
+      fn: clickItem.bind(this),
+      timeout: 2000
+    });
+  }
+
+  callEvery(queueCallbacks);
+}
+
 
 ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   if (!this.playerOptions.showNoteDiagram) return;
@@ -705,7 +726,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
 
 ABCPlayer.prototype.start = function() {
   if (this.isSettingTune) return;
-  if (!this.domBinding.firstScrollingNote) {
+  if (!this.domBinding.scrollingNotesWrapper) {
     //the loader didn't load properly
     const q = this.stop();
     setTimeout(() => {
@@ -973,20 +994,6 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
       });
     }
   }); 
-}
-
-ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
-  const urlParam = parseInt(this.urlParams["cti"]);
-  if (isNumber(urlParam)) {
-    this.currentTuneIndex = urlParam;
-    const song =  this.songs.loadSong({songIndex: this.currentTuneIndex});
-    if (song) {
-      this.currentSong = song;
-    }
-    else {
-      debugErr(`Could not get song from index ${this.currentTuneIndex}`);
-    }
-  }
 }
 
 ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}) {
@@ -1291,7 +1298,7 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
 
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems({onFinish} = {}) {
   this.noteScroller && this.noteScroller.addItems({
-    firstEl: this.playerOptions.firstScrollingNoteSection,
+    firstEl: this.isEnabled.pageView || this.playerOptions.firstScrollingNoteSection,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: scrollingNoteItemIterator.bind(this),
     onFinish: () => {
