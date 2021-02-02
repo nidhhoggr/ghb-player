@@ -44,13 +44,20 @@ function ABCSongs() {
 
 export default ABCSongs;
 
+ABCSongs.prototype.setPlayerInstance = function(playerInstance) {
+  this.playerInstance = playerInstance;
+}
+
 ABCSongs.prototype.loadSong = function({songIndex}) {
   let song;
   if(this.loaded[songIndex]) {
     song = this.loaded[songIndex];
   }
   else {
-    song = new ABCSong({abc: this.abcSongs[songIndex]});
+    song = new ABCSong({
+      abc: this.abcSongs[songIndex], 
+      playerInstance: this.playerInstance
+    });
     if (song) {
       this.loaded[songIndex] = song;
       debug(`Loading new song at ${songIndex}`, this.loaded);

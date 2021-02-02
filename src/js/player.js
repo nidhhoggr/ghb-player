@@ -53,6 +53,7 @@ function ABCPlayer({
   this.isEnabled = {
     scrolling: false,//overflow scroll is disabled by default for HPS
     pageView: false,
+    disableRepeatingSegments: true,
   };
 
   //stores how many times the player was reloaded due to an error
@@ -335,6 +336,7 @@ ABCPlayer.prototype.load = function() {
     
     this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
     this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
+    this.songs.setPlayerInstance(this);
     this.setCurrentSongFromUrlParam();
 
     const _handleErr = (err) => {

@@ -20,6 +20,7 @@ function ABCSong(song) {
   this.tuning = song.tuning || 0;//the chnater key index
   this.allNotes = [];
   this.entireNoteSequence = [];
+  this.playerInstance = song.playerInstance;
   this.original = {
     tempo: this.tempo,
     transposition: this.transposition,
@@ -90,9 +91,11 @@ ABCSong.prototype.lineIterator = function(perform) {
 }
 
 ABCSong.prototype.load = function() {
+  let _tmpAbc = [];
+  let abcWasModified = false;
   this.lineIterator( (line, {key, isLastLine}) => {
     const infoFieldKey = line.isInfoField();
-    let matched = false;
+    let matched = false, lineWasModified = false;
     switch (infoFieldKey) {
       case "Tune Title":
         this.name ??= line.substring(2);
@@ -155,6 +158,29 @@ ABCSong.prototype.load = function() {
           this.original.tempo = tempo;
         }
         break;
+    }
+    
+    if(!infoFieldKey) {
+      if(this.playerInstance?.isEnabled.disableRepeatingSegments) {
+        if (line.includes("|:")) {
+          _tmpAbc[key] = line.replace("|:");
+          lineWasModified = true;
+        }
+        if (line.includes(":|")) {
+          _tmpAbc[key] = line.replace(":|");
+          lineWasModified = true;
+        }
+        if (lineWasModified) {
+          debug(`load() - replacing repeating segments`);
+          abcWasModified = true;
+        }
+      }
+    }
+
+    if (!lineWasModified) _tmpAbc[key] = line;
+
+    if (isLastLine && abcWasModified) {
+      this.abc = _tmpAbc.join("\n");
     }
   });
 }
