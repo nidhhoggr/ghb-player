@@ -82,8 +82,8 @@ function ABCPlayer({
     "firstGroup",
     "secondGroup",
     //playercontrols,
-    "enableMobileView",
-    "disableMobileView",
+    //"enableMobileView",
+    //"disableMobileView",
     "enableFullscreen",
     "disableFullscreen",
     "enablePageView",
@@ -431,7 +431,7 @@ ABCPlayer.prototype.load = function() {
       this.processUrlParams(urlProcessing);
       if (this.isEnabled.pageView) {
         timeoutElOp({
-          el: this.domBinding.scrollingNotesWrapper,
+          el: dQ("section.lastItem"),
           fn: this.enablePageView.bind(this),
           waitStart: 2000,
         });
@@ -767,7 +767,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
 
 ABCPlayer.prototype.start = function() {
   if (this.isSettingTune) return;
-  if (!this.domBinding.scrollingNotesWrapper) {
+  if (!dQ("section.lastItem")) {
     //the loader didn't load properly
     const q = this.stop();
     setTimeout(() => {
@@ -1215,6 +1215,7 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
           max: _.max(compatiblePitches.compatible),
         }
       };
+      this.domBinding.compatibility.dataset.tooltip = `Playable: ${this.currentSong.compatibility.compatibleNotes?.compatible.join(" ")} -  Unplayable: ${this.currentSong.compatibility.compatibleNotes?.unplayable.join(" ")} - Incompatible: ${this.currentSong.compatibility.compatibleNotes?.incompatible.join(" ")}`;
       debug("setTune 2:", this.currentSong);
       onSuccess && onSuccess({response});
       resolve?.({response, playerInstance: this});
@@ -1340,6 +1341,7 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems({onFinish} = {}) {
   this.noteScroller && this.noteScroller.addItems({
     firstEl: this.isEnabled.pageView || this.playerOptions.firstScrollingNoteSection,
+    lastEl: `<section style="display: none" class="lastItem"><section>`,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: scrollingNoteItemIterator.bind(this),
     onFinish: () => {

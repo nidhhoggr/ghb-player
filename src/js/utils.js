@@ -139,6 +139,12 @@ export default function({from} = {}) {
           }
         }, (timeout < 1000) ?  _.min(timeout, 500)  : timeout);
       }, waitStart);
+    },
+    htmlToElement: function htmlToElement(html) {
+      var template = document.createElement('template');
+      html = html.trim(); // Never return a text node of whitespace as the result
+      template.innerHTML = html;
+      return template.content.firstChild;
     }
   }
 }

@@ -2,6 +2,7 @@ import utils from "./utils";
 const {
   debug,
   debugErr,
+  htmlToElement,
 } = utils({from: "hps"});
 
 export default HPS;
@@ -205,7 +206,7 @@ function HPS(wrapperName, options) {
   return self;
 };
 
-HPS.prototype.addItems = function addItems({items, itemIterator, onFinish, firstEl}) {
+HPS.prototype.addItems = function addItems({items, itemIterator, onFinish, firstEl, lastEl}) {
   const self = this;
   if (firstEl && typeof firstEl === "string") {
     self.wrapper.innerHTML = firstEl;
@@ -216,6 +217,9 @@ HPS.prototype.addItems = function addItems({items, itemIterator, onFinish, first
     self.wrapper.appendChild(itemSection);
     //last iteration;
     if (i == (items.length - 1)) {
+      if (lastEl && typeof lastEl === "string") {
+        self.wrapper.appendChild(htmlToElement(lastEl));
+      }
       debug("Finished", i, items.length);
       onFinish({
         el: self.wrapper
