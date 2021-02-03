@@ -81,6 +81,16 @@ function ABCPlayer({
     "unsetUrlChanter",
     "firstGroup",
     "secondGroup",
+    //playercontrols,
+    "enableMobileView",
+    "disableMobileView",
+    "enableFullscreen",
+    "disableFullscreen",
+    "enablePageView",
+    "disablePageView",
+    "enableRepeatingSegments",
+    "disableRepeatingSegments",
+    "compatibility"
   ];
 
   this.domBindingKeys = [
@@ -217,16 +227,44 @@ ABCPlayer.prototype.enablePageView = function enablePageView() {
   this.isEnabled.pageView = true;
   domAddClass({el: dQ("main"), className: "pageView"})
   this.enableScrolling();
+  this.domBinding.enablePageView.hide();
+  this.domBinding.disablePageView.show("inline-flex");
 }
 
-ABCPlayer.prototype.enableHPSView = function enableHPSView() {
+ABCPlayer.prototype.disablePageView = function disablePageView() {
   domRemClass({el: dQ("main"), className: "pageView"})
   this.isEnabled.pageView = false;
   this.disableScrolling();
+  this.domBinding.enablePageView.show("inline-flex");
+  this.domBinding.disablePageView.hide();
+}
+
+ABCPlayer.prototype.disableRepeatingSegments = function disableRepeatingSegments() {
+  this.isEnabled.disableRepeatingSegments = true;
+  //this url appension acts as a failover for state updates lag
+  this.reloadWindow(`drs=1`);
+}
+
+
+ABCPlayer.prototype.enableRepeatingSegments = function enableRepeatingSegments() {
+  this.isEnabled.disableRepeatingSegments = false;
+  //this url appension acts as a failover for state updates lag
+  this.reloadWindow(`drs=0`);
 }
 
 ABCPlayer.prototype.enableFullscreen = function enableFullscreen() {
-  document.body.requestFullscreen().then(debug).catch(debugErr);
+  document.body.requestFullscreen().then(() => {
+    this.isEnabled.fullscreen = true;
+    this.domBinding.enableFullscreen.hide();
+    this.domBinding.disableFullscreen.show("inline-flex");
+  }).catch(debugErr);
+}
+
+ABCPlayer.prototype.disableFullscreen = function enableFullscreen() {
+  this.isEnabled.fullscreen = false;
+  this.domBinding.enableFullscreen.show("inline-flex");
+  this.domBinding.disableFullscreen.hide();
+  document.exitFullscreen();
 }
 
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
@@ -340,7 +378,7 @@ ABCPlayer.prototype.load = function() {
       if (this.errorReloadCount < this.options?.errorReloadLimit) {
         this.errorReloadCount = this.errorReloadCount + 1;
         setTimeout(() => {
-          this.reloadWindow();
+          this.reloadWindow(`erc=${this.errorReloadCount}`);
         }, 2000);
       }
       else if (this.errorReloadCount === this.options?.errorReloadLimit) {
@@ -466,10 +504,7 @@ ABCPlayer.prototype.load = function() {
       const { keyCodes } = this.playerOptions;
       if (!keyCodes) return;
       if (keyCode === keyCodes.esc) { 
-        history.replaceState({}, null, `?cti=${this.currentTuneIndex}`);
-        setTimeout(() => {
-          window.location.reload();
-        }, 100);
+        this.reloadWindow(`cti=${this.currentTuneIndex}`);
       }
       else if (keyCode === keyCodes.prev) {
         this.songPrev();
@@ -492,8 +527,12 @@ ABCPlayer.prototype.load = function() {
   });
 }
 
-ABCPlayer.prototype.reloadWindow = function() {
-  this.updateState({onFinish: () => (window.location.reload())});
+ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
+  if (appendingLocation) history.replaceState({}, null, `?${appendingLocation}`);
+  setTimeout(() => {
+    this.updateState({onFinish: () => (window.location.reload())});
+    window.location.reload();
+  }, 100);
 }
 
 ABCPlayer.prototype.sackpipaReload = function(options = {}) {
@@ -538,6 +577,8 @@ ABCPlayer.prototype.disableRepeatingSegmentsFromUrlParam = function() {
   const urlParam = parseInt(this.urlParams["drs"]);
   if (urlParam === 1) {
     this.isEnabled.disableRepeatingSegments = true;
+    this.domBinding.disableRepeatingSegments.hide();
+    this.domBinding.enableRepeatingSegments.show("inline-flex");
   }
 }
 

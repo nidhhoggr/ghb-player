@@ -61,8 +61,8 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     isNumber(currentTuneIndex) && stateArray.push(["cti", currentTuneIndex]);//contain zero
     isNumber(currentNoteIndex) && stateArray.push(["cni", currentNoteIndex]);
     isNumber(currentChanterIndex) && stateArray.push(["cci", currentChanterIndex]);//contains zero
-    isEnabled?.pageView && stateArray.push(["pve", 1]);
-    isEnabled?.disableRepeatingSegments && stateArray.push(["drs", 1]);
+    stateArray.push(["pve", isEnabled?.pageView  ? 1 : 0]);
+    stateArray.push(["drs", isEnabled?.disableRepeatingSegments ? 1 : 0]);
     stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
     stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
     if (isPositiveNumber(errorReloadCount)) {
