@@ -163,11 +163,11 @@ ABCSong.prototype.load = function() {
     if(!infoFieldKey) {
       if(this.playerInstance?.isEnabled.disableRepeatingSegments) {
         if (line.includes("|:")) {
-          _tmpAbc[key] = line.replace("|:", "|");
+          _tmpAbc[key] = line = line.replace("|:", "|");
           lineWasModified = true;
         }
         if (line.includes(":|")) {
-          _tmpAbc[key] = line.replace(":|", "|");
+          _tmpAbc[key] = line = line.replace(":|", "|");
           lineWasModified = true;
         }
         if (lineWasModified) {
