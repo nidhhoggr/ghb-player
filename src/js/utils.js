@@ -3,6 +3,8 @@ import config from "config";
 const { shouldDebug, debugDisabledModules } = config;
 
 export default function({from} = {}) {
+  const dQ = (arg) => document.querySelector(arg);
+  const dQAll = (arg) => document.querySelectorAll(arg);
   function _d(method, args) {
     (shouldDebug && !debugDisabledModules.includes(from)) && console[method].apply(undefined, [from, ...args]);
   }
@@ -64,6 +66,26 @@ export default function({from} = {}) {
       if (!results[2]) return '';
       return decodeURIComponent(results[2].replace(/\+/g, " "));
     },
+    clickBinder: function clickBinder({el, selector, eventCb, eventName = "click"}) {
+      if (!el) el = dQ(selector);
+      if (!el) return debugErr(`Could not get element from selector: ${selector}`);
+      el.addEventListener(eventName, (e) => {
+        eventCb();
+      });
+      const mouseLeft = false;
+      let pressHoldInterval;
+      el.addEventListener("mousedown", (e) => {
+        pressHoldInterval = setInterval(() => {
+          eventCb(5);
+        }, 333);
+      });
+      el.addEventListener("mouseleave", () => {
+        clearInterval(pressHoldInterval);
+      });
+      el.addEventListener("mouseup", () => {
+        clearInterval(pressHoldInterval);
+      });
+    },
     simulateClick: function simulateClick(elem) {
       // Create our event (with options)
       const evt = new MouseEvent('click', {
@@ -118,8 +140,8 @@ export default function({from} = {}) {
     isFullScreen: function isFullScreen() {
       return !!(document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement)
     },
-    dQ: (arg) => document.querySelector(arg),
-    dQAll: (arg) => document.querySelectorAll(arg),
+    dQ,
+    dQAll,
     timeoutElOp: ({el, fn, timeout = 500, waitStart = 0} = {}) => {
       let ic = 0;
       setTimeout(() => {

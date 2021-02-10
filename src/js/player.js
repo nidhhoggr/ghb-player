@@ -9,6 +9,7 @@ const {
   debugErr, 
   location_getParameterByName,
   simulateClick,
+  clickBinder,
   callEvery,
   updateClasses,
   bindEl,
@@ -188,29 +189,6 @@ function ABCPlayer({
 
 export default ABCPlayer;
 
-
-
-function clickBinder({el, selector, eventCb, eventName = "click"}) {
-  if (!el) el = dQ(selector);
-  if (!el) return debugErr(`Could not get element from selector: ${selector}`);
-  el.addEventListener(eventName, (e) => {
-    eventCb();
-  });
-  const mouseLeft = false;
-  let pressHoldInterval;
-  el.addEventListener("mousedown", (e) => {
-    pressHoldInterval = setInterval(() => {
-      eventCb(5);
-    }, 333);
-  });  
-  el.addEventListener("mouseleave", () => {
-    clearInterval(pressHoldInterval);
-  });
-  el.addEventListener("mouseup", () => {
-    clearInterval(pressHoldInterval);
-  });
-}
-
 ABCPlayer.prototype.disableScrolling = function disableScrolling() {
   dQ('body').style["overflow"] = "hidden";
   dQ('html').style["overflow"] = "hidden";
@@ -244,7 +222,6 @@ ABCPlayer.prototype.disableRepeatingSegments = function disableRepeatingSegments
   //this url appension acts as a failover for state updates lag
   this.reloadWindow(`drs=1`);
 }
-
 
 ABCPlayer.prototype.enableRepeatingSegments = function enableRepeatingSegments() {
   this.isEnabled.disableRepeatingSegments = false;
@@ -284,7 +261,8 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   const scrollingNotesWrapper = this.domBinding?.scrollingNotesWrapper;
   debug("onNoteChange:", {pitch, cmd, event});
   if (scrollingNotesWrapper) {
-    const index = event.ensIndex + 1;
+    const ensIndexOffset = (this.isEnabled.pageView) ? 0 : 1;
+    const index = event.ensIndex + ensIndexOffset;
     if (_.isNaN(index)) return;
     this.currentNoteIndex = index;
     this.updateState();
