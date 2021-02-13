@@ -9,10 +9,9 @@ B:Smålandsk Musiktradition
 N:Ca 1910
 M:2/4
 L:1/16
-K:Dm transposition=-5 fgp=1
-Q: "BPM=65"
-A2|:(de)(d^c) d2e2|f2(gf) e2d2|(^cd)(ef) e2c2|A4 A4|(de)(d^c) d2e2|f2(gf) e2d2|
-(^cd)(ed) c2e2|(ab)(ag) a2f2|(de)(d^c) d2e2|f2(gf) e2d2|(^cd)(ef) e2c2|A4 A4|(de)(d^c) d2e2|
-f2(gf) e2d2|(^cd)(eg) f2e2|1d6 A2:|2d8]|:(ab)(af) c2f2|a2c'2 b2a2|(ga)(ge) c2e2|
-g2b2 a2g2|(fg)(fe) d2e2|f2(gf) e2d2|e2A,A, A,2A,2|A,2E2 ^C2A,2|(ab)(af) c2f2|a2c'2 b2a2|
-(ga)(ge) c2e2|g2b2 a2g2|(fe)(de) f2g2|(ed)(^cd) e2f2|d4 (d^c)(de)|d6 z2:|
+K:Am
+E2|:(AB)(A^G) A2B2|c2(dc) B2A2|(^GA)(Bc) B2G2|E4 E4|(AB)(A^G) A2B2|c2(dc) B2A2|
+(^GA)(BA) G2B2|(ef)(ed) e2c2|(AB)(A^G) A2B2|c2(dc) B2A2|(^GA)(Bc) B2G2|E4 E4|(AB)(A^G) A2B2|
+c2(dc) B2A2|(^GA)(Bd) c2B2|1A6 E2:|2A8]|:(ef)(ec) G2c2|e2g2 f2e2|(de)(dB) G2B2|
+d2f2 e2d2|(cd)(cB) A2B2|c2(dc) B2A2|B2E,E, E,2E,2|E,2B,2 ^G,2E,2|(ef)(ec) G2c2|e2g2 f2e2|
+(de)(dB) G2B2|d2f2 e2d2|(cB)(AB) c2d2|(BA)(^GA) B2c2|A4 (A^G)(AB)|A6 z2:|

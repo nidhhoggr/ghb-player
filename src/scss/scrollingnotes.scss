@@ -48,8 +48,6 @@ section {
     color: blue;
     font-size: 12px;
     padding-left: 2px;
-    position: relative;
-    top: -30px;
   }
 }
 
@@ -79,7 +77,7 @@ section.incompatible_pitch {
   background-position-y: 29px;
   background-size: auto 123%;
   position: relative;
-  top: 130px;
+  top: 103px;
   border-radius: 12px;
 }
 
@@ -108,16 +106,19 @@ section.incompatible_pitch {
     }
   }
   section[data-measurestart] > div {
-    border: 1px solid green !important;
+    background-color: #bcffbc;
+    background-blend-mode: multiply;
   }
   section.currentNote[data-duration] > div {
-    border: 1px solid #ff7424 !important;
+    background-color: #fbc500;
+    background-blend-mode: multiply;
   }
   section[data-duration="1"] > div {//whole, appears as a hollow oval
     @include scrollingNoteDur;
     background-position-x: 7px;
   }
-  section[data-duration="0.75"] > div {
+  section[data-duration="0.75"] > div, 
+  section[data-duration="0.625"] > div {
     @include scrollingNoteDur;
     background-position-x: -23px;
     @include dottedNote;
@@ -140,7 +141,9 @@ section.incompatible_pitch {
     background-position-x: -82px;//@TODO image needs a dot
     @include dottedNote;
   }
-  section[data-duration="0.125"] > div {
+  section[data-duration="0.125"] > div, 
+  section[data-duration="0.083333"] > div,
+  section[data-duration="0.083334"] > div {
     @include scrollingNoteDur;
     background-position-x: -82px;
   }

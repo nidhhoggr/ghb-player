@@ -1277,7 +1277,7 @@ function scrollingNoteItemIterator({section, item}) {
     section.classList.add(`playable_pitch-${pitchIndex}`);
     section.classList.add(`playable_duration-${dur}`);
     if (this.playerOptions.showPlayableNoteNamesInScroller) { 
-      section.innerHTML = `<div></div><h4>${noteName}</h4>`;
+      section.innerHTML = `<h4>${noteName}</h4><div></div>`;
     }
     else {
       section.innerHTML = `<div></div>`;
