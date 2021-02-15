@@ -142,8 +142,8 @@ section.incompatible_pitch {
     @include dottedNote;
   }
   section[data-duration="0.125"] > div, 
-  section[data-duration="0.083333"] > div,
-  section[data-duration="0.083334"] > div {
+  section[data-duration="0.0938"] > div,
+  section[data-duration="0.0834"] > div {
     @include scrollingNoteDur;
     background-position-x: -82px;
   }
@@ -151,7 +151,8 @@ section.incompatible_pitch {
     @include scrollingNoteDur;
     background-position-x: 153px;
   }
-  section[data-duration="0.03125"] > div {
+  section[data-duration="0.0313"] > div,
+  section[data-duration="0.0417"] > div {
     @include scrollingNoteDur;
     background-position-x: 126px;
   }

@@ -43,6 +43,7 @@ function ABCPlayer({
   this.options = options;
   this.playerOptions = options.player;
   this.sackpipaOptions = options.sackpipa;
+  this.sackpipaOptions.pitchToNoteName = abcjs.synth.pitchToNoteName;
   this.hpsOptions = options.hps;
   this.hpsOptions.disableScrolling = this.disableScrolling.bind(this);
 
@@ -359,7 +360,7 @@ ABCPlayer.prototype.load = function() {
           this.reloadWindow(`erc=${this.errorReloadCount}`);
         }, 2000);
       }
-      else if (this.errorReloadCount === this.options?.errorReloadLimit) {
+      else if (this.errorReloadCount >= this.options?.errorReloadLimit) {
         setTimeout(() => {
           this.errorReloadCount = 0;
         }, this.errorReloadResetDuration);
@@ -517,9 +518,6 @@ ABCPlayer.prototype.sackpipaReload = function(options = {}) {
   this.sackpipaOptions = _.merge(this.sackpipaOptions,options);
   const { isFirstGroupPlugged, isSecondGroupPlugged } = this.sackpipaOptions;
   this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
-  if (options.skipUpdate) return;
-  this._updateChanter();
-  this.updateState();
   if (!this.sackpipa.isFirstGroupPlugged) {
     this.domBinding.firstGroup.classList.remove("plugged");
   } 
@@ -532,6 +530,9 @@ ABCPlayer.prototype.sackpipaReload = function(options = {}) {
   else {
     updateClasses(this.domBinding, "secondGroup", ["plugged"]);
   }
+  if (options.skipUpdate) return;
+  this._updateChanter();
+  this.updateState();
 }
 
 //this is called before URL parsing and once after
@@ -774,6 +775,15 @@ ABCPlayer.prototype.start = function() {
 ABCPlayer.prototype.stop = function(args = {}) {
   this.synthControl?.destroy?.();
   this.synthControl?.stop?.();
+  if (args.changeSong) {
+    this.sackpipaReload({
+      isFirstGroupPlugged: false,
+      isSecondGroupPlugged: false,
+      skipUpdate: true,
+    });
+    this.transposition = 0;
+    this.currentNoteIndex = (this.isEnabled.pageView) ? 0 : 1;
+  }
   if (this.playerOptions.refreshWhenPossible) {
     this.updateState({
       playerInstance: {
@@ -1074,6 +1084,24 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       this.currentSong = currentSong;
     }
    
+    const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
+
+    function prepareOnSuccess(onSuccess, setEm) {
+      if (onSuccess && _.isFunction(onSuccess)) {
+        onSuccess = [
+          onSuccess,
+          setEm
+        ];
+      }
+      else if (onSuccess && _.isArray(onSuccess)) { 
+        onSuccess.push(setEm);
+      }
+      else if (!onSuccess) {
+        onSuccess = [setEm];
+      }
+    }
+
+
     if (!isSameSong) {
       this.noteScroller?.setScrollerXPos({xpos: 0});
       const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
@@ -1087,40 +1115,27 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       if (tempo) {
         this.setTempo(tempo, {shouldSetTune: false});
       }
-      //this will override URLPARAMS
+      //We want to set the transposition every call (not only !isSameSong)
+      //this is due to a bug with transposition in the ABC library that randomly
+      //transposes a half step lower than expected if called to early
       if (isNumber(transposition) //can contain zero
           && transposition !== this.transposition //song trans. doesnt match player trans.
           && !this.onUnsetUrlParamTransposition) {//the trans. was not set by urlparams
         const setEm = () => {
           //altough were already here well need to set the tune again...
+          setTimeout(() => {
           this.setTransposition(transposition, {shouldSetTune: true});
+          }, 1200);//dont call it too early, will result in transposition possibly a half step lower 
           //needed to set tranposition to zero if it is zero
         }
-        if (onSuccess && onSuccess.hasOwnProperty("length")) {
-          onSuccess.push(setEm);
-        }
-        else if (!onSuccess) {
-          onSuccess = [setEm];
-        }
-        else {
-          debugErr(onSuccess);
-          throw new Error("Has no member length");
-        }
+        prepareOnSuccess(onSuccess, setEm);
       }
+      //this will override URLPARAMS
       if (isNumber(tuning) && !this.onUnsetUrlParamChanter) {
         const setEm = () => {
           this._updateChanter(tuning);
         }
-        if (onSuccess && onSuccess.hasOwnProperty("length")) {
-          onSuccess.push(setEm);
-        }
-        else if (!onSuccess) {
-          onSuccess = [setEm];
-        }
-        else {
-          debugErr(onSuccess);
-          throw new Error("Has no member length");
-        }
+        prepareOnSuccess(onSuccess, setEm);
       }
       //_.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
     }
@@ -1181,12 +1196,12 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
     //if its called by anything other than  tempo
     this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj, onFinish: (result) => {
       debug(`Set current note sequence ${result}`);
-      const compatiblePitches = this.sackpipa && this.sackpipa.getCompatiblePitches({abcSong: this.currentSong});
+      const compatiblePitches = this.sackpipa?.getCompatiblePitches({abcSong: this.currentSong});
       const pitches = this.currentSong.getDistinctPitches();
       this.currentSong.compatibility = {
         playableNotes: this.currentSong.getDistinctNotes(),
         playablePitches: this.currentSong.getDistinctPitches(),
-        compatibleNotes: this.sackpipa && this.sackpipa.getCompatibleNotes({abcSong: this.currentSong}),
+        compatibleNotes: this.sackpipa?.getCompatibleNotes({abcSong: this.currentSong}),
         compatiblePitches,
         pitchReached: {
           min: _.min(compatiblePitches.compatible),
@@ -1260,6 +1275,7 @@ function scrollingNoteItemIterator({section, item}) {
     measureStart 
   } = item;
   const dur = _.ceil(duration * 100);
+  const durr = _.ceil(duration, 4);
   if (((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") && pitchIndex < this.sackpipa.getLowestPlayablePitch()) || 
   (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max") && pitchIndex > this.sackpipa.getHighestPlayablePitch()))) {
     section.classList.add(`unplayable_note`);
@@ -1286,7 +1302,7 @@ function scrollingNoteItemIterator({section, item}) {
   section.setAttribute("data-ensindex", ensIndex);
   section.setAttribute("data-notetimingindex", noteTimingIndex);
   section.setAttribute("data-percentage", percentage);
-  section.setAttribute("data-duration", `${duration}`);
+  section.setAttribute("data-duration", `${durr}`);
   if (measureStart) section.setAttribute("data-measureStart", "true");
   section.addEventListener("click", this.noteScrollerItemOnClick.bind(this));
 }

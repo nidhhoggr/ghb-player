@@ -1,13 +1,13 @@
 %%abc-charset utf-8
 X: 0
 T: ANACREON IN HEAVEN
-N: The original tune for the US nationional anthem, The Start-Spangled Banner.
+N: The original tune for the US nationional anthem, The Star-Spangled Banner.
 B: W. Hamilton "Universal Tune-Book" Vol. 2 Glasgow 1846 p.33 #2
 S: http://s3-eu-west-1.amazonaws.com/itma.dl.printmaterial/book_pdfs/hamiltonvol2web.pdf
 Z: 2016 John Chambers <jc:trillian.mit.edu>
 M: 6/4
 L: 1/8
-K:A
+K:A fgp=0
 c2c | cd3e2 e4(dc) | B2c2d2 d4(cB) |
 c2B2A2 G3FG2 | A2C2D2 E4EE |\
 A2A2A2 F2F2F2 | B2(dc)(BA) {A2}G4E2 |\

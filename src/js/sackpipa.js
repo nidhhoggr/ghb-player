@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import utils from "./utils";
-const { isNumber } = utils({from: "sackpipa"});
+const { isNumber, debug } = utils({from: "sackpipa"});
 export const possibleChanters = ["E/A","D/G","C/F"];
 
 function Sackpipa({
@@ -11,6 +11,7 @@ function Sackpipa({
   canPlayUnpluggedGroupsIndividually = false,//an advanced technique that we disable by default
   isFirstGroupPlugged = true,
   isSecondGroupPlugged = true,
+  pitchToNoteName,//utility function to do what it says
 }) {
   this.dronesSynth = dronesSynth;
   this.possibleChanters = possibleChanters;
@@ -21,6 +22,7 @@ function Sackpipa({
   this.isSecondGroupPlugged = isSecondGroupPlugged;
   this.chanterKeyIndex = chanterKeyIndex;
   this.chanterKey = this.possibleChanters[chanterKeyIndex];
+  this.pitchToNoteName = pitchToNoteName;
 }
 
 export default Sackpipa;
@@ -179,6 +181,10 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
 
 //@TODO this need  to use pitch comparison, note string comparison by note name
 Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
+  const mapToNoteNames = (arr) => {
+    return arr.map((a) => this.pitchToNoteName[a]);
+  }
+  /*
   const playableSong = abcSong.getDistinctNotes();
   const playableChanter = this.getPlayableNotes({"notesOnly": true});
   const compatible = _.intersection(playableSong, playableChanter);
@@ -189,7 +195,16 @@ Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
     incompatible: _.difference(playableSong, playableChanter),
     unplayable: _.difference(playableChanter, playableSong),//these are notes that exist in the chanter but not the song
   }
+  */
+  const {compatible, _incompatible, incompatible, unplayable} = this.getCompatiblePitches({abcSong});
+  return {
+    compatible: mapToNoteNames(compatible),//notes in the song playable on the chnater
+    _incompatible: mapToNoteNames(_incompatible),//notes only in the song OR the playlist
+    incompatible: mapToNoteNames(incompatible),
+    unplayable: mapToNoteNames(unplayable)
+  }
 }
+
 
 //@TODO this need  to use pitch comparison, note string comparison by note name
 Sackpipa.prototype.getCompatiblePitches = function getCompatiblePitches({abcSong}) {

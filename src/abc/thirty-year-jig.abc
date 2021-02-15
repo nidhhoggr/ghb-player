@@ -7,9 +7,10 @@ C:Roger Tallroth
 R:jig
 D:John McCusker: Yella Hoose
 Z:Devin McCabe
-K:G
+K:G fgp=1
+Q: "BPM=200"
 D|:EDE FEF|GBG D2D|EcB AGE|{F}G2A- AFD|
 !EDE FEF|GBG D2D|EcB AGE|1F2G- GzD:|2F2G- Gz2|
-!:~g3 agf|~g3 d(3B^cd|egf edc|BAG ABd|
-!~g3 agf|~g3 d(3B^cd|egf edB-|Bgf edB|
-!cBA ~B3|ced BAB|cBc eag|1f2g- gz2:|2f2g- gzD||
+!:~d3 edc|~d3 A(3F^GA|Bdc BAG|FED EFA|
+!~d3 edc|~d3 A(3F^GA|Bdc BAF-|Fdc BAF|
+!GFE ~F3|GBA FEF|GFG Bed|1c2d- dz2:|2c2d- d||
