@@ -12,7 +12,8 @@
     "production": "cross-env NODE_ENV=production webpack --mode=production",
     "mobile": "cross-env NODE_ENV=production ISMOBILE=1 webpack --mode=production",
     "lint-sass": "sass-lint -v -q --format=compact",
-    "lint-js": "eslint --ext .js src/js/"
+    "lint-js": "eslint --ext .js src/js/",
+    "uml": "madge --exclude '^abcjs|(scss/base)|(scss/dirty)' --image graph.svg src/js/app.js"
   },
   "keywords": [
     "webpack",

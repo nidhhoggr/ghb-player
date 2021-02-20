@@ -202,12 +202,20 @@ ABCPlayer.prototype.enableScrolling = function enableScrolling() {
   this.isEnabled.scrolling = true;
 }
 
-ABCPlayer.prototype.enablePageView = function enablePageView() {
+ABCPlayer.prototype.enablePageView = function enablePageView({withReset = false} = {}) {
   this.isEnabled.pageView = true;
   domAddClass({el: dQ("main"), className: "pageView"})
   this.enableScrolling();
   this.domBinding.enablePageView.hide();
   this.domBinding.disablePageView.show("inline-flex");
+  if (withReset) {
+    setTimeout(() => {
+      setTimeout(() => {
+        dQ("main").style["display"] = "block";
+      }, 25);
+      dQ("main").style["display"] = "none";
+    }, 1000);
+  }
 }
 
 ABCPlayer.prototype.disablePageView = function disablePageView() {
@@ -411,7 +419,7 @@ ABCPlayer.prototype.load = function() {
       if (this.isEnabled.pageView) {
         timeoutElOp({
           el: dQ("section.lastItem"),
-          fn: this.enablePageView.bind(this),
+          fn: () => this.enablePageView.call(this, {withReset: true}),
           waitStart: 2000,
         });
       }
@@ -1074,9 +1082,37 @@ ABCPlayer.prototype.updateState = function(args) {
   return this.stateMgr.onAssessState({playerInstance: this, ...args});
 }
 
+const fadeEffect = ({fadeIn} = {}) => setInterval(() => {
+  const preloader = dQ('.preloader');
+  preloader.style["display"] = "flex";
+  // if we don't set opacity 1 in CSS, then
+  // it will be equaled to "" -- that's why
+  // we check it, and if so, set opacity to 1
+  if (!preloader.style.opacity || fadeIn) {
+    preloader.style.opacity = 1;
+    fadeIn = false;
+  }
+  if (preloader.style.opacity > 0 && !fadeIn) {
+    preloader.style.opacity -= 0.1;
+  } else {
+    clearInterval(fadeEffect);
+    preloader.style["display"] = "none";
+  }
+}, 100);
+
+ABCPlayer.prototype.settingTuneStart = function setTuneFinished() {
+  this.isSettingTune = true;
+  fadeEffect({fadeIn: true});
+}
+
+ABCPlayer.prototype.settingTuneFinish = function setTuneFinished() {
+  this.isSettingTune = false;
+  fadeEffect();
+}
+
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   return new Promise((resolve, reject) => {
-    this.isSettingTune = true;
+    this.settingTuneStart();
     if (!currentSong) {
       this.currentSong = this.songs.loadSong({songIndex: this.currentTuneIndex});
     }
@@ -1159,7 +1195,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       }
     } catch(err) {
       debugErr(err);
-      this.isSettingTune = false;
+      this.settingTuneFinish();
       reject(err);
       return debug("Couldn't get midi file", {err});
     }
@@ -1190,7 +1226,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
 }
 
 ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSuccess, onError, resolve, reject} = {}) {
-  this.isSettingTune = true;
+  this.settingTuneStart()
   this.synthControl?.setTune?.(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
     debug("setTune 1:", response);
     //if its called by anything other than  tempo
@@ -1212,11 +1248,11 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
       debug("setTune 2:", this.currentSong);
       onSuccess && onSuccess({response});
       resolve?.({response, playerInstance: this});
-      this.isSettingTune = false;
+      this.settingTuneFinish();
     }});
   })
   .catch((error) => {
-    this.isSettingTune = false;
+    this.settingTuneFinish();
     reject(error);
     onError && onError(error); 
     console.warn("Audio problem:", error);
