@@ -419,7 +419,7 @@ ABCPlayer.prototype.load = function() {
       if (this.isEnabled.pageView) {
         timeoutElOp({
           el: dQ("section.lastItem"),
-          fn: () => this.enablePageView.call(this, {withReset: true}),
+          fn: () => this.enablePageView({withReset: true}),
           waitStart: 2000,
         });
       }
@@ -440,7 +440,7 @@ ABCPlayer.prototype.load = function() {
               player.domBinding.scrollingNotesWrapper.show();
               if (this.isEnabled.pageView) {
                 setTimeout(() => {//to wait for the song to load
-                  this.enablePageView();
+                  this.enablePageView({withReset: true});
                 });
               }
               else {
