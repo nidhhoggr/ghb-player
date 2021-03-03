@@ -259,8 +259,11 @@ ABCPlayer.prototype.disableFullscreen = function enableFullscreen() {
 
 
 ABCPlayer.prototype.createSong = function createSong() {
+  const isPageViewEnabled = this.isEnabled.pageView;
+  isPageViewEnabled && this.disablePageView();
   dQ("textarea.createSongTextarea").value = this.playerOptions.abcSongEditorDefaultText; 
   this.ldCover.get().then((res) => {
+    isPageViewEnabled && this.enablePageView();
     if (res === "add") {
       const newSong = dQ("textarea.createSongTextarea").value;
       this.songs.addSong({song: newSong, changeSong: true});
@@ -269,11 +272,14 @@ ABCPlayer.prototype.createSong = function createSong() {
 }
 
 ABCPlayer.prototype.editSong = function editSong() {
+  const isPageViewEnabled = this.isEnabled.pageView;
+  isPageViewEnabled && this.disablePageView();
   const songIndex = this.currentTuneIndex;
   const {filename, song} = this.songs.getFromRuntime({songIndex});
   if (!filename) return;
   dQ("textarea.createSongTextarea").value = song; 
   this.ldCover.get().then((res) => {
+    isPageViewEnabled && this.enablePageView();
     if (res === "add") {
       const editedSong = dQ("textarea.createSongTextarea").value;
       this.songs.editSong({song: editedSong, songIndex, changeSong: true});

@@ -45,11 +45,11 @@ export const player = {
     responsive: "resize",
   },
   abcSongEditorDefaultText: `%%abc-charset utf-8
-X: 0
+X: Reference Number
 T: Title
 S: Subtitle
-R: Genre
-Z: Trnascriber
+R: Rhythm
+Z: Transcriber
 M:3/4
 L:1/8
 Q: "BPM=100"
