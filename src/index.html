@@ -8,6 +8,9 @@
     <title>FolkTabs.com</title>
   </head>
   <body>
+    <div class="preloader">
+      <img src="images/content/spinner.svg" alt="spinner">
+    </div>
     <main>
       <div class="playercontrols">
         <div class="songControls">
@@ -19,8 +22,23 @@
               <span class="songNext" data-tooltip="Next Tune">&#x23ED;</span>
             </div>
           </div>
-          <span class="currentSong"></span>
+          <select class="currentSong"></select>
           <span class="currentBeat"></span>
+          <div class="controls">
+            <div class="buttons">
+              <span class="enableMobileView" data-tooltip="Request Mobile"></span>
+              <span class="disableMobileView" data-tooltip="Request Desktop"></span>
+              <span class="enableFullscreen" data-tooltip="Fullscreen"></span>
+              <span class="disableFullscreen" data-tooltip="Exit Fullscreen"></span>
+              <span class="enablePageView" data-tooltip="Paged Notes View"></span>
+              <span class="disablePageView" data-tooltip="Scrolling Notes View"></span>
+              <span class="enableRepeatingSegments" data-tooltip="Enable repeating bars"></span>
+              <span class="disableRepeatingSegments" data-tooltip="Disable repeating bars"></span>
+              <span class="compatibility" data-tooltip="Compatibility"></span>
+              <span class="createSong" data-tooltip="Create Song"></span>
+              <span class="editSong" data-tooltip="Edit Song"></span>
+            </div>
+          </div>
         </div>
         <div class="transposition">
           <span class="title">Transposition</span>
@@ -53,6 +71,10 @@
             </div>
             <span class="currentChanter"></span>
             <span class="unsetUrlChanter removal-indicator">&#8855;</span>
+            <div class="holes">
+              <span class="firstGroup"></span>
+              <span class="secondGroup"></span>
+            </div>
           </div>
         </div>
         <div class="keySigControls">
@@ -73,13 +95,23 @@
           <div id="paper"></div>
           <div id="audio"></div>
           <p class="beat"></p>
+          <div class="ldcv">
+            <div class="base">
+              <div class="inner card">
+                <div class="card-body">
+                  <h2>Song ABC Editor</h2>
+                  <hr>
+                  <div class="textWrapper">
+                    <textarea rows="20" cols="60" class="createSongTextarea"></textarea>
+                  </div>
+                  <div class="btn btn-primary" data-ldcv-set="add">Save</div>
+                  <div class="btn btn-primary" data-ldcv-set="cancel">Cancel</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      <div class="noteDiagram"></div>
-      </div>
-      <div class="metaData">
-        <pre class="clicked-info"></pre>
-        <pre class="feedback"></pre>
-        <div id="warnings"></div>
+        <div class="noteDiagram"></div>
       </div>
     </main>
   </body>

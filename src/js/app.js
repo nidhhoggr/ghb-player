@@ -3,33 +3,38 @@ import "../scss/app.scss";
 import abcjs from "./abcjs";
 import "./abcjs/abcjs-audio.css";
 import "../scss/audio.css";
-import ABCSong from "./song";
-import songs from "./songs";
+import "../scss/vanilla-js-dropdown.css";
+import ABCSongs from "./songs";
 import ABCPlayer from "./player";
 import Sackpipa from "./sackpipa";
-import utils from "./utils";
-import config from "./config";
+import config from "config";
 import HPS from "./hps";
 import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
+import CustomSelect from "./vanilla-js-dropdown";
+import "ldCover/dist/ldcv.min.css";
+import ldCover from "ldCover/dist/ldcv.min.js";
 const stateMgr = new StateManagement({options: config});
+const songs = new ABCSongs();
 const abcPlayer = new ABCPlayer({
   abcjs, 
-  songs, 
-  ABCSong, 
-  Sackpipa, 
-  HPS, 
+  songs,
+  ioc: {//classes that need instantation (inversion of control)
+    Sackpipa, 
+    HPS, 
+    CustomSelect,
+    ldCover
+  },
   stateMgr, 
-  utils,
-  options: config.player
+  options: config
 });
-tippy('[data-tooltip]', {
-  onShow(instance) {
-    const tooltip = _.get(instance, "reference.dataset.tooltip");
-    console.log(instance);
-    tooltip && instance.setContent(tooltip);
-    return !!tooltip;
-  }
+abcPlayer.load().then(({player}) => {
+  if (!player.options.isMobileBuild) tippy('[data-tooltip]', {
+    onShow(instance) {
+      const tooltip = _.get(instance, "reference.dataset.tooltip");
+      tooltip && instance.setContent(tooltip);
+      return !!tooltip;
+    }
+  });
 });
-abcPlayer.load();

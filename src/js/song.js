@@ -1,13 +1,15 @@
 import _ from 'lodash';
-
-String.prototype.getInfoField = function(key) {
-  return this.split("\n").filter(line => (_.startsWith(line, `${key}:`)))?.pop()?.replace(`${key}:`,"");
-}
+import { possibleChanters } from "./sackpipa";
+import utils from "./utils";
+const {
+  debug,
+  debugErr,
+} = utils({from: "song"});
 
 function ABCSong(song) {
   //prevent reloading twice
   if (song instanceof ABCSong) {
-    console.log(`preventing ${song.abc} from loading twice`);
+    debug(`preventing ${song.abc} from loading twice`);
     return song
   }
   if (!song) throw new Error("Song object is required ");
@@ -15,9 +17,16 @@ function ABCSong(song) {
   this.tempo = song.tempo;
   this.abc = song.abc;
   this.transposition = song.transposition || 0;
-  this.tuning = song.tuning || "E/A";
+  this.tuning = song.tuning || 0;//the chnater key index
   this.allNotes = [];
   this.entireNoteSequence = [];
+  this.playerInstance = song.playerInstance;
+  this.original = {
+    tempo: this.tempo,
+    transposition: this.transposition,
+    tuning: this.tuning
+  };
+  debug("ORIG", song, this.original);
   /**
    *  //loaded when the tune is set,
    *    used to peform various analytics and calculations
@@ -28,6 +37,8 @@ function ABCSong(song) {
     "infoFieldMapping": getInfoFieldMapping(),
     "infoFieldKeyMapping": swap(getInfoFieldMapping())
   };
+
+  this.load();
 }
 
 function getInfoFieldMapping({key} = {}) {
@@ -80,9 +91,11 @@ ABCSong.prototype.lineIterator = function(perform) {
 }
 
 ABCSong.prototype.load = function() {
+  let _tmpAbc = [];
+  let abcWasModified = false;
   this.lineIterator( (line, {key, isLastLine}) => {
     const infoFieldKey = line.isInfoField();
-    let matched = false;
+    let matched = false, lineWasModified = false;
     switch (infoFieldKey) {
       case "Tune Title":
         this.name ??= line.substring(2);
@@ -96,21 +109,78 @@ ABCSong.prototype.load = function() {
         //with all different permutations depending on the song and
         //its musical composition
         matched = line.match(/transposition=(0|-?[1-9])/);
+        let transposition = 0;
         if (matched?.[1]) {
-          this.transposition = parseInt(matched[1]);
+          transposition = parseInt(matched[1]);
+          this.transposition = transposition
+          this.original.transposition ??= transposition;
         }
+        
+        matched = line.match(/fgp=(0|1)/);
+        let fgp = 0;
+        if (matched?.[1]) {
+          fgp = parseInt(matched[1]);
+          this.fgp = fgp;
+          this.original.fgp ??= fgp;
+        }
+
+        matched = line.match(/sgp=(0|1)/);
+        let sgp = 0;
+        if (matched?.[1]) {
+          sgp = parseInt(matched[1]);
+          this.sgp = sgp;
+          this.original.sgp ??= sgp;
+        }
+
+        matched = line.match(/tuning=(0|1|2)/);//@TODO make dynamic to match any chanter key
+        let tuning = 0;
+        if (matched?.[1]) {
+          tuning = parseInt(matched[1]);
+          this.tuning = tuning;
+          this._tuning = possibleChanters[tuning];
+          this.original.tuning ??= tuning;
+        }
+
         break;
       case "Tempo":
-        if (this.tempo) return;
+        //we already set the custom tempo for this song
+        if (this.hasCustomTempo) return;
         //this is not to be confused with the native directive
         //for tempo which uses meters and allows arbitrary comments 
         //wrapped in double-qoutes which we utilize for parsing
         //the BPM we desire.
         matched = line.match(/"BPM=(\d+)/);
+        let tempo = this.tempo;
         if (matched?.[1]) {
-          this.tempo = parseInt(matched[1]);
+          this.hasCustomTempo = true;
+          tempo = parseInt(matched[1]);
+          this.tempo = tempo;
+          this.original.tempo = tempo;
         }
         break;
+    }
+    
+    if(!infoFieldKey) {
+      if(this.playerInstance?.isEnabled.disableRepeatingSegments) {
+        if (line.includes("|:")) {
+          _tmpAbc[key] = line = line.replace("|:", "|");
+          lineWasModified = true;
+        }
+        if (line.includes(":|")) {
+          _tmpAbc[key] = line = line.replace(":|", "|");
+          lineWasModified = true;
+        }
+        if (lineWasModified) {
+          debug(`load() - replacing repeating segments`);
+          abcWasModified = true;
+        }
+      }
+    }
+
+    if (!lineWasModified) _tmpAbc[key] = line;
+
+    if (isLastLine && abcWasModified) {
+      this.abc = _tmpAbc.join("\n");
     }
   });
 }
@@ -132,21 +202,21 @@ String.prototype.withoutPrefix = function(prefix) {
 ABCSong.prototype.insertInformationField = function({line}) {
   if (!line.isInfoField()) {
     return false;
-    console.error(`prefix is malformed and requires a : delimiter: ${line}`);
+    debugErr(`prefix is malformed and requires a : delimiter: ${line}`);
   }
   
   const key = line[0];
   const mappingValue = getInfoFieldMapping({key});
 
   if (!mappingValue) {
-    console.error(`Could not get mapping from prefix: ${key}`); 
+    debugErr(`Could not get mapping from prefix: ${key}`); 
   }
   const newLineDelimited = this.abc.toString().split("\n");
   const newLineDelimitedLength = newLineDelimited.length; 
   const infoFields = _.dropRightWhile(newLineDelimited, (o) => !o.isInfoField());
   infoFields.push(line);
   const songLines = _.takeRight(newLineDelimited, newLineDelimitedLength - (infoFields.length - 1));
-  console.log({infoFields, songLines});
+  debug({infoFields, songLines});
   this.abc = [
     ...infoFields,
     ...songLines
@@ -204,13 +274,13 @@ ABCSong.prototype.setTempo = function(tempo) {
   const fieldKey = this.options.infoFieldKeyMapping["tempo"];
   this.lineIterator((line, {isLastLine}) => {
     if (line.containsPrefix(fieldKey)){
-      console.log(`Replacing existing tempo ${line}`);
+      debug(`Replacing existing tempo ${line}`);
       this.abc = this.abc.replace(line, `${fieldKey}: ${tempo}`);
     }
     else if (isLastLine) {
-      console.log(`Inserting info field for tempo: ${tempo}`);
+      debug(`Inserting info field for tempo: ${tempo}`);
       const inserted = this.insertInformationField({line: `${fieldKey}: ${tempo}`});
-      console.log({inserted});
+      debug({inserted});
     }
   });
 }
@@ -223,12 +293,12 @@ ABCSong.prototype.setTransposition = function(semitones, cb) {
     if (line.containsPrefix(fieldKey)){
       const transpoisitionMatched = line.match(/transpose=(?:-?\d+)?$/);
       if (transpoisitionMatched) {//transposition already exists
-        console.log(`Replacing existing transposition ${line}`);
+        debug(`Replacing existing transposition ${line}`);
         this.abc = this.abc.replace(transpoisitionMatched[0], stringReplacement);
         isSet = true;
       }
       else {//transpoisition doesnt exist so we simply add it
-        console.log(`Transposition does exist so well add it to ${line}`);
+        debug(`Transposition does exist so well add it to ${line}`);
         this.abc = this.abc.replace(line, `${line} ${stringReplacement}`);
         isSet = true;
       }

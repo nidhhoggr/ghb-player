@@ -1,22 +1,28 @@
 import _ from 'lodash';
+import utils from "./utils";
+const { isNumber, debug } = utils({from: "sackpipa"});
+export const possibleChanters = ["E/A","D/G","C/F"];
 
 function Sackpipa({
   chanterKeyIndex = 0,//the key of the chanter, EA, DG, 
   dronesSynth,//an instance of CreateSynth that plays the drone
-  playableNotes = [],//an array of playable notes because some instruments can play more notes,
+  playableExtraNotes = {},//an array of playable notes because some instruments can play more notes,
   dronesEnabled = [],//an array of notes for the drones enabled, uses ABC for pitches
   canPlayUnpluggedGroupsIndividually = false,//an advanced technique that we disable by default
   isFirstGroupPlugged = true,
   isSecondGroupPlugged = true,
+  pitchToNoteName,//utility function to do what it says
 }) {
   this.dronesSynth = dronesSynth;
-  this.possibleChanters = ["E/A", "D/G","C/F"];
-  this.playableNotes = playableNotes;
+  this.possibleChanters = possibleChanters;
+  this.playableExtraNotes = playableExtraNotes[chanterKeyIndex];
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
   this.isFirstGroupPlugged = isFirstGroupPlugged;
   this.isSecondGroupPlugged = isSecondGroupPlugged;
+  this.chanterKeyIndex = chanterKeyIndex;
   this.chanterKey = this.possibleChanters[chanterKeyIndex];
+  this.pitchToNoteName = pitchToNoteName;
 }
 
 export default Sackpipa;
@@ -30,6 +36,16 @@ Sackpipa.prototype.getChanterKeyAbbr = function getChanterKeyAbbr() {
     default:
       return "invalidChanterKey";
   }
+}
+
+Sackpipa.prototype.getLowestPlayablePitch = function() {
+  const notes = this.getPlayableNotes({pitchesOnly: true});
+  return _.min(notes);
+}
+
+Sackpipa.prototype.getHighestPlayablePitch = function() {
+  const notes = this.getPlayableNotes({pitchesOnly: true});
+  return _.max(notes);
 }
 
 Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, notesOnly, pitchesOnly} = {}) {
@@ -136,22 +152,39 @@ Sackpipa.prototype.getPlayableNotes = function getPlayableNotes({chanterKey, not
       break;
     }
   }
-  if (notesOnly) {
-    return _.keys(notes);
-  }
-  else if (pitchesOnly) {
-    return _.flatten(_.values(notes));
+  if (_.keys(this.playableExtraNotes)?.length > 0) {
+    if (notesOnly) {
+      notes = [
+        ..._.keys(notes),
+        ..._.keys(this.playableExtraNotes),
+      ]
+    }
+    else if (pitchesOnly) {
+      notes = [
+        ..._.flatten(_.values(notes)),
+        ..._.flatten(_.values(this.playableExtraNotes))
+      ]
+    }
   }
   else {
-    return notes;
+    if (notesOnly) {
+      notes = _.keys(notes)
+    }
+    else if (pitchesOnly) {
+      notes = _.flatten(_.values(notes));
+    }
   }
-  //@TODO Playablenote feature
-  //return _.sortedUniq(_.concat(_.values(notes), this.playableNotes));
+    
+  return notes;
 }
 
 
 //@TODO this need  to use pitch comparison, note string comparison by note name
 Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
+  const mapToNoteNames = (arr) => {
+    return arr.map((a) => this.pitchToNoteName[a]);
+  }
+  /*
   const playableSong = abcSong.getDistinctNotes();
   const playableChanter = this.getPlayableNotes({"notesOnly": true});
   const compatible = _.intersection(playableSong, playableChanter);
@@ -162,7 +195,16 @@ Sackpipa.prototype.getCompatibleNotes = function getCompatibleNotes({abcSong}) {
     incompatible: _.difference(playableSong, playableChanter),
     unplayable: _.difference(playableChanter, playableSong),//these are notes that exist in the chanter but not the song
   }
+  */
+  const {compatible, _incompatible, incompatible, unplayable} = this.getCompatiblePitches({abcSong});
+  return {
+    compatible: mapToNoteNames(compatible),//notes in the song playable on the chnater
+    _incompatible: mapToNoteNames(_incompatible),//notes only in the song OR the playlist
+    incompatible: mapToNoteNames(incompatible),
+    unplayable: mapToNoteNames(unplayable)
+  }
 }
+
 
 //@TODO this need  to use pitch comparison, note string comparison by note name
 Sackpipa.prototype.getCompatiblePitches = function getCompatiblePitches({abcSong}) {
@@ -185,5 +227,16 @@ Sackpipa.prototype.setChanterKey = function setChanterKey(chanterKey = null) {
   }
   if(this.possibleChanters.includes(chanterKey)) {
     this.chanterKey = chanterKey;
+    this.chanterKeyIndex = _.indexOf(this.possibleChanters, chanterKey);
   }
+}
+
+Sackpipa.prototype.getChanterKeyByIndex = function getChanterKeyByIndex(chanterKeyIndex) {
+  if (!isNumber(chanterKeyIndex)) throw new Error(`${chanterKeyIndex} is not numeric`);
+  chanterKeyIndex = chanterKeyIndex % this.possibleChanters.length;
+  return this.possibleChanters[chanterKeyIndex];
+}
+
+Sackpipa.prototype.getChanterKeyIndex = function getChanterKeyIndex({tuning}) {
+  return _.indexOf(this.possibleChanters, tuning);
 }

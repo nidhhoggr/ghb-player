@@ -1,46 +1,36 @@
 {
-  "name": "@weareathlon/frontend-webpack-boilerplate",
-  "version": "4.5.0",
-  "description": "Starter project template boilerplate based on Webpack with SASS and babel ES6/7 support.",
-  "homepage": "https://github.com/WeAreAthlon/frontend-webpack-boilerplate#readme",
+  "name": "@nidhhoggr/SackpipaPlayer",
+  "version": "1.0.0",
+  "description": "A player to load abc files and build and runtime into a sackpipa player",
   "scripts": {
     "build": "webpack --mode=development",
     "watch": "webpack --mode=development --watch",
-    "watch:externalServer": "webpack --mode=development --watch --externalServer",
+    "watch:mobile": "ISMOBILE=1 webpack --mode=development --watch",
     "bundle": "npm ci && npm run watch",
     "bundle:externalServer": "npm ci && npm run watch:externalServer",
     "production": "cross-env NODE_ENV=production webpack --mode=production",
+    "mobile": "cross-env NODE_ENV=production ISMOBILE=1 webpack --mode=production",
     "lint-sass": "sass-lint -v -q --format=compact",
-    "lint-js": "eslint --ext .js src/js/"
+    "lint-js": "eslint --ext .js src/js/",
+    "uml": "madge --exclude '^abcjs|(scss/base)|(scss/dirty)' --image graph.svg src/js/app.js"
   },
   "keywords": [
-    "webpack",
-    "boilerplate",
-    "template",
-    "setup"
+    "sackpipa",
+    "säckpipa",
+    "dråmba",
+    "koppe",
+    "posu",
+    "bälgpipa"
   ],
-  "author": "WeAreAthlon <hello@weareathlon.com> (https://www.weareathlon.com)",
-  "contributors": [
-    {
-      "name": "Plamen Nikolov",
-      "email": "me@pnikoloff.com",
-      "url": "https://pnikoloff.com"
-    }
-  ],
+  "author": "Joseph Persie",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:WeAreAthlon/frontend-webpack-boilerplate.git"
-  },
-  "bugs": {
-    "url": "https://github.com/WeAreAthlon/frontend-webpack-boilerplate/issues",
-    "email": "plamen@athlonsofia.com"
-  },
   "engines": {
     "node": "^10 || ^12 || >=14"
   },
   "dependencies": {
     "autoprefixer": "^10.0.0",
+    "ldcover": "^1.3.1",
+    "svg-url-loader": "^7.1.1",
     "tippy.js": "^6.2.7"
   },
   "devDependencies": {

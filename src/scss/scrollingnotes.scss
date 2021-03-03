@@ -43,15 +43,28 @@
 */
 
 
+section {
+  h4 {
+    color: blue;
+    font-size: 12px;
+    padding-left: 2px;
+  }
+}
+
 section.unplayable_note {
+  @include unplayable-note;
   h4 {
     color: yellow;
     font-size: 20px;
     padding-left: 5px;
     overflow: hidden;
     position: relative;
-    bottom: -60px;
+    top: 0px;
   }
+}
+
+section.incompatible_pitch {
+  background-color: #ff500c !important;
 }
 
 @mixin scrollingNoteDur {
@@ -64,7 +77,7 @@ section.unplayable_note {
   background-position-y: 29px;
   background-size: auto 123%;
   position: relative;
-  top: 130px;
+  top: 103px;
   border-radius: 12px;
 }
 
@@ -86,17 +99,26 @@ section.unplayable_note {
       @include shadowed;
     }
   }
+  section.currentNote {
+    box-shadow: none;
+    & > div {
+      box-shadow: none;
+    }
+  }
   section[data-measurestart] > div {
-    border: 1px solid green !important;
+    background-color: #bcffbc;
+    background-blend-mode: multiply;
   }
   section.currentNote[data-duration] > div {
-    border: 1px solid #ff7424 !important;
+    background-color: #fbc500;
+    background-blend-mode: multiply;
   }
   section[data-duration="1"] > div {//whole, appears as a hollow oval
     @include scrollingNoteDur;
     background-position-x: 7px;
   }
-  section[data-duration="0.75"] > div {
+  section[data-duration="0.75"] > div, 
+  section[data-duration="0.625"] > div {
     @include scrollingNoteDur;
     background-position-x: -23px;
     @include dottedNote;
@@ -119,7 +141,9 @@ section.unplayable_note {
     background-position-x: -82px;//@TODO image needs a dot
     @include dottedNote;
   }
-  section[data-duration="0.125"] > div {
+  section[data-duration="0.125"] > div, 
+  section[data-duration="0.0938"] > div,
+  section[data-duration="0.0834"] > div {
     @include scrollingNoteDur;
     background-position-x: -82px;
   }
@@ -127,9 +151,16 @@ section.unplayable_note {
     @include scrollingNoteDur;
     background-position-x: 153px;
   }
-  section[data-duration="0.03125"] > div {
+  section[data-duration="0.0313"] > div,
+  section[data-duration="0.0417"] > div {
     @include scrollingNoteDur;
     background-position-x: 126px;
+  }
+}
+
+main.mobile {
+  section.firstScrollingNote {
+    width: 100px !important;
   }
 }
 
@@ -139,6 +170,13 @@ section.unplayable_note {
     @include pn;
   }
 
+  @mixin playable-note-alt {
+    background-image: url("../images/content/onescalloped-alt.png");
+    opacity: 0.7;
+    @include pn;
+  }
+
+
   background-image: none;
   background-repeat: no-repeat;
   background-color: #7e9fb58a;
@@ -146,10 +184,9 @@ section.unplayable_note {
 
   section {
     margin: 0px 5px 0px 5px;
-    @include unplayable-note;
     &.firstScrollingNote {
       height: 150px;
-      width: 400px;
+      width: 400px;//may be overridden by directive above
       background-color: #3e3e3e;
     }
   }
@@ -158,9 +195,6 @@ section.unplayable_note {
     border-right: 5px solid #fbc500;
     width: 57px !important;
   }
-
-
-
   //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
   //62 63    64 65   66  67 68  69  70   71 72 73  74 75    76
   //#["D", "E", "F#", "G", "Ab", "A", "B", "C", "Db"]
@@ -207,6 +241,36 @@ section.unplayable_note {
   }
   .playable_pitch-76 {//E5
     @include playable-note;
+    background-position: -410px 0px;
+  }
+
+  .unplayable_pitch-72 {
+    @include playable-note;
+    background-position: -288px 0px;
+    background-blend-mode: color-burn;
+  }
+  .unplayable_pitch-73 {
+    @include playable-note;
+    background-position: -328px 0px;
+    background-blend-mode: color-burn;
+  }
+
+  .playable_pitch-63 {
+    background-color: green;
+    @include playable-note-alt;
+    opacity: 0.7;
+    background-position: -38px 0px;
+  }
+  .playable_pitch-65 {
+    @include playable-note-alt;
+    background-position: -81px 0px;
+  }
+  .playable_pitch-70 {
+    @include playable-note-alt;
+    background-position: -246px 0px;
+  }
+  .playable_pitch-75 {
+    @include playable-note-alt;
     background-position: -410px 0px;
   }
 }

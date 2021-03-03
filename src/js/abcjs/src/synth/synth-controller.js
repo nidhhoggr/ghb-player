@@ -66,13 +66,13 @@ function SynthController() {
 		self.isLooping = false;
 
 		if (userAction)
-			return self.go();
+			return self.go(true);
 		else {
 			return Promise.resolve({status: "no-audio-context"});
 		}
 	};
 
-	self.go = function () {
+	self.go = function(noResume = false) {
 		if (!self.visualObj) {
       /**
        * synth-controller.js:77 Uncaught TypeError: Cannot read property 'millisecondsPerMeasure' of null
@@ -93,15 +93,27 @@ function SynthController() {
 
 		if (!self.midiBuffer)
 			self.midiBuffer = new CreateSynth();
-		return activeAudioContext().resume().then(function (response) {
-			return self.midiBuffer.init({
+		
+    let startPromise;
+
+    const initBuffer = () => {
+			return Promise.resolve(self.midiBuffer.init({
 				visualObj: self.visualObj,
 				options: self.options,
 				millisecondsPerMeasure: millisecondsPerMeasure
-			});
-		}).then(function (response) {
+			}));
+    }
+
+    if (noResume) {
+      startPromise = initBuffer();
+    }
+    else {
+      startPromise = activeAudioContext().resume().then(initBuffer);
+    }  
+
+		return startPromise.then(function (response) {
 			loadingResponse = response;
-			return self.midiBuffer.prime();
+      if (self.midiBuffer) return self.midiBuffer.prime();
 		}).then(function () {
 			var subdivisions = 16;
 			if (self.cursorControl &&
@@ -175,7 +187,7 @@ function SynthController() {
 	self.pause = function() {
 		if (self.timer) {
 			self.timer.pause();
-			self.midiBuffer.pause();
+			self.midiBuffer && self.midiBuffer.pause();
 			if (self.control)
 				self.control.pushPlay(false);
 		}
@@ -190,7 +202,7 @@ function SynthController() {
 	self.restart = function () {
 		if (self.timer) {
 			self.timer.setProgress(0);
-			self.midiBuffer.seek(0);
+			self.midiBuffer && self.midiBuffer.seek(0);
 		}
 	};
 

@@ -25,6 +25,18 @@
 /* Demo styles */
 @import 'scrollingnotes';
 
+@mixin button-column { 
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  justify-content: space-evenly;
+}
+
+@mixin unplayable-note {
+  background-image: none;
+  color: red !important;
+}
+
 body {
   background: $body-background-color;
   color: $foreground-color;
@@ -41,6 +53,31 @@ header {
   background-size: 160px;
 }
 
+::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, .5);
+  box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+}
+
+.preloader {
+  align-items: center;
+  background: rgb(23, 22, 22);
+  display: flex;
+  height: 100vh;
+  justify-content: center;
+  left: 0;
+  position: fixed;
+  top: 0;
+  transition: opacity 0.3s linear;
+  width: 100%;
+  z-index: 9999;
+}
+
 main {
   background: $body-foreground-color;
   color: $foreground-color;
@@ -49,6 +86,21 @@ main {
   max-width: 770px;
   min-width: 420px;
   margin: 0 auto;
+
+  &.pageView {
+    max-width: 2000px;
+    width: 80%;
+    min-width: 500px;
+    .scrollingNotesWrapper {
+      display: inline;
+      & > section {
+        margin: 5px;
+      }
+      .firstScrollingNote {
+        display: none;
+      }
+    }
+  }
 }
 
 a {
@@ -98,20 +150,45 @@ address {
 .removal-indicator {
   color: red;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 0px !important;
   display: none;
+  height: 30px;
+  width: 30px;
+  cursor: pointer;
+  background: url("../images/content/delete.svg") no-repeat;
 }
 
 .abcjs-inline-audio {
   display: none !important;
 }
 
+main.mobile {
+  .playercontrols {
+    margin: 0px;
+    padding: 0px;
+    justify-content: left;
+    position: relative;
+    left: -35px;
+  }
+}
+
+//hides the song selector before it loads
+select {
+  display: inline;;
+}
+.js-Dropdown {
+  padding-top: 5px;
+}
+
 .playercontrols {
   display: flex;
   justify-content: space-evenly;
-  background-color: #fff0f0;
+  align-items: center;
+  //background-color: #fff0f0;
   margin: 0 0 10px;
   padding: 15px;
+  max-width: 770px;
+  margin: 0px auto;
 
   span.title {
     color: #2a5b80;
@@ -134,18 +211,127 @@ address {
   }
 
   .songControls {
-    .buttons {
-      min-width: 170px;      
-    }
+    min-width: 200px;      
+    .buttons {}
     span.currentBeat {
       display: block;
       text-align: left;
     }
+    span.currentSong {
+      padding-top: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      display: inline-block;
+    }
   }
-
   .controls {
     display: flex;
     justify-content: space-evenly;
+
+
+    span.songPrev,
+    span.stop,
+    span.start,
+    span.songNext {
+      font-size: 0px !important;
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      border-radius: 50%;
+      box-shadow: 0 0 1rem rgba(0,0,0,0.6);
+      &:hover {
+        box-shadow: none;
+      }
+    }
+
+    span.songPrev {
+      background: url("../images/content/player/next.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/next-active.svg");
+      }
+      transform: scaleX(-1);
+      @include shadowed;
+    }
+    span.songNext {
+      background: url("../images/content/player/next.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/next-active.svg");
+      }
+    }
+    span.stop {
+      background: url("../images/content/player/stop.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/stop-active.svg");
+      }
+    }
+    span.start {
+      background: url("../images/content/player/play.svg") no-repeat;
+      &:hover {
+        background-image: url("../images/content/player/play-active.svg");
+      }
+    }
+
+    span.enableRepeatingSegments,
+    span.disableRepeatingSegments,
+    span.enableMobileView,
+    span.disableMobileView,
+    span.enableFullscreen,
+    span.disableFullscreen,
+    span.enablePageView,
+    span.disablePageView,
+    span.compatibility,
+    span.editSong,
+    span.createSong {
+      font-size: 0px !important;
+      padding: 2px;
+      width: 20px;
+      height: 20px;
+      display: inline-block;
+      border-radius: 25%;
+      box-shadow: 0 0 1rem rgba(0,0,0,0.6);
+      &:hover {
+        box-shadow: none;
+      }
+    }
+
+    span.enableRepeatingSegments {
+      background: url("../images/content/player/enableRepeatingSegments.svg") no-repeat;
+      display: none;
+    }
+    span.disableRepeatingSegments {
+      background: url("../images/content/player/disableRepeatingSegments.svg") no-repeat;
+    }
+    span.enableMobileView {
+      background: url("../images/content/player/mobile.svg") no-repeat;
+      display: none;
+    }
+    span.disableMobileView {
+      background: url("../images/content/player/desktop.svg") no-repeat;
+      display: none;
+    }
+    span.enableFullscreen {
+      background: url("../images/content/player/expandScreen.svg") no-repeat;
+    }
+    span.disableFullscreen {
+      background: url("../images/content/player/collapseScreen.svg") no-repeat;
+      display: none;
+    }
+    span.enablePageView {
+      background: url("../images/content/player/wideMode.svg") no-repeat;  
+    }
+    span.disablePageView {
+      background: url("../images/content/player/longMode.svg") no-repeat;
+      display: none;
+    }
+    span.compatibility {
+      background: url("../images/content/player/exclamation.svg") no-repeat;
+    }
+    span.createSong {
+      background: url("../images/content/player/add.svg") no-repeat;
+    }
+    span.editSong {
+      background: url("../images/content/player/edit.svg") no-repeat;
+    }
   }
 
   .transposition {
@@ -154,9 +340,7 @@ address {
       text-align: right;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+      @include button-column;
     }
   }
 
@@ -166,9 +350,7 @@ address {
       text-align: right;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+      @include button-column;
     }
   }
 
@@ -177,10 +359,27 @@ address {
       font-size: 64px;
       text-align: right;
     }
-    .buttons {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
+    .buttons, .holes {
+      @include button-column;
+    }
+    .holes {
+      span {
+        background: url("../images/content/holes.svg") no-repeat;
+        width: 20px;
+        height: 20px;
+        &:hover {
+          background-image: url("../images/content/holes-filled.svg");
+        }
+      }
+      span.secondGroup {
+        display: none;
+      }
+      span.plugged {
+        background: url("../images/content/holes-filled.svg") no-repeat;
+        &:hover {
+          background-image: url("../images/content/holes.svg");
+        }
+      }
     }
   }
 
@@ -191,10 +390,7 @@ address {
       padding-top: 10px;
     }
     .buttons {
-      display: flex;
-      flex-direction: column;
       color: rgba(0,0,0, 0.3);
-      cursor: pointer;
       span:hover {
         color: rgba(0,0,0, 0.3);
       }
@@ -231,13 +427,43 @@ address {
   text-align: left;
 }
 
-@mixin unplayable-note {
-  background-image: none;
-  color: red !important;
-}
 
 .unplayable-note {
   @include unplayable-note;
+}
+
+span.transposeDown,
+span.tempoDown,
+span.chanterDown,
+span.keySigDown,
+span.transposeUp,
+span.tempoUp,
+span.chanterUp,
+span.keySigUp {
+  width: 32px;
+  height: 38px;
+  font-size: 0 !important;
+}
+
+span.transposeDown,
+span.tempoDown,
+span.chanterDown,
+span.keySigDown {
+  background: url("../images/content/up-arrow.svg") no-repeat;
+  &:hover {
+    background-image: url("../images/content/up-arrow-active.svg");
+  }
+  transform: scaleY(-1);
+}
+
+span.transposeUp,
+span.tempoUp,
+span.chanterUp,
+span.keySigUp {
+  background: url("../images/content/up-arrow.svg") no-repeat;
+  &:hover {
+    background-image: url("../images/content/up-arrow-active.svg");
+  }
 }
 
 .playable_chanter-ea {
@@ -245,6 +471,12 @@ address {
     background-image: url("../images/content/onescalloped.png");
     color: #000;
   }
+
+  @mixin playable-note-alt {
+    background-image: url("../images/content/onescalloped-alt.png");
+    color: #000;
+  }
+
 
   background-image: none;
   background-repeat: no-repeat;
@@ -304,6 +536,24 @@ address {
     @include playable-note;
     background-position: -1098px 65px;
   }
+
+  &.playable_pitch-63 {
+    @include playable-note-alt;
+    background-position: -154px 65px;
+  }
+  &.playable_pitch-65 {
+    @include playable-note-alt;
+    background-position: -289px 65px;
+  }
+  &.playable_pitch-70 {
+    @include playable-note-alt;
+    background-position: -830px 65px;
+  }
+  &.playable_pitch-75 {
+    @include playable-note-alt;
+    background-position: -1366px 65px;
+  }
+
 }
 
 
@@ -443,5 +693,35 @@ address {
   &.playable_pitch-72 {
     @include playable-note;
     background-position: -1500px 65px;
+  }
+}
+
+.btn {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 300;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #fff;
+  background-color: #007bff ;
+  border-color: #007bff;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.card-body {
+  padding: 15px;
+  text-align: center;
+  .textWrapper {
+    margin-bottom: 15px;
   }
 }

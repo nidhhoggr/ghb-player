@@ -48,6 +48,11 @@ const config = function(env, args) {
       filename: 'js/[name].js',
       path: path.resolve(__dirname, 'dist'),
     },
+    resolve: {
+      alias: {
+        config: path.resolve(__dirname, "src/js/config/config.".concat((process.env.ISMOBILE) ? "mobile.js" : (process.env.NODE_ENV === "production") ? "prod.js" : "dev.js"))
+      }
+    },
     module: {
       rules: [
         {
@@ -73,7 +78,7 @@ const config = function(env, args) {
           ],
         },
         {
-          test: /\.(eot|svg|ttf|woff|woff2)$/,
+          test: /\.(eot|ttf|woff|woff2)$/,
           use: [
             {
               loader: 'url-loader',
@@ -92,6 +97,13 @@ const config = function(env, args) {
             }
           ]
         },
+        {
+          test: /\.svg/,
+          use: {
+            loader: "svg-url-loader",
+            options: {},
+          },
+        }
       ],
     },
     optimization: {
@@ -153,6 +165,7 @@ const config = function(env, args) {
           },
         ],
       }),
+
     ],
     devtool: hasSourceMaps && "inline-source-map"
   };
