@@ -6,9 +6,9 @@
 * Built on top of a customized version of [ABCJS](https://paulrosen.github.io/abcjs/)
 * Build with local ABC files and add more ABC songs at runtime.
 * Page View Mode to view the entire song in portait view instead of in a sliding scroller.
-* Full Screen Mode with mobile compatability in mind.
-* Diable Repeating Segments to remove any repeating bars. This helps when you need to learn the song without scrolling everywhere.
-* Realtime compatibility shows which notes are incomptible with the selected chanter.
+* Full Screen Mode with mobile compatibility in mind.
+* Disable Repeating Segments to remove any repeating bars. This helps when you need to learn the song without scrolling everywhere.
+* Realtime compatibility shows which notes are incompatible with the selected chanter.
 * **Simple setup** instructions
   * Start development of a project right away with *simple*, *configured*, *browser synced*, *linter monitored* asset files.
 * Example assets directory for reference and **demo** building of:
@@ -39,16 +39,16 @@ Q: "BPM=100"
 
 ### Transposition
 
-* Not reccomended, it's instead ideal to transpose the song to your preference before adding it to the player. This will add additional steps
-* to the rendering process which could introduce bugs and slower load times
-* This can be added next to the Key paramaters but do not specify this header twice or one will be ignored (as with all headers)
+* Not reccomended, it's instead ideal to transpose the song to your preference before adding it to the player. 
+* This will add additional steps to the rendering process which could introduce bugs and slower load times.
+* This can be added to the Key header (K:) but do not specify this header twice or one will be ignored (as with all headers).
 ```
 K: Amin transpose=1
 ```
 
 ### Plugging Chanter Scallops
 
-* Currently with the a/E and g/D chanters there is the ability to plug not only the first scallop fgp=1 (a/E and g/D) but also the second sgp=1 (a/E only)
+* Currently with the a/E and g/D chanters there is the ability to plug not only the first scallop fgp=1 (a/E and g/D) but also the second sgp=1 (g/D only)
 
 ```
 K: Amin transpose=0 fgp=1
