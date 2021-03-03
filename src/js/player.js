@@ -212,6 +212,7 @@ ABCPlayer.prototype.enablePageView = function enablePageView({withReset = false}
   this.enableScrolling();
   this.domBinding.enablePageView.hide();
   this.domBinding.disablePageView.show("inline-flex");
+  this.domBinding.scrollingNotesWrapper.show("inline");
   if (withReset) {
     setTimeout(() => {
       setTimeout(() => {
@@ -227,6 +228,7 @@ ABCPlayer.prototype.disablePageView = function disablePageView() {
   this.isEnabled.pageView = false;
   this.disableScrolling();
   this.domBinding.enablePageView.show("inline-flex");
+  this.domBinding.scrollingNotesWrapper.show("inline-block");
   this.domBinding.disablePageView.hide();
 }
 
@@ -259,11 +261,8 @@ ABCPlayer.prototype.disableFullscreen = function enableFullscreen() {
 
 
 ABCPlayer.prototype.createSong = function createSong() {
-  const isPageViewEnabled = this.isEnabled.pageView;
-  isPageViewEnabled && this.disablePageView();
   dQ("textarea.createSongTextarea").value = this.playerOptions.abcSongEditorDefaultText; 
   this.ldCover.get().then((res) => {
-    isPageViewEnabled && this.enablePageView();
     if (res === "add") {
       const newSong = dQ("textarea.createSongTextarea").value;
       this.songs.addSong({song: newSong, changeSong: true});
@@ -272,14 +271,11 @@ ABCPlayer.prototype.createSong = function createSong() {
 }
 
 ABCPlayer.prototype.editSong = function editSong() {
-  const isPageViewEnabled = this.isEnabled.pageView;
-  isPageViewEnabled && this.disablePageView();
   const songIndex = this.currentTuneIndex;
   const {filename, song} = this.songs.getFromRuntime({songIndex});
   if (!filename) return;
   dQ("textarea.createSongTextarea").value = song; 
   this.ldCover.get().then((res) => {
-    isPageViewEnabled && this.enablePageView();
     if (res === "add") {
       const editedSong = dQ("textarea.createSongTextarea").value;
       this.songs.editSong({song: editedSong, songIndex, changeSong: true});
@@ -318,10 +314,10 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
         const targetXPos = ((this.hpsOptions.sectionWidth * index) * -1);
         //debug({offset, targetXPoos});
         this.noteScroller.setScrollerXPos({xpos: offset});
-    }
-    catch (err) {
-      debugErr(`Could not calculate offset`);
-    }
+      }
+      catch (err) {
+        debugErr(`Could not calculate offset`);
+      }
     }
     const scrollingNoteDivs = this.domBinding?.scrollingNotesWrapper.children || [];
     const currEl = scrollingNoteDivs[index];
@@ -336,6 +332,28 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
     });
   }
   return this.setNoteDiagram({pitchIndex: pitch, duration});
+}
+
+ABCPlayer.prototype.onChangeSong = function() {
+  if (this.isEnabled.pageView) {
+    setTimeout(() => {//to wait for the song to load
+      this.enablePageView({withReset: true});
+    });
+    setTimeout(() => {//to wait for the song to load
+      this.enablePageView({withReset: false});
+    }, 2000);
+    this.domBinding.scrollingNotesWrapper.show("inline");
+  }
+  else {
+    debug("Closed called -> disable scrolling");
+    this.disableScrolling();
+    this.domBinding.scrollingNotesWrapper.show("inline-block");
+  }
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'smooth'
+  });
 }
 
 ABCPlayer.prototype.reloadSongSelector = function({playerInstance: player}) {
@@ -354,22 +372,9 @@ ABCPlayer.prototype.reloadSongSelector = function({playerInstance: player}) {
           player.enableScrolling();
           player.domBinding.scrollingNotesWrapper.hide();
         },
-        onClose: () => {
-          player.domBinding.scrollingNotesWrapper.show();
-          if (this.isEnabled.pageView) {
-            setTimeout(() => {//to wait for the song to load
-              this.enablePageView({withReset: true});
-            });
-          }
-          else {
-            player.disableScrolling();
-            player.domBinding.scrollingNotesWrapper.show("inline-block");
-          }
-          window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'smooth'
-          });
+        onClose: ({instance}) => {
+          debug("Closed called");
+          player.onChangeSong();
         },
         onFinish: (selector) => {
           debug("CustomSelect", selector);
@@ -434,7 +439,7 @@ ABCPlayer.prototype.load = function() {
     this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
     this.songs.setPlayerInstance(this);
     //@TODO ensure this is not needed here
-    //this.setCurrentSongFromUrlParam();
+    this.setCurrentSongFromUrlParam();
 
     const _handleErr = (err) => {
       debugErr(err);
@@ -532,7 +537,7 @@ ABCPlayer.prototype.load = function() {
       }, this.playerOptions.stateAssessmentLoopInterval);
 
       this.songs.load({playerInstance: this, songIndex: urlProcessing.currentTuneIndex});
-    })
+    });
     document.onkeydown = (evt) => {
       evt = evt || window.event;
       const { keyCode } = evt;
@@ -604,7 +609,8 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
     }
     else {
       debugErr(`Could not get song from index ${this.currentTuneIndex}`);
-      song = this.songs.loadSong({songIndex: 1});
+      this.currentTuneIndex = 0;
+      song = this.songs.loadSong({songIndex: 0});
       if (song) this.currentSong = song;
     }
   }
@@ -881,6 +887,7 @@ ABCPlayer.prototype.changeSong = function(args) {
   this.unsetUrlChanter();
   this.stop({changeSong: true, ...args});
   this.songSelector.selectByIndex(this.currentTuneIndex);
+  this.onChangeSong();
   if (this.songs.isRuntimeSong({songIndex: args.currentTuneIndex || this.currentTuneIndex})) {
     this.domBinding.editSong.show("inline-block");
   }

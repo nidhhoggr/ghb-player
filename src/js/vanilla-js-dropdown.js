@@ -129,6 +129,16 @@ function CustomSelect(options) {
       }
     }
   
+  
+    const obj = {
+      toggle,
+      close,
+      open,
+      isOpen,
+      getSelectedIndex: () => (parseInt(document.querySelector(".js-Dropdown-list li.is-selected")?.dataset?.index)),
+      selectByIndex: (index) => (document.querySelector(`.js-Dropdown-list li[data-index="${index}"]`)?.click())
+    };
+
     /**
      * Toggles the open/close state of the select on title's clicks.
      *
@@ -140,10 +150,14 @@ function CustomSelect(options) {
         onOpen?.();
       }
       else {
-        onClose?.();
+        onClose?.({instance: obj});
       }
     }
-  
+ 
+    function isOpen() {
+      return (ul.className.includes(openClass));
+    }
+
     /**
      * Opens the select.
      *
@@ -160,17 +174,12 @@ function CustomSelect(options) {
      * @public
      */
     function close() {
-      ul.classList.remove(openClass);
-      onClose?.();
+      if (ul.className.includes(openClass)) {
+        ul.classList.remove(openClass);
+        onClose?.({instance: obj});
+      }
     }
-  
-    const obj = {
-      toggle: toggle,
-      close: close,
-      open: open,
-      getSelectedIndex: () => (parseInt(document.querySelector(".js-Dropdown-list li.is-selected")?.dataset?.index)),
-      selectByIndex: (index) => (document.querySelector(`.js-Dropdown-list li[data-index="${index}"]`)?.click())
-    };
+
 
     onFinish?.(obj);
 

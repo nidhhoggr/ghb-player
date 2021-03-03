@@ -84,14 +84,6 @@ function HPS(wrapperName, options) {
     if (options.disableScrolling) {
       options.disableScrolling();
     }
-    else {
-      self.applyStyle(document.querySelector('body'), {
-        "overflow": 'hidden',
-      });
-      self.applyStyle(document.querySelector('html'), {
-        "overflow": 'hidden',
-      });
-    }
     self.applyStyle(self.wrapper, {
       width: (self.options.sectionWidth || deviceWidth) * self.sections.length + self.options.sectionOffset
     });
