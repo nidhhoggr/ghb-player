@@ -23,7 +23,6 @@ export const player = {
   showSheetMusic: true,
   showNoteDiagram: true,
   stateAssessmentLoopInterval: 5000,//how often to check the state,
-  firstScrollingNoteSection: `<section class="firstScrollingNote"></section>`,
   tempoLimits: {
     min: 20,
     max: 180,
@@ -75,6 +74,6 @@ export const sackpipa = {
 export const hps = {
   ease: 0.025,
   sectionWidth: 58,
-  sectionOffset: 420,
+  sectionOffset: 0,
   wrapperName: ".scrollingNotesWrapper"
 }

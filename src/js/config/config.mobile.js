@@ -10,7 +10,6 @@ const config = {
 
 const player = {
   ..._player,
-  firstScrollingNoteSection: `<section class="firstScrollingNote" style="width: 100px"></section>`,
 }
 
 export default {

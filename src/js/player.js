@@ -112,7 +112,6 @@ function ABCPlayer({
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
-    "firstScrollingNote",
   ]
 
   this.urlParamNames = [
@@ -300,8 +299,7 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   const scrollingNotesWrapper = this.domBinding?.scrollingNotesWrapper;
   debug("onNoteChange:", {pitch, cmd, event});
   if (scrollingNotesWrapper) {
-    const ensIndexOffset = (this.isEnabled.pageView) ? 0 : 1;
-    const index = event.ensIndex + ensIndexOffset;
+    const index = event.ensIndex;
     if (_.isNaN(index)) return;
     this.currentNoteIndex = index;
     this.updateState();
@@ -483,7 +481,7 @@ ABCPlayer.prototype.load = function() {
       this.playerOptions.showNoteDiagram = false;
       this.stateMgr.activityQueue.push(() => {
         //fires when an activity is detected
-        debug("First Activity", this.domBinding.firstScrollingNote, this.domBinding);
+        debug("First Activity");
       });
       //decrese the width of the section
       onSuccesses.push(() => domAddClass({el: dQ("main"), className: "mobile"}));
@@ -1439,7 +1437,6 @@ ABCPlayer.prototype.noteScrollerItemOnClick = function noteScrollerItemOnClick(e
 
 ABCPlayer.prototype.noteScrollerAddItems = function noteScrollerAddItems({onFinish} = {}) {
   this.noteScroller && this.noteScroller.addItems({
-    firstEl: this.isEnabled.pageView || this.playerOptions.firstScrollingNoteSection,
     lastEl: `<section style="display: none" class="lastItem"><section>`,
     items: this.currentSong.entireNoteSequence, 
     itemIterator: scrollingNoteItemIterator.bind(this),
