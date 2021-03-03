@@ -279,7 +279,9 @@ select {
     span.disableFullscreen,
     span.enablePageView,
     span.disablePageView,
-    span.compatibility {
+    span.compatibility,
+    span.editSong,
+    span.createSong {
       font-size: 0px !important;
       padding: 2px;
       width: 20px;
@@ -323,6 +325,12 @@ select {
     }
     span.compatibility {
       background: url("../images/content/player/exclamation.svg") no-repeat;
+    }
+    span.createSong {
+      background: url("../images/content/player/add.svg") no-repeat;
+    }
+    span.editSong {
+      background: url("../images/content/player/edit.svg") no-repeat;
     }
   }
 
@@ -685,5 +693,35 @@ span.keySigUp {
   &.playable_pitch-72 {
     @include playable-note;
     background-position: -1500px 65px;
+  }
+}
+
+.btn {
+  cursor: pointer;
+  display: inline-block;
+  font-weight: 300;
+  color: #212529;
+  text-align: center;
+  vertical-align: middle;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  color: #fff;
+  background-color: #007bff ;
+  border-color: #007bff;
+  border: 1px solid transparent;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: .25rem;
+  transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+}
+
+.card-body {
+  padding: 15px;
+  text-align: center;
+  .textWrapper {
+    margin-bottom: 15px;
   }
 }

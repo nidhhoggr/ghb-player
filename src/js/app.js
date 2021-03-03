@@ -13,6 +13,8 @@ import StateManagement from "./state";
 import tippy from 'tippy.js';
 import "tippy.js/dist/tippy.css";
 import CustomSelect from "./vanilla-js-dropdown";
+import "ldCover/dist/ldcv.min.css";
+import ldCover from "ldCover/dist/ldcv.min.js";
 const stateMgr = new StateManagement({options: config});
 const songs = new ABCSongs();
 const abcPlayer = new ABCPlayer({
@@ -22,6 +24,7 @@ const abcPlayer = new ABCPlayer({
     Sackpipa, 
     HPS, 
     CustomSelect,
+    ldCover
   },
   stateMgr, 
   options: config

@@ -43,7 +43,18 @@ export const player = {
     bagpipes: true,
     add_classes: true,
     responsive: "resize",
-  }
+  },
+  abcSongEditorDefaultText: `%%abc-charset utf-8
+X: 0
+T: Title
+S: Subtitle
+R: Genre
+Z: Trnascriber
+M:3/4
+L:1/8
+Q: "BPM=100"
+K:Am fgp=1 transpose=0
+|:E2 AA A2|AB cB AG|F2 D2 DC|D4 BA|`
 };
 
 export const sackpipa = {

@@ -34,6 +34,8 @@ function ABCPlayer({
 
   this.ioc = ioc;
 
+  this.ldCover = new ioc.ldCover({root: ".ldcv"});
+
   this.stateMgr = stateMgr;
 
   //stores and instance to vaniallljsdropdown
@@ -92,7 +94,9 @@ function ABCPlayer({
     "disablePageView",
     "enableRepeatingSegments",
     "disableRepeatingSegments",
-    "compatibility"
+    "compatibility",
+    "createSong",
+    "editSong",
   ];
 
   this.domBindingKeys = [
@@ -253,6 +257,30 @@ ABCPlayer.prototype.disableFullscreen = function enableFullscreen() {
   document.exitFullscreen();
 }
 
+
+ABCPlayer.prototype.createSong = function createSong() {
+  dQ("textarea.createSongTextarea").value = this.playerOptions.abcSongEditorDefaultText; 
+  this.ldCover.get().then((res) => {
+    if (res === "add") {
+      const newSong = dQ("textarea.createSongTextarea").value;
+      this.songs.addSong({song: newSong, changeSong: true});
+    }
+  });
+}
+
+ABCPlayer.prototype.editSong = function editSong() {
+  const songIndex = this.currentTuneIndex;
+  const {filename, song} = this.songs.getFromRuntime({songIndex});
+  if (!filename) return;
+  dQ("textarea.createSongTextarea").value = song; 
+  this.ldCover.get().then((res) => {
+    if (res === "add") {
+      const editedSong = dQ("textarea.createSongTextarea").value;
+      this.songs.editSong({song: editedSong, songIndex, changeSong: true});
+    }
+  });
+}
+
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
   this.songSelector = songSelector;
 }
@@ -302,6 +330,49 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
     });
   }
   return this.setNoteDiagram({pitchIndex: pitch, duration});
+}
+
+ABCPlayer.prototype.reloadSongSelector = function({playerInstance: player}) {
+  const elem = dQ(".js-Dropdown");
+  elem && elem.parentNode.removeChild(elem);
+  this.songs.loadPlayerDropdown({
+    playerInstance: player,
+    onFinish: () => {
+      const selector = new player.ioc.CustomSelect({
+        elem: player.domBinding.currentSong,
+        onChange: (songIndex) => {
+          player.currentTuneIndex = songIndex;
+          player.changeSong({currentTuneIndex: songIndex});
+        },
+        onOpen: () => {
+          player.enableScrolling();
+          player.domBinding.scrollingNotesWrapper.hide();
+        },
+        onClose: () => {
+          player.domBinding.scrollingNotesWrapper.show();
+          if (this.isEnabled.pageView) {
+            setTimeout(() => {//to wait for the song to load
+              this.enablePageView({withReset: true});
+            });
+          }
+          else {
+            player.disableScrolling();
+            player.domBinding.scrollingNotesWrapper.show("inline-block");
+          }
+          window.scrollTo({
+            top: 0,
+            left: 0,
+            behavior: 'smooth'
+          });
+        },
+        onFinish: (selector) => {
+          debug("CustomSelect", selector);
+          player.setSongSelector(selector);
+          selector.selectByIndex(player.currentTuneIndex);
+        }
+      });
+    }
+  });
 }
 
 ABCPlayer.prototype.load = function() {
@@ -356,16 +427,22 @@ ABCPlayer.prototype.load = function() {
     this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
     this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
     this.songs.setPlayerInstance(this);
-    this.setCurrentSongFromUrlParam();
+    //@TODO ensure this is not needed here
+    //this.setCurrentSongFromUrlParam();
 
     const _handleErr = (err) => {
       debugErr(err);
       const error = err?.message || err?.error?.mesage || err;
       debugErr(`Error occurred: ${error}`);
       if (this.errorReloadCount < this.options?.errorReloadLimit) {
-        this.errorReloadCount = this.errorReloadCount + 1;
         setTimeout(() => {
-          this.reloadWindow(`erc=${this.errorReloadCount}`);
+          if (error?.reason?.message?.includes("Failed to set the 'buffer' property on 'AudioBufferSourceNode'")) {
+            return debugErr(`Skipping reload when error matching 'AudioBufferSourceNode'`);
+          }
+          else {
+            this.errorReloadCount = this.errorReloadCount + 1;
+            this.options?.errorReloadDisabled || this.reloadWindow(`erc=${this.errorReloadCount}`);
+          }
         }, 2000);
       }
       else if (this.errorReloadCount >= this.options?.errorReloadLimit) {
@@ -423,44 +500,7 @@ ABCPlayer.prototype.load = function() {
           waitStart: 2000,
         });
       }
-      this.songs.loadPlayerDropdown({
-        playerInstance: this,
-        onFinish: () => {
-          const selector = new player.ioc.CustomSelect({
-            elem: player.domBinding.currentSong,
-            onChange: (songIndex) => {
-              player.currentTuneIndex = songIndex;
-              player.changeSong({currentTuneIndex: songIndex});
-            },
-            onOpen: () => {
-              player.enableScrolling();
-              player.domBinding.scrollingNotesWrapper.hide();
-            },
-            onClose: () => {
-              player.domBinding.scrollingNotesWrapper.show();
-              if (this.isEnabled.pageView) {
-                setTimeout(() => {//to wait for the song to load
-                  this.enablePageView({withReset: true});
-                });
-              }
-              else {
-                player.disableScrolling();
-                player.domBinding.scrollingNotesWrapper.show("inline-block");
-              }
-              window.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'smooth'
-              });
-            },
-            onFinish: (selector) => {
-              debug("CustomSelect", selector);
-              player.setSongSelector(selector);
-              selector.selectByIndex(player.currentTuneIndex);
-            }
-          });
-        }
-      });
+      this.reloadSongSelector({playerInstance: player});
       window.onerror = function (message, file, line, col, error) {
         _handleErr(error);
       };
@@ -484,6 +524,8 @@ ABCPlayer.prototype.load = function() {
       setInterval(() => {
         this.updateState();
       }, this.playerOptions.stateAssessmentLoopInterval);
+
+      this.songs.load({playerInstance: this, songIndex: urlProcessing.currentTuneIndex});
     })
     document.onkeydown = (evt) => {
       evt = evt || window.event;
@@ -550,12 +592,14 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
   const urlParam = parseInt(this.urlParams["cti"]);
   if (isNumber(urlParam)) {
     this.currentTuneIndex = urlParam;
-    const song =  this.songs.loadSong({songIndex: this.currentTuneIndex});
+    let song = this.songs.loadSong({songIndex: this.currentTuneIndex});
     if (song) {
       this.currentSong = song;
     }
     else {
       debugErr(`Could not get song from index ${this.currentTuneIndex}`);
+      song = this.songs.loadSong({songIndex: 1});
+      if (song) this.currentSong = song;
     }
   }
 }
@@ -583,6 +627,12 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   let urlParam = false;
 
   const toSet = {};//stores a set of properties to perform logic on
+
+  urlParam = parseInt(this.urlParams["cti"]);
+  if (isNumber(urlParam)) {
+    toSet["currentTuneIndex"] = urlParam;
+  }
+
   urlParam = parseInt(this.urlParams["fgp"]);
   if (isNumber(urlParam)) {
     toSet["sackpipaOptions.isFirstGroupPlugged"] = !(urlParam === 0);
@@ -825,6 +875,12 @@ ABCPlayer.prototype.changeSong = function(args) {
   this.unsetUrlChanter();
   this.stop({changeSong: true, ...args});
   this.songSelector.selectByIndex(this.currentTuneIndex);
+  if (this.songs.isRuntimeSong({songIndex: args.currentTuneIndex || this.currentTuneIndex})) {
+    this.domBinding.editSong.show("inline-block");
+  }
+  else {
+    this.domBinding.editSong.hide();
+  }
   //in case we do no refresh, unset these functions set by urlparam eveluation
 }
 
