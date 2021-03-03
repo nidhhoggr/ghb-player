@@ -2,16 +2,15 @@
 
 ## Features
 
-* **Simple setup** instructions
-  * Start development of a project right away with *simple*, *configured*, *browser synced*, *linter monitored* asset files.
 * Bootstrapped with [Webpack4 Boiler Plate](https://weareathlon.github.io/frontend-webpack-boilerplate/)
-  * [Demo deployment available to github pages](https://weareathlon.github.io/frontend-webpack-boilerplate/)
 * Built on top of a customized version of [ABCJS](https://paulrosen.github.io/abcjs/)
 * Build with local ABC files and add more ABC songs at runtime.
 * Page View Mode to view the entire song in portait view instead of in a sliding scroller.
 * Full Screen Mode with mobile compatability in mind.
 * Diable Repeating Segments to remove any repeating bars. This helps when you need to learn the song without scrolling everywhere.
 * Realtime compatibility shows which notes are incomptible with the selected chanter.
+* **Simple setup** instructions
+  * Start development of a project right away with *simple*, *configured*, *browser synced*, *linter monitored* asset files.
 * Example assets directory for reference and **demo** building of:
   * *JavaScript*
   * *SASS*
