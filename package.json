@@ -1,8 +1,7 @@
 {
-  "name": "@weareathlon/frontend-webpack-boilerplate",
-  "version": "4.5.0",
-  "description": "Starter project template boilerplate based on Webpack with SASS and babel ES6/7 support.",
-  "homepage": "https://github.com/WeAreAthlon/frontend-webpack-boilerplate#readme",
+  "name": "@nidhhoggr/SackpipaPlayer",
+  "version": "1.0.0",
+  "description": "A player to load abc files and build and runtime into a sackpipa player",
   "scripts": {
     "build": "webpack --mode=development",
     "watch": "webpack --mode=development --watch",
@@ -16,28 +15,10 @@
     "uml": "madge --exclude '^abcjs|(scss/base)|(scss/dirty)' --image graph.svg src/js/app.js"
   },
   "keywords": [
-    "webpack",
-    "boilerplate",
-    "template",
-    "setup"
+    "sackpipa",
   ],
-  "author": "WeAreAthlon <hello@weareathlon.com> (https://www.weareathlon.com)",
-  "contributors": [
-    {
-      "name": "Plamen Nikolov",
-      "email": "me@pnikoloff.com",
-      "url": "https://pnikoloff.com"
-    }
-  ],
+  "author": "Joseph Persie",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:WeAreAthlon/frontend-webpack-boilerplate.git"
-  },
-  "bugs": {
-    "url": "https://github.com/WeAreAthlon/frontend-webpack-boilerplate/issues",
-    "email": "plamen@athlonsofia.com"
-  },
   "engines": {
     "node": "^10 || ^12 || >=14"
   },
