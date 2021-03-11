@@ -566,9 +566,9 @@ ABCPlayer.prototype.load = function() {
 }
 
 ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
+  this.settingTuneStart();
   if (appendingLocation) history.replaceState({}, null, `?${appendingLocation}`);
   setTimeout(() => {
-    this.updateState({onFinish: () => (window.location.reload())});
     window.location.reload();
   }, 100);
 }
