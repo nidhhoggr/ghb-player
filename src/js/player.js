@@ -738,8 +738,16 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
         this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
       });
     }
-    if (isNumber(toSet.tempo)) this.setTempo(toSet.tempo, {from: toSet.from_tempo});
-    if (isNumber(toSet.transposition)) this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
+    if (isNumber(toSet.tempo)) {
+      setTimeout(() => {
+        this.setTempo(toSet.tempo, {from: toSet.from_tempo});
+      });
+    }
+    if (isNumber(toSet.transposition)) {
+      setTimeout(() => {
+        this.setTransposition(toSet.transposition, {from: toSet.from_transposition});
+      });
+    }
   });
 
   if (toSet["setNoteScrollerItem"]) {
@@ -1189,7 +1197,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
    
     const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
 
-    function prepareOnSuccess(onSuccess, setEm) {
+    function prepareOnSuccess(setEm) {
       if (onSuccess && _.isFunction(onSuccess)) {
         onSuccess = [
           onSuccess,
@@ -1224,21 +1232,19 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       if (isNumber(transposition) //can contain zero
           && transposition !== this.transposition //song trans. doesnt match player trans.
           && !this.onUnsetUrlParamTransposition) {//the trans. was not set by urlparams
-        const setEm = () => {
+        prepareOnSuccess(() => {
           //altough were already here well need to set the tune again...
           setTimeout(() => {
           this.setTransposition(transposition, {shouldSetTune: true});
           }, 1200);//dont call it too early, will result in transposition possibly a half step lower 
           //needed to set tranposition to zero if it is zero
-        }
-        prepareOnSuccess(onSuccess, setEm);
+        });
       }
       //this will override URLPARAMS
       if (isNumber(tuning) && !this.onUnsetUrlParamChanter) {
-        const setEm = () => {
+        prepareOnSuccess(() => {
           this._updateChanter(tuning);
-        }
-        prepareOnSuccess(onSuccess, setEm);
+        });
       }
       //_.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
     }

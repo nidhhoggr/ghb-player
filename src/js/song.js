@@ -138,7 +138,7 @@ ABCSong.prototype.load = function() {
           tuning = parseInt(matched[1]);
           this.tuning = tuning;
           this._tuning = possibleChanters[tuning];
-          this.original.tuning ??= tuning;
+          this.original.tuning = tuning;
         }
 
         break;
