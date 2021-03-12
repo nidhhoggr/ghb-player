@@ -7,6 +7,7 @@ const config = {
   prodDomain: "www.folktabs.com",
   isMobileBuild: false,
   errorReloadDisabled: false,
+  environment: "dev",
 }
 
 export default {

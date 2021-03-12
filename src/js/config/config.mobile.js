@@ -6,6 +6,7 @@ const config = {
   debugDisabledModules: ["state"],//disable debugging in these modules
   prodDomain: "mobile.folktabs.com",
   isMobileBuild: true,
+  environment: "mobile",
 }
 
 const player = {

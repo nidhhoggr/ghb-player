@@ -1,4 +1,5 @@
 import _ from "lodash";
+import config from "config";
 import ABCSong from "./song";
 import utils from "./utils";
 const {
@@ -15,10 +16,17 @@ let abcFiles = require.context("./../abc/", true, /\.abc$/);
 abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled")));
 
 const preserved = [];
+
+const isDMCACompliant = (filename) => !(config.environment === "prod" && filename.includes("dmca-"));
+
 export function getAbc(file) {
   if (!abcFiles.includes(file)) return;
   const _file = file.replace("./","");
   debug(`requiring ${_file}`);
+  if (!isDMCACompliant(_file)) {
+    debugErr(`Omitting ${_file} from DCMA non-compliance`);
+    return;
+  }
   const abc = require(`./../abc/${_file}`);
   abcFiles = _.without(abcFiles, file);
   preserved.push(file);

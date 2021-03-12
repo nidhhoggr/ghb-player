@@ -521,7 +521,7 @@ ABCPlayer.prototype.load = function() {
       })
       this.stateMgr.idleWatcher({
         playerInstance: this,
-        inactiveTimeout: 60000 * 5, 
+        inactiveTimeout: this.playerOptions.stateAssessmentInactivityTimeout,
         onInaction: () => {
           debug("My inaction function"); 
         },
@@ -1157,23 +1157,27 @@ ABCPlayer.prototype.updateState = function(args) {
   return this.stateMgr.onAssessState({playerInstance: this, ...args});
 }
 
-const fadeEffect = ({fadeIn} = {}) => setInterval(() => {
-  const preloader = dQ('.preloader');
-  preloader.style["display"] = "flex";
-  // if we don't set opacity 1 in CSS, then
-  // it will be equaled to "" -- that's why
-  // we check it, and if so, set opacity to 1
-  if (!preloader.style.opacity || fadeIn) {
-    preloader.style.opacity = 1;
-    fadeIn = false;
-  }
-  if (preloader.style.opacity > 0 && !fadeIn) {
-    preloader.style.opacity -= 0.1;
-  } else {
-    clearInterval(fadeEffect);
-    preloader.style["display"] = "none";
-  }
-}, 100);
+const fadeEffect = ({fadeIn} = {}) => {
+  const feInterval = setInterval(() => {
+    const preloader = dQ('.preloader');
+    preloader.style["display"] = "flex";
+    // if we don't set opacity 1 in CSS, then
+    // it will be equaled to "" -- that's why
+    // we check it, and if so, set opacity to 1
+    if (!preloader.style.opacity || fadeIn) {
+      preloader.style.opacity = 1;
+      fadeIn = false;
+    }
+    if (preloader.style.opacity > 0 && !fadeIn) {
+      preloader.style.opacity -= 0.1;
+    } 
+    else {
+      clearInterval(feInterval);
+      preloader.style["display"] = "none";
+    }
+    debug("There", preloader.style.opacity, fadeIn);
+  }, 100);
+};
 
 ABCPlayer.prototype.settingTuneStart = function setTuneFinished() {
   this.isSettingTune = true;

@@ -31,3 +31,4 @@ src/js/abcjs/docs
 src/js/abcjs/font_generator
 srs/js/abcjs/tests
 src/abc/disabled
+src/abc/dcma-*

@@ -23,6 +23,7 @@ export const player = {
   showSheetMusic: true,
   showNoteDiagram: true,
   stateAssessmentLoopInterval: 5000,//how often to check the state,
+  stateAssessmentInactivityTimeout: 60000 * 5,
   tempoLimits: {
     min: 20,
     max: 180,
@@ -53,7 +54,7 @@ M:3/4
 L:1/8
 Q: "BPM=100"
 K:Am fgp=1 transpose=0 tuning=0
-| A, D ^D E F ^F G ^G A ^A B C' ^C' D' ^D' E' |
+| A, D ^D E F ^F G ^G A ^A B C' ^C' D' ^D' E' |`
 };
 
 export const sackpipa = {

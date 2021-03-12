@@ -65,6 +65,18 @@ K: Amin transpose=0 fgp=1
 K: Amin tuning=1
 ```
 
+### Ommiting DMCA protected Songs
+
+This is useful when you want to load a song in the loader without both committing it to git and deploying it to your production environment. I have several songs that are copyrighted and would otherwise feel best not making them available to the general public, yet still want it to load in my non-production environment:
+
+> simply prefix the filename with `dmca-{songnamehere}.abc`
+
+### Disabling Songs
+
+This is useful when you want to disable a song without completely removing it from your project directory. Any file matching this criteria won't load in any environment(prod, dev or mobile) nor be commited to version control.
+
+> simply prefix the filename with `disabled-{songnamehere}.abc` or put it in the `src/abc/disabled` folder.
+
 ## Requirements
 
 * `node` : `^10 || ^12 || >=14`
