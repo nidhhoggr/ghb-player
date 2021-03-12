@@ -54,6 +54,17 @@ K: Amin transpose=1
 K: Amin transpose=0 fgp=1
 ```
 
+### Setting the chanter tuning
+
+* You can specify an interger value for tuning.
+- `0` E/A
+- `1` D/G
+- `2` C/F
+
+```
+K: Amin tuning=1
+```
+
 ## Requirements
 
 * `node` : `^10 || ^12 || >=14`

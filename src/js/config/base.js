@@ -52,8 +52,8 @@ Z: Transcriber
 M:3/4
 L:1/8
 Q: "BPM=100"
-K:Am fgp=1 transpose=0
-|:E2 AA A2|AB cB AG|F2 D2 DC|D4 BA|`
+K:Am fgp=1 transpose=0 tuning=0
+| A, D ^D E F ^F G ^G A ^A B C' ^C' D' ^D' E' |
 };
 
 export const sackpipa = {
