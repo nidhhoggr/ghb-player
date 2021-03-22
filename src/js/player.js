@@ -49,7 +49,7 @@ function ABCPlayer({
   this.hpsOptions = options.hps;
   this.hpsOptions.disableScrolling = this.disableScrolling.bind(this);
 
-  this.isSettingTune = true;
+  this.isSettingTuneByIndex = undefined;
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
@@ -591,7 +591,7 @@ ABCPlayer.prototype.load = function() {
 }
 
 ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
-  this.settingTuneStart();
+  fadeEffect({fadeIn: true});
   if (appendingLocation) history.replaceState({}, null, `?${appendingLocation}`);
   setTimeout(() => {
     this.updateState({onFinish: () => (window.location.reload())});
@@ -846,7 +846,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
 }
 
 ABCPlayer.prototype.start = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if (!dQ("section.lastItem")) {
     //the loader didn't load properly
     const q = this.stop();
@@ -930,7 +930,7 @@ ABCPlayer.prototype.changeSong = function(args) {
 
 
 ABCPlayer.prototype.songPrev = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if (this.currentTuneIndex > 0)
     this.currentTuneIndex = this.currentTuneIndex - 1;
   else
@@ -939,7 +939,7 @@ ABCPlayer.prototype.songPrev = function() {
 }
 
 ABCPlayer.prototype.songNext = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   this.currentTuneIndex = this.currentTuneIndex + 1;
   if (this.currentTuneIndex >= this.songs.getCount()) this.currentTuneIndex = 0;
   this.changeSong({currentTuneIndex: this.currentTuneIndex});
@@ -947,21 +947,21 @@ ABCPlayer.prototype.songNext = function() {
 
 
 ABCPlayer.prototype.transposeUp = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if (this.transposition < this.playerOptions.transpositionLimits.max) {
     this.setTransposition(this.transposition + 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.transposeDown = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if (this.transposition > this.playerOptions.transpositionLimits.min) {
     this.setTransposition(this.transposition - 1, {from: this.transposition});
   }
 }
 
 ABCPlayer.prototype.tempoUp = function(by = 1) {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if ((this.tempo + by) <= this.playerOptions.tempoLimits.max) {
     const from = this.tempo;
     this.tempo += by;
@@ -970,7 +970,7 @@ ABCPlayer.prototype.tempoUp = function(by = 1) {
 }
 
 ABCPlayer.prototype.tempoDown = function(by = 1) {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   if ((this.tempo - by) >= this.playerOptions.tempoLimits.min) {
     const from = this.tempo;
     this.tempo -= by;
@@ -979,7 +979,7 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
 }
 
 ABCPlayer.prototype.chanterDown = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   const { chanterKey, possibleChanters } = this.sackpipa;
   const currentIndex = this.getCurrentChanterIndex();
   let nextIndex;
@@ -993,7 +993,7 @@ ABCPlayer.prototype.chanterDown = function() {
 }
 
 ABCPlayer.prototype.chanterUp = function() {
-  if (this.isSettingTune) return;
+  if (this.isSettingTune()) return;
   const { chanterKey, possibleChanters } = this.sackpipa;
   const currentIndex = this.getCurrentChanterIndex();
   let nextIndex;
@@ -1204,18 +1204,22 @@ const fadeEffect = ({fadeIn} = {}) => {
 };
 
 ABCPlayer.prototype.settingTuneStart = function settingTuneStart(tuneIndex) {
-  this.isSettingTune = true;
+  this.isSettingTuneByIndex = tuneIndex;
   fadeEffect({fadeIn: true});
 }
 
-ABCPlayer.prototype.settingTuneFinish = function settingTuneFinished() {
-  this.isSettingTune = false;
+ABCPlayer.prototype.settingTuneFinish = function settingTuneFinish() {
+  this.isSettingTuneByIndex = undefined;
   fadeEffect();
+}
+
+ABCPlayer.prototype.isSettingTune = function isSettingTune() {
+  return this.isSettingTuneByIndex === this.currentTuneIndex;
 }
 
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   return new Promise((resolve, reject) => {
-    this.settingTuneStart();
+    this.settingTuneStart(this.currentTuneIndex);
     if (!currentSong) {
       this.currentSong = this.songs.loadSong({songIndex: this.currentTuneIndex});
     }
@@ -1327,7 +1331,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
 }
 
 ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSuccess, onError, resolve, reject} = {}) {
-  this.settingTuneStart()
+  this.settingTuneStart(this.currentTuneIndex);
   this.synthControl?.setTune?.(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
     debug("setTune 1:", response);
     //if its called by anything other than  tempo
