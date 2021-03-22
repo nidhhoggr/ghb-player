@@ -1214,7 +1214,7 @@ ABCPlayer.prototype.settingTuneFinish = function settingTuneFinish() {
 }
 
 ABCPlayer.prototype.isSettingTune = function isSettingTune() {
-  return this.isSettingTuneByIndex === this.currentTuneIndex;
+  return this.currentTuneIndex && this.isSettingTuneByIndex === this.currentTuneIndex;
 }
 
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
