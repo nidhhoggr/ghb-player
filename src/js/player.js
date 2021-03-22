@@ -199,6 +199,10 @@ ABCPlayer.prototype.disableScrolling = function disableScrolling() {
   this.isEnabled.scrolling = false;
 }
 
+ABCPlayer.prototype.isScrollingEnabled = function isScrollingEnabled() {
+  return (dQ('body').style["overflow"] == "visible" && this.isEnabled.scrolling == true);
+}
+
 ABCPlayer.prototype.enableScrolling = function enableScrolling() {
   dQ('body').style["overflow"] = "visible";
   dQ('html').style["overflow"] = "visible";
@@ -1196,16 +1200,15 @@ const fadeEffect = ({fadeIn} = {}) => {
       clearInterval(feInterval);
       preloader.style["display"] = "none";
     }
-    debug("There", preloader.style.opacity, fadeIn);
   }, 100);
 };
 
-ABCPlayer.prototype.settingTuneStart = function setTuneFinished() {
+ABCPlayer.prototype.settingTuneStart = function settingTuneStart(tuneIndex) {
   this.isSettingTune = true;
   fadeEffect({fadeIn: true});
 }
 
-ABCPlayer.prototype.settingTuneFinish = function setTuneFinished() {
+ABCPlayer.prototype.settingTuneFinish = function settingTuneFinished() {
   this.isSettingTune = false;
   fadeEffect();
 }

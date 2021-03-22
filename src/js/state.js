@@ -30,6 +30,8 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     currentTuneIndex, 
     currentNoteIndex,
     getCurrentChanterIndex,
+    enableScrolling,
+    isScrollingEnabled,
     sackpipaOptions,
     errorReloadCount,
     isSettingTune,
@@ -62,6 +64,12 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     isNumber(currentNoteIndex) && stateArray.push(["cni", currentNoteIndex]);
     isNumber(currentChanterIndex) && stateArray.push(["cci", currentChanterIndex]);//contains zero
     stateArray.push(["pve", isEnabled?.pageView  ? 1 : 0]);
+
+    //sometimes the scroller is disabled when it shouldn't be
+    if (isEnabled?.pageView && !isScrollingEnabled?.call(playerInstance)) {
+      enableScrolling?.call(playerInstance);
+    }
+
     stateArray.push(["drs", isEnabled?.disableRepeatingSegments ? 1 : 0]);
     stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
     stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
