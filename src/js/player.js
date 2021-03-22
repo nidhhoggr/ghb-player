@@ -233,14 +233,29 @@ ABCPlayer.prototype.disablePageView = function disablePageView() {
 
 ABCPlayer.prototype.disableRepeatingSegments = function disableRepeatingSegments() {
   this.isEnabled.disableRepeatingSegments = true;
-  //this url appension acts as a failover for state updates lag
-  this.reloadWindow(`drs=1`);
+  this.updateState({
+    isEnabled: {
+      ...this.isEnabled,
+      disableRepeatingSegments: true
+    },
+    onFinish: () => {
+      window.location.reload();
+    }
+  });
 }
 
 ABCPlayer.prototype.enableRepeatingSegments = function enableRepeatingSegments() {
   this.isEnabled.disableRepeatingSegments = false;
   //this url appension acts as a failover for state updates lag
-  this.reloadWindow(`drs=0`);
+  this.updateState({
+    isEnabled: {
+      ...this.isEnabled,
+      disableRepeatingSegments: false
+    },
+    onFinish: () => {
+      window.location.reload();
+    }
+  });
 }
 
 ABCPlayer.prototype.enableFullscreen = function enableFullscreen() {
@@ -449,8 +464,14 @@ ABCPlayer.prototype.load = function() {
             return debugErr(`Skipping reload when error matching 'AudioBufferSourceNode'`);
           }
           else {
-            this.errorReloadCount = this.errorReloadCount + 1;
-            this.options?.errorReloadDisabled || this.reloadWindow(`erc=${this.errorReloadCount}`);
+            if (!this.options?.errorReloadDisabled) {
+              this.updateState({
+                errorReloadCount: this.errorReloadCount + 1,
+                onFinish: () => {
+                  window.location.reload();
+                }
+              });
+            }
           }
         }, 2000);
       }
@@ -569,7 +590,7 @@ ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
   this.settingTuneStart();
   if (appendingLocation) history.replaceState({}, null, `?${appendingLocation}`);
   setTimeout(() => {
-    window.location.reload();
+    this.updateState({onFinish: () => (window.location.reload())});
   }, 100);
 }
 
