@@ -32,3 +32,10 @@ src/js/abcjs/font_generator
 srs/js/abcjs/tests
 src/abc/disabled
 src/abc/dmca-*
+
+
+#script for deployment (contains sensitive info)
+deploy.sh
+
+#still working on this
+src/js/transposer.js

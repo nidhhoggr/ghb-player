@@ -45,7 +45,11 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
       window.location.href = window.location.origin + window.location.pathname + `?cti=${currentTuneIndex}`
     }
     else {
-      history.replaceState({}, null, `?cti=${currentTuneIndex}`);
+      try {
+        history.replaceState({}, null, `?cti=${currentTuneIndex}`);
+      } catch(err) {
+        console.error(err);
+      }
       setTimeout(() => {
         onFinish && onFinish();
       }, 100);
@@ -91,7 +95,12 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
         const qpNew = queryParams.toString();
         if (qpNew !== qpOld) {
           debug("Updating state and url",{qpOld, qpNew, stateArray});
-          history.replaceState(null, null, "?" + queryParams.toString());
+          try {
+            history.replaceState(null, null, "?" + queryParams.toString());
+          }
+          catch(err) {
+            console.error(err);
+          }
           onFinish?.();
         }
         else if(qpNew == qpOld) {

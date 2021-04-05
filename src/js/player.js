@@ -592,7 +592,13 @@ ABCPlayer.prototype.load = function() {
 
 ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
   fadeEffect({fadeIn: true});
-  if (appendingLocation) history.replaceState({}, null, `?${appendingLocation}`);
+  if (appendingLocation) {
+    try {
+      history.replaceState({}, null, `?${appendingLocation}`);
+    } catch(err) {
+      console.error(err);
+    }
+  }
   setTimeout(() => {
     this.updateState({onFinish: () => (window.location.reload())});
   }, 100);
