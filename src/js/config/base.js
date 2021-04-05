@@ -23,7 +23,7 @@ export const player = {
   showSheetMusic: true,
   showNoteDiagram: true,
   stateAssessmentLoopInterval: 5000,//how often to check the state,
-  stateAssessmentInactivityTimeout: 60000 * 5,
+  stateAssessmentInactivityTimeout: 60000 * 60,
   tempoLimits: {
     min: 20,
     max: 180,
