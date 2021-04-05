@@ -36,6 +36,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     errorReloadCount,
     isSettingTune,
     isEnabled,
+    storage
   } = playerInstance;
 
   if (isSettingTune?.call(playerInstance)) return debugAll(`Cannot modify state when setting tune`);
@@ -47,6 +48,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     else {
       try {
         history.replaceState({}, null, `?cti=${currentTuneIndex}`);
+        storage?.setMerge?.call(playerInstance, {key: "cti", val: currentTuneIndex}); 
       } catch(err) {
         console.error(err);
       }
@@ -91,6 +93,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     const qpOld = queryParams.toString();
     stateArray.forEach((sa, i) => {
       queryParams.set(sa[0], sa[1]);
+      storage?.setMerge?.call(playerInstance, {key: sa[0], val: sa[1]});
       if (i == (stateArray.length - 1)) {
         const qpNew = queryParams.toString();
         if (qpNew !== qpOld) {

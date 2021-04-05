@@ -36,6 +36,8 @@ function ABCPlayer({
 
   this.ldCover = new ioc.ldCover({root: ".ldcv"});
 
+  this.storage = new ioc.Storage({namespace: "player"});
+
   this.stateMgr = stateMgr;
 
   //stores and instance to vaniallljsdropdown
@@ -114,7 +116,7 @@ function ABCPlayer({
     "scrollingNotesWrapper",
   ]
 
-  this.urlParamNames = [
+  this.clientParamNames = [
     "cci",//currentChanterIndex
     "cti",//currentTuneIndex
     "ctp",//currentTransposition
@@ -128,7 +130,7 @@ function ABCPlayer({
     "drs",//disableRepeatingSegments
   ];
 
-  this.urlParams = {};
+  this.clientParams = {};
 
   this.synthControl = null;
 
@@ -285,7 +287,7 @@ ABCPlayer.prototype.createSong = function createSong() {
       const newSong = dQ("textarea.createSongTextarea").value;
       this.songs.addSong({song: newSong, changeSong: true});
     }
-  });
+  }).catch(debugErr);
 }
 
 ABCPlayer.prototype.editSong = function editSong() {
@@ -298,7 +300,7 @@ ABCPlayer.prototype.editSong = function editSong() {
       const editedSong = dQ("textarea.createSongTextarea").value;
       this.songs.editSong({song: editedSong, songIndex, changeSong: true});
     }
-  });
+  }).catch(debugErr);
 }
 
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
@@ -435,10 +437,17 @@ ABCPlayer.prototype.load = function() {
       }
     });
 
-    this.urlParamNames.map((urlParamName) => {
-      this.urlParams[urlParamName] = location_getParameterByName(urlParamName);
+    this.clientParamNames.map((clientParamName) => {
+      let paramValue = location_getParameterByName(clientParamName);
+      if (!paramValue) {
+        const storage = this.storage.get();
+        paramValue = storage?.[clientParamName];
+      }
+      this.clientParams[clientParamName] = paramValue;
     });
 
+    debug({clientParams: this.clientParams})
+      
     if (this.abcjs.synth.supportsAudio()) {
       this.synthControl = new this.abcjs.synth.SynthController();
       const cursorControl = new CursorControl({
@@ -456,7 +465,7 @@ ABCPlayer.prototype.load = function() {
     this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
     this.songs.setPlayerInstance(this);
     //@TODO ensure this is not needed here
-    this.setCurrentSongFromUrlParam();
+    this.setCurrentSongFromClientParam();
 
     const _handleErr = (err) => {
       debugErr(err);
@@ -486,7 +495,7 @@ ABCPlayer.prototype.load = function() {
       }
     };
     
-    const urlProcessing = this.evaluateUrlParams();
+    const urlProcessing = this.evaluateClientParams();
 
     const shouldEnablePageView = this.isEnabled.pageView;
 
@@ -526,7 +535,7 @@ ABCPlayer.prototype.load = function() {
 
     this.setTune({userAction: true, onSuccess: onSuccesses, calledFrom: "load"}).then(({playerInstance: player}) => {
       debug("URL Processing", urlProcessing);
-      this.processUrlParams(urlProcessing);
+      this.processClientParams(urlProcessing);
       if (this.isEnabled.pageView) {
         timeoutElOp({
           el: dQ("section.lastItem"),
@@ -567,7 +576,7 @@ ABCPlayer.prototype.load = function() {
       const { keyCodes } = this.playerOptions;
       if (!keyCodes) return;
       if (keyCode === keyCodes.esc) { 
-        this.reloadWindow(`cti=${this.currentTuneIndex}`);
+        this.reloadWindow({cti: this.currentTuneIndex});
       }
       else if (keyCode === keyCodes.prev) {
         this.songPrev();
@@ -590,18 +599,26 @@ ABCPlayer.prototype.load = function() {
   });
 }
 
-ABCPlayer.prototype.reloadWindow = function(appendingLocation) {
+ABCPlayer.prototype.reloadWindow = function(appendingObject) {
   fadeEffect({fadeIn: true});
-  if (appendingLocation) {
+  if (appendingObject) {
+    const appendingLocation = Object.keys(appendingObject).map((key) => {
+      return key + '=' + appendingObject[key];
+    }).join('&');
     try {
-      history.replaceState({}, null, `?${appendingLocation}`);
+      this.storage.set(appendingObject);
+      let url = window.location.origin;    
+      url += `?${appendingLocation}`;
+      window.location.href= url;
     } catch(err) {
       console.error(err);
     }
   }
-  setTimeout(() => {
-    this.updateState({onFinish: () => (window.location.reload())});
-  }, 100);
+  else {
+    setTimeout(() => {
+      this.updateState({onFinish: () => (window.location.reload())});
+    }, 100);
+  }
 }
 
 ABCPlayer.prototype.sackpipaReload = function(options = {}) {
@@ -626,12 +643,12 @@ ABCPlayer.prototype.sackpipaReload = function(options = {}) {
 }
 
 //this is called before URL parsing and once after
-ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
-  this.enablePageViewFromUrlParam();
-  this.disableRepeatingSegmentsFromUrlParam();
-  const urlParam = parseInt(this.urlParams["cti"]);
-  if (isNumber(urlParam)) {
-    this.currentTuneIndex = urlParam;
+ABCPlayer.prototype.setCurrentSongFromClientParam = function() {
+  this.enablePageViewFromClientParam();
+  this.disableRepeatingSegmentsFromClientParam();
+  const clientParam = parseInt(this.clientParams["cti"]);
+  if (isNumber(clientParam)) {
+    this.currentTuneIndex = clientParam;
     let song = this.songs.loadSong({songIndex: this.currentTuneIndex});
     if (song) {
       this.currentSong = song;
@@ -645,59 +662,59 @@ ABCPlayer.prototype.setCurrentSongFromUrlParam = function() {
   }
 }
 
-ABCPlayer.prototype.disableRepeatingSegmentsFromUrlParam = function() {
-  const urlParam = parseInt(this.urlParams["drs"]);
-  if (urlParam === 1) {
+ABCPlayer.prototype.disableRepeatingSegmentsFromClientParam = function() {
+  const clientParam = parseInt(this.clientParams["drs"]);
+  if (clientParam === 1) {
     this.isEnabled.disableRepeatingSegments = true;
     this.domBinding.disableRepeatingSegments.hide();
     this.domBinding.enableRepeatingSegments.show("inline-flex");
   }
 }
 
-ABCPlayer.prototype.enablePageViewFromUrlParam = function() {
-  const urlParam = parseInt(this.urlParams["pve"]);
-  if (urlParam === 1) {
+ABCPlayer.prototype.enablePageViewFromClientParam = function() {
+  const clientParam = parseInt(this.clientParams["pve"]);
+  if (clientParam === 1) {
     this.isEnabled.pageView = true;
   }
 }
 
 
 
-ABCPlayer.prototype.evaluateUrlParams = function() {
+ABCPlayer.prototype.evaluateClientParams = function() {
 
-  let urlParam = false;
+  let clientParam = false;
 
   const toSet = {};//stores a set of properties to perform logic on
 
-  urlParam = parseInt(this.urlParams["cti"]);
-  if (isNumber(urlParam)) {
-    toSet["currentTuneIndex"] = urlParam;
+  clientParam = parseInt(this.clientParams["cti"]);
+  if (isNumber(clientParam)) {
+    toSet["currentTuneIndex"] = clientParam;
   }
 
-  urlParam = parseInt(this.urlParams["fgp"]);
-  if (isNumber(urlParam)) {
-    toSet["sackpipaOptions.isFirstGroupPlugged"] = !(urlParam === 0);
+  clientParam = parseInt(this.clientParams["fgp"]);
+  if (isNumber(clientParam)) {
+    toSet["sackpipaOptions.isFirstGroupPlugged"] = !(clientParam === 0);
   }
 
-  urlParam = parseInt(this.urlParams["sgp"]);
-  if (urlParam === 1) {
-    toSet["sackpipaOptions.isSecondGroupPlugged"] = !(urlParam === 0);
+  clientParam = parseInt(this.clientParams["sgp"]);
+  if (clientParam === 1) {
+    toSet["sackpipaOptions.isSecondGroupPlugged"] = !(clientParam === 0);
   }
 
-  urlParam = parseInt(this.urlParams["erc"]);
-  if (isPositiveNumber(urlParam)) {
-    toSet["errorReloadCount"] = urlParam;
+  clientParam = parseInt(this.clientParams["erc"]);
+  if (isPositiveNumber(clientParam)) {
+    toSet["errorReloadCount"] = clientParam;
   }
 
-  urlParam = parseInt(this.urlParams["imb"]);
-  if (urlParam === 1) {
+  clientParam = parseInt(this.clientParams["imb"]);
+  if (clientParam === 1) {
     this.options.isMobileBuild = true;
   }
 
-  urlParam = parseInt(this.urlParams["cci"]);
-  if (isNumber(urlParam)) {
+  clientParam = parseInt(this.clientParams["cci"]);
+  if (isNumber(clientParam)) {
     const currentChanterIndex = this.getCurrentChanterIndex();
-    const urlChanterIndex = urlParam;
+    const urlChanterIndex = clientParam;
     debug("URL CHANTER", currentChanterIndex, urlChanterIndex);
     if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
       toSet.chanterIndex = urlChanterIndex;
@@ -707,10 +724,10 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["ctp"]);
-  if (isNumber(urlParam)) {
+  clientParam = parseInt(this.clientParams["ctp"]);
+  if (isNumber(clientParam)) {
     const currentTransposition = this.currentSong?.transposition || this.transposition;
-    const urlTransposition = urlParam;
+    const urlTransposition = clientParam;
     debug("URL TRANSPOSITION", currentTransposition, urlTransposition);
     if (currentTransposition !== urlTransposition && urlTransposition !== 0) {
       toSet.transposition = urlTransposition;
@@ -718,10 +735,10 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["ct"]);
-  if (isNumber(urlParam)) {
+  clientParam = parseInt(this.clientParams["ct"]);
+  if (isNumber(clientParam)) {
     const currentTempo = this.currentSong?.tempo || this.tempo;
-    const urlTempo = urlParam;
+    const urlTempo = clientParam;
     debug("URL TEMPO", currentTempo, urlTempo, this.currentSong);
     if (currentTempo !== urlTempo && urlTempo !== 0) {
       toSet.tempo = urlTempo;
@@ -729,9 +746,9 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
     }
   }
 
-  urlParam = parseInt(this.urlParams["cni"]);
-  if (isNumber(urlParam)) {
-    const currentNoteIndex = urlParam;
+  clientParam = parseInt(this.clientParams["cni"]);
+  if (isNumber(clientParam)) {
+    const currentNoteIndex = clientParam;
     if (isNumber(currentNoteIndex)) {
       toSet["setNoteScrollerItem"] = currentNoteIndex - 1;
     }
@@ -740,7 +757,7 @@ ABCPlayer.prototype.evaluateUrlParams = function() {
   return toSet;
 }
 
-ABCPlayer.prototype.processUrlParams = function(toSet) {
+ABCPlayer.prototype.processClientParams = function(toSet) {
   
   if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
     this.sackpipaOptions.isFirstGroupPlugged = toSet["sackpipaOptions.isFirstGroupPlugged"];
@@ -759,7 +776,7 @@ ABCPlayer.prototype.processUrlParams = function(toSet) {
     this.sackpipaReload();
   }
  
-  this.setCurrentSongFromUrlParam();
+  this.setCurrentSongFromClientParam();
 
   const queueCallbacks = [];
   queueCallbacks.push(() => {
@@ -931,7 +948,7 @@ ABCPlayer.prototype.changeSong = function(args) {
   else {
     this.domBinding.editSong.hide();
   }
-  //in case we do no refresh, unset these functions set by urlparam eveluation
+  //in case we do no refresh, unset these functions set by clientparam eveluation
 }
 
 
@@ -1043,11 +1060,11 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
         this.domBinding.secondGroup.hide();
       }
       if (isNumber(chanterKeyIndex) && chanterKeyIndex === this.currentSong?.original?.tuning) {
-        delete this.onUnsetUrlParamChanter;
+        delete this.onUnsetClientParamChanter;
         this.domBinding.unsetUrlChanter.hide();
       }
-      else if (!this.onUnsetUrlParamChanter && isNumber(from) && chanterKeyIndex !== from) {
-        this.onUnsetUrlParamChanter = () => {
+      else if (!this.onUnsetClientParamChanter && isNumber(from) && chanterKeyIndex !== from) {
+        this.onUnsetClientParamChanter = () => {
           this._updateChanter(from);
         }
         this.domBinding.unsetUrlChanter.show();
@@ -1058,24 +1075,24 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
 }
 
 ABCPlayer.prototype.unsetUrlTempo = function() {
-  this.onUnsetUrlParamTempo?.();
+  this.onUnsetClientParamTempo?.();
   this.domBinding.unsetUrlTempo.hide();
   this.updateState();
-  delete this.onUnsetUrlParamTempo;
+  delete this.onUnsetClientParamTempo;
 }
 
 ABCPlayer.prototype.unsetUrlTransposition = function() {
-  this.onUnsetUrlParamTransposition?.();
+  this.onUnsetClientParamTransposition?.();
   this.domBinding.unsetUrlTransposition.hide();
   this.updateState();
-  delete this.onUnsetUrlParamTransposition;
+  delete this.onUnsetClientParamTransposition;
 }
 
 ABCPlayer.prototype.unsetUrlChanter = function() {
-  this.onUnsetUrlParamChanter?.();
+  this.onUnsetClientParamChanter?.();
   this.domBinding.unsetUrlChanter.hide();
   this.updateState();
-  delete this.onUnsetUrlParamChanter;
+  delete this.onUnsetClientParamChanter;
 }
 
 ABCPlayer.prototype.firstGroup = function() {
@@ -1124,10 +1141,10 @@ ABCPlayer.prototype.setTransposition = function(semitones, {shouldSetTune = true
           debug(`Set transposition by ${semitones} half steps.`);
           if (isNumber(semitones) && semitones === this.currentSong?.original?.transposition) {
             this.domBinding.unsetUrlTransposition.hide();
-            delete this.onUnsetUrlParamTransposition;
+            delete this.onUnsetClientParamTransposition;
           }
-          else if (!this.onUnsetUrlParamTransposition && isNumber(from) && semitones !== from) {
-            this.onUnsetUrlParamTransposition = () => {
+          else if (!this.onUnsetClientParamTransposition && isNumber(from) && semitones !== from) {
+            this.onUnsetClientParamTransposition = () => {
               this.setTransposition(from);
             }
             this.domBinding.unsetUrlTransposition.show();
@@ -1161,11 +1178,11 @@ ABCPlayer.prototype.setTempo = function(tempo, {shouldSetTune = true, from} = {}
       this.domBinding.currentTempo.innerText = tempo;
       debug(`Set tempo to ${tempo}.`);
       if (isNumber(tempo) && tempo === this.currentSong?.original?.tempo) {
-        delete this.onUnsetUrlParamTempo;
+        delete this.onUnsetClientParamTempo;
         this.domBinding.unsetUrlTempo.hide();
       }
-      else if (!this.onUnsetUrlParamTempo && isNumber(from) && tempo !== from) {
-        this.onUnsetUrlParamTempo = () => {
+      else if (!this.onUnsetClientParamTempo && isNumber(from) && tempo !== from) {
+        this.onUnsetClientParamTempo = () => {
           this.setTempo(from);
         }
         this.domBinding.unsetUrlTempo.show();
@@ -1269,7 +1286,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       //transposes a half step lower than expected if called to early
       if (isNumber(transposition) //can contain zero
           && transposition !== this.transposition //song trans. doesnt match player trans.
-          && !this.onUnsetUrlParamTransposition) {//the trans. was not set by urlparams
+          && !this.onUnsetClientParamTransposition) {//the trans. was not set by clientparams
         prepareOnSuccess(() => {
           //altough were already here well need to set the tune again...
           setTimeout(() => {
@@ -1279,7 +1296,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         });
       }
       //this will override URLPARAMS
-      if (isNumber(tuning) && !this.onUnsetUrlParamChanter) {
+      if (isNumber(tuning) && !this.onUnsetClientParamChanter) {
         prepareOnSuccess(() => {
           this._updateChanter(tuning);
         });

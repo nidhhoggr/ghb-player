@@ -1,6 +1,5 @@
 import _ from "lodash";
 import config from "config";
-import ABCSong from "./song";
 import utils from "./utils";
 const {
   debug,
@@ -42,7 +41,8 @@ abcFiles.map( file => {
   }
 });
 
-function ABCSongs() {
+function ABCSongs({ioc}) {
+  this.ABCSong = ioc.ABCSong;
   this.abcFiles = preserved;
   this.abcSongs = abcSongs;
   //will store songs loaded (abc -> ABCSong) by thier index
@@ -50,23 +50,7 @@ function ABCSongs() {
   //stores an array of songs that were added at runtime
   this.runtimeSongs = [];
   //must provide set and get methods
-  this.storage = {
-    get: () => {
-      const storage = window.localStorage.getItem("abcSongs");
-      if (storage) {
-        let parsed;
-        try {
-          parsed = JSON.parse(storage);
-        }
-        catch(err) {
-          return storage;
-        }
-        return parsed;
-      }
-    },
-    set: (key) => window.localStorage.setItem("abcSongs", JSON.stringify(key)),
-    clear: window.localStorage.clear 
-  };
+  this.storage = new ioc.Storage({namespace: "abcSongs"});
 }
   
 ABCSongs.prototype.load = function load({playerInstance, songIndex}) {
@@ -96,7 +80,7 @@ ABCSongs.prototype.loadSong = function({songIndex}) {
     song = this.loaded[songIndex];
   }
   else if (this.abcSongs[songIndex]) {
-    song = new ABCSong({
+    song = new this.ABCSong({
       abc: this.abcSongs[songIndex], 
       playerInstance: this.playerInstance
     });
