@@ -12,7 +12,7 @@ N: Spelbar på säckpipa i A
 M:2/4
 L:1/16
 Q: "BPM=100"
-K:A fgp=1 transpose=0 tuning=0
+K:A fgp=0 transpose=0 tuning=0
 EAce d2(cB) | EAce ^d2e2 | EAce d2(cB) | (EA)cA B4 :|
 L:1/8
 |: AA FG/A/ | B2 G2 | AA FG/A/ | B2 G2 | E/G/B/c/ dc/B/ | A3 z :|
