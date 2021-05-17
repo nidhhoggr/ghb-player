@@ -16,6 +16,7 @@ const serverConfiguration = {
 
 const path = require('path');
 const OptimizeCssAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const BrowserSyncPlugin = require('browser-sync-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -114,7 +115,8 @@ const config = function(env, args) {
           sourceMap: hasSourceMaps,
           terserOptions,
         }),
-        new OptimizeCssAssetsPlugin({}),
+        //new OptimizeCssAssetsPlugin({}),//stopped working
+        new CssMinimizerPlugin(),
       ],
     },
     watchOptions: {
