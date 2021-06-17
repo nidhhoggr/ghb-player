@@ -575,6 +575,8 @@ ABCPlayer.prototype.load = function() {
       const { keyCode } = evt;
       const { keyCodes } = this.playerOptions;
       if (!keyCodes) return;
+      //if the song editor is on we won't listen to shortcuts
+      if (this.ldCover.isOn()) return;
       if (keyCode === keyCodes.esc) { 
         this.reloadWindow({cti: this.currentTuneIndex});
       }
