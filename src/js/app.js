@@ -17,6 +17,8 @@ import "tippy.js/dist/tippy.css";
 import CustomSelect from "./vanilla-js-dropdown";
 import "ldcover/dist/ldcv.min.css";
 import ldCover from "ldcover/dist/ldcv.min.js";
+import "lite-youtube-embed/src/lite-yt-embed.css";
+import "lite-youtube-embed/src/lite-yt-embed.js";
 const stateMgr = new StateManagement({options: config});
 const songs = new ABCSongs({
   ioc: {

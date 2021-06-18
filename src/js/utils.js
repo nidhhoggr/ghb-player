@@ -167,6 +167,11 @@ export default function({from} = {}) {
       html = html.trim(); // Never return a text node of whitespace as the result
       template.innerHTML = html;
       return template.content.firstChild;
+    },
+    parseYTVideoId: function parseYTVideoId(url) {
+      var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+      var match = url.match(regExp);
+      return (match&&match[7].length==11)? match[7] : false;
     }
   }
 }

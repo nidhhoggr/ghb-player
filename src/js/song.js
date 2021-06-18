@@ -57,7 +57,8 @@ function getInfoFieldMapping({key} = {}) {
     "G": "Group",
     "H": "History",
     "K": "Key",
-    "R": "Rhythm"
+    "R": "Rhythm",
+    "F": "Media",
   };
   if (key) {
     return mapping[key];
@@ -97,6 +98,9 @@ ABCSong.prototype.load = function() {
     const infoFieldKey = line.isInfoField();
     let matched = false, lineWasModified = false;
     switch (infoFieldKey) {
+      case "Media": 
+        this.media ??= line.substring(2);
+        break;
       case "Tune Title":
         this.name ??= line.substring(2);
         break;

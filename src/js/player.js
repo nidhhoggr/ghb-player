@@ -18,6 +18,7 @@ const {
   dQ,
   dQAll,
   timeoutElOp,
+  parseYTVideoId
 } = utils({from: "player"});
 
 function ABCPlayer({
@@ -114,6 +115,7 @@ function ABCPlayer({
     "audio",
     "noteDiagram",
     "scrollingNotesWrapper",
+    "YtLiteLoader"
   ]
 
   this.clientParamNames = [
@@ -368,6 +370,13 @@ ABCPlayer.prototype.onChangeSong = function() {
     this.disableScrolling();
     this.domBinding.scrollingNotesWrapper.show("inline-block");
   }
+  if (this.currentSong.media) {
+    const videoId = parseYTVideoId(this.currentSong.media);
+    this.domBinding.YtLiteLoader.innerHTML = `<lite-youtube videoid="${videoId}" playlabel="${this.currentSong.name}"></lite-youtube>`;
+  }
+  else {
+    this.domBinding.YtLiteLoader.innerHTML = ``; 
+  }
   window.scrollTo({
     top: 0,
     left: 0,
@@ -390,10 +399,12 @@ ABCPlayer.prototype.reloadSongSelector = function({playerInstance: player}) {
         onOpen: () => {
           player.enableScrolling();
           player.domBinding.scrollingNotesWrapper.hide();
+          player.domBinding.YtLiteLoader.hide();
         },
         onClose: ({instance}) => {
           debug("Closed called");
           player.onChangeSong();
+          player.domBinding.YtLiteLoader.show("block");
         },
         onFinish: (selector) => {
           debug("CustomSelect", selector);
