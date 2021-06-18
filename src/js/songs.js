@@ -13,6 +13,19 @@ export const tuning = 0;
 
 let abcFiles = require.context("./../abc/", true, /\.abc$/);
 abcFiles = _.clone(abcFiles?.keys().filter(filename => !filename.includes("disabled")));
+const lowerCased = {};
+abcFiles?.forEach((val, key) => {
+  const filename = val.substring(2);
+  debug(filename);
+  if (!_.isNumber(filename[0])) {
+    const lk = "./" + _.lowerFirst(filename);
+    debug(lk);
+    abcFiles[key] = lk;
+    lowerCased[lk] = val;
+  }
+}); 
+
+debug(abcFiles);
 
 const preserved = [];
 
@@ -20,6 +33,7 @@ const isDMCACompliant = (filename) => !(config.environment === "prod" && filenam
 
 export function getAbc(file) {
   if (!abcFiles.includes(file)) return;
+  if (lowerCased[file]) file = lowerCased[file];
   const _file = file.replace("./","");
   debug(`requiring ${_file}`);
   if (!isDMCACompliant(_file)) {
@@ -33,7 +47,7 @@ export function getAbc(file) {
 }
 
 const abcSongs = [];
-abcFiles.map( file => {
+abcFiles.sort((a,b) => a.localeCompare(b)).map( file => {
   let abc = getAbc(file);
   if (abc) {
     debug(`loading file ${file}`);
