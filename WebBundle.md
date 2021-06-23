@@ -16,16 +16,14 @@ A Web Bundle is a file format for encapsulating one or more HTTP resources in a 
 Web packages, more formally known as [HTTP exchanges included](https://wicg.github.io/webpackage/draft-yasskin-wpack-bundled-exchanges.html), are part of the [Web Packaging](https://github.com/WICG/webpackage)  
 proposal.
 
-Playing with Web Bundles
+How To Install:
 ------------------------
 
-How To Install:
-
-1.  Visit [chrome://version](chrome://version) to see what version of Chrome you are running. If you are running version 80 or later, skip the next step.
+1.  Visit `chrome://version` to see what version of Chrome you are running. If you are running version 80 or later, skip the next step.
     
 2.  to download [Chrome Canary](https://www.google.com/chrome/canary/) if you are not running Chrome 80 or later.
     
-3.  Open [chrome://flags/#web-bundles](chrome://flags/#web-bundles).
+3.  Open `chrome://flags/#web-bundles`.
     
 4.  Select the **Web packages** flag as **Enabled**.
     
