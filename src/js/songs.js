@@ -138,9 +138,12 @@ ABCSongs.prototype.addSong = function({song, changeSong}) {
 
 ABCSongs.prototype.editSong = function({songIndex, song, changeSong}) {
   const loaded = this.getFromRuntime({songIndex});
-  const runtimeIndex = _.findKey(this.runtimeSongs, (s) => s.filename === loaded.filename);
+  let runtimeIndex;
+  if (loaded) runtimeIndex = _.findKey(this.runtimeSongs, (s) => s.filename === loaded.filename);
   debug(loaded, songIndex, runtimeIndex);
-  if (!runtimeIndex) return;
+  if (!runtimeIndex) {
+    return this.addSong({song, changeSong});
+  }
   const title = getInfoField(song, "T");
   const filename = `${_.snakeCase(title)}-${songIndex}`;
   this.runtimeSongs[runtimeIndex] = {

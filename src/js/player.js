@@ -293,10 +293,18 @@ ABCPlayer.prototype.createSong = function createSong() {
 }
 
 ABCPlayer.prototype.editSong = function editSong() {
+  let _song;
   const songIndex = this.currentTuneIndex;
-  const {filename, song} = this.songs.getFromRuntime({songIndex});
-  if (!filename) return;
-  dQ("textarea.createSongTextarea").value = song; 
+  if (this.songs.isRuntimeSong({songIndex: this.currentTuneIndex})) {
+    const {filename, song} = this.songs.getFromRuntime({songIndex});
+    _song = song;
+    if (!filename) return;
+  }
+  else {
+    _song = this.currentSong.abc;
+  }
+
+  dQ("textarea.createSongTextarea").value = _song; 
   this.ldCover.get().then((res) => {
     if (res === "add") {
       const editedSong = dQ("textarea.createSongTextarea").value;
@@ -955,12 +963,6 @@ ABCPlayer.prototype.changeSong = function(args) {
   this.stop({changeSong: true, ...args});
   this.songSelector.selectByIndex(this.currentTuneIndex);
   this.onChangeSong();
-  if (this.songs.isRuntimeSong({songIndex: args.currentTuneIndex || this.currentTuneIndex})) {
-    this.domBinding.editSong.show("inline-block");
-  }
-  else {
-    this.domBinding.editSong.hide();
-  }
   //in case we do no refresh, unset these functions set by clientparam eveluation
 }
 

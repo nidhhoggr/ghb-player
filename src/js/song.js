@@ -189,6 +189,10 @@ ABCSong.prototype.load = function() {
   });
 }
 
+String.prototype.isCharsetHeader = function() {
+  return this.toString().includes("abc-charset");
+}
+
 String.prototype.isInfoField = function() {
   const infoFieldPrefix = this.toString().substr(0, 2);
   const fieldMapping = getInfoFieldMapping();
@@ -217,9 +221,16 @@ ABCSong.prototype.insertInformationField = function({line}) {
   }
   const newLineDelimited = this.abc.toString().split("\n");
   const newLineDelimitedLength = newLineDelimited.length; 
-  const infoFields = _.dropRightWhile(newLineDelimited, (o) => !o.isInfoField());
+  let i, _line, infoFields, songLines;
+  for (i in newLineDelimited) {
+    _line = newLineDelimited[i];
+    if (!_line.isInfoField() && !_line.isCharsetHeader()) {
+      infoFields = newLineDelimited.slice(0, i);
+      songLines = newLineDelimited.slice(i);
+      break;
+    }
+  }
   infoFields.push(line);
-  const songLines = _.takeRight(newLineDelimited, newLineDelimitedLength - (infoFields.length - 1));
   debug({infoFields, songLines});
   this.abc = [
     ...infoFields,
@@ -276,12 +287,14 @@ ABCSong.prototype.getInformationByFieldName = function({fieldName, flatten = tru
 ABCSong.prototype.setTempo = function(tempo) {
   this.tempo = tempo;
   const fieldKey = this.options.infoFieldKeyMapping["tempo"];
+  let tempoFound = false;
   this.lineIterator((line, {isLastLine}) => {
     if (line.containsPrefix(fieldKey)){
       debug(`Replacing existing tempo ${line}`);
       this.abc = this.abc.replace(line, `${fieldKey}: ${tempo}`);
+      tempoFound = true;
     }
-    else if (isLastLine) {
+    else if (isLastLine && !tempoFound) {
       debug(`Inserting info field for tempo: ${tempo}`);
       const inserted = this.insertInformationField({line: `${fieldKey}: ${tempo}`});
       debug({inserted});
@@ -302,12 +315,13 @@ ABCSong.prototype.setTransposition = function(semitones, cb) {
         isSet = true;
       }
       else {//transpoisition doesnt exist so we simply add it
-        debug(`Transposition does exist so well add it to ${line}`);
+        debug(`Transposition doesnt exist so well add it to ${line}`);
         this.abc = this.abc.replace(line, `${line} ${stringReplacement}`);
         isSet = true;
       }
     }
-    else if (isLastLine) {//last line and doesnt contain prefix
+    else if (isLastLine && !isSet) {//last line and doesnt contain prefix
+      debug(`Transposition nor Key exists so well insert a line`);
       this.insertInformationField({line: `${fieldKey}: ${stringReplacement}`});
     }
 
