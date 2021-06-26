@@ -207,6 +207,10 @@ String.prototype.withoutPrefix = function(prefix) {
   return this.toString().replace(`${prefix}:`, "");
 }
 
+String.prototype.isEmpty = function() {
+  return _.isEmpty(_.trim(this.toString()));
+}
+
 ABCSong.prototype.insertInformationField = function({line}) {
   if (!line.isInfoField()) {
     return false;
@@ -224,7 +228,7 @@ ABCSong.prototype.insertInformationField = function({line}) {
   let i, _line, infoFields, songLines;
   for (i in newLineDelimited) {
     _line = newLineDelimited[i];
-    if (!_line.isInfoField() && !_line.isCharsetHeader()) {
+    if (!_line.isInfoField() && !_line.isCharsetHeader() && !_line.isEmpty()) {
       infoFields = newLineDelimited.slice(0, i);
       songLines = newLineDelimited.slice(i);
       break;
