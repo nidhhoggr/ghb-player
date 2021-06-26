@@ -24,7 +24,6 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ImageMinPlugin = require('imagemin-webpack-plugin').default;
-const WebBundlePlugin = require('webbundle-webpack-plugin');
 
 let targetServerConfiguration = serverConfiguration.internal;
 
@@ -173,11 +172,6 @@ const config = function(env, args) {
           },
         ],
       }),
-      new WebBundlePlugin({
-        baseURL: 'https://www.folktabs.com/',
-        static: { dir: path.resolve(__dirname, 'dist') },
-        output: 'folktabs.wbn'
-      })
     ],
     devtool: hasSourceMaps && "inline-source-map"
   };
