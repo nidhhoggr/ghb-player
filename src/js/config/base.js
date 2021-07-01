@@ -57,14 +57,14 @@ K:Am fgp=1 transpose=0 tuning=0
 | A, D ^D E F ^F G ^G A ^A B C' ^C' D' ^D' E' |`
 };
 
-export const sackpipa = {
-  chanterKey: "E/A",
+export const instrument = {
+  tuningKey: "E/A",
   dronesEnabled: ["E4","A3"],
-  isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A chanter
-  isSecondGroupPlugged: false,//only on D/G and C/F chanters
-  dronesSynth: null,//should be an instance of the sackpipaDroneSynth above,
+  isFirstGroupPlugged: true,//on all chnaters the high d note on the E/A tuning
+  isSecondGroupPlugged: false,//only on D/G and C/F tunings
+  dronesSynth: null,//should be an instance of the instrumentDroneSynth above,
   playableExtraNotes: {
-    0: {//for the E/A chanter
+    0: {//for the E/A tuning
       "Db": [63, 75],
       "F": 65,
       "Bb": [70]

@@ -1,4 +1,4 @@
-import { player as _player, sackpipa, hps, _base } from './base';
+import { player as _player, instrument, hps, _base } from './base';
 
 const config = {
   ..._base,
@@ -16,6 +16,6 @@ const player = {
 export default {
   ...config,
   player,
-  sackpipa,
+  instrument,
   hps,
 };

@@ -7,7 +7,7 @@ import "../scss/vanilla-js-dropdown.css";
 import ABCSongs from "./songs";
 import ABCSong from "./song";
 import ABCPlayer from "./player";
-import Sackpipa from "./sackpipa";
+import Instrument from "./instrument";
 import Storage from "./storage";
 import config from "config";
 import HPS from "./hps";
@@ -30,7 +30,7 @@ const abcPlayer = new ABCPlayer({
   abcjs, 
   songs,
   ioc: {//classes that need instantation (inversion of control)
-    Sackpipa, 
+    Instrument, 
     HPS, 
     CustomSelect,
     ldCover,

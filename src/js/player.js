@@ -47,8 +47,8 @@ function ABCPlayer({
 
   this.options = options;
   this.playerOptions = options.player;
-  this.sackpipaOptions = options.sackpipa;
-  this.sackpipaOptions.pitchToNoteName = abcjs.synth.pitchToNoteName;
+  this.instrumentOptions = options.instrument;
+  this.instrumentOptions.pitchToNoteName = abcjs.synth.pitchToNoteName;
   this.hpsOptions = options.hps;
   this.hpsOptions.disableScrolling = this.disableScrolling.bind(this);
 
@@ -81,11 +81,11 @@ function ABCPlayer({
     "transposeDown",
     "tempoUp",
     "tempoDown",
-    "chanterUp",
-    "chanterDown",
+    "tuningUp",
+    "tuningDown",
     "unsetUrlTempo",
     "unsetUrlTransposition",
-    "unsetUrlChanter",
+    "unsetUrlTuning",
     "firstGroup",
     "secondGroup",
     //playercontrols,
@@ -108,7 +108,7 @@ function ABCPlayer({
     "currentTempo",
     "currentSong",
     "currentBeat",
-    "currentChanter",
+    "currentTuning",
     "currentKeySig",
     "playernotes",
     "playercontrols",
@@ -119,7 +119,7 @@ function ABCPlayer({
   ]
 
   this.clientParamNames = [
-    "cci",//currentChanterIndex
+    "cci",//currentTuningIndex
     "cti",//currentTuneIndex
     "ctp",//currentTransposition
     "ct",//currentTempo
@@ -480,7 +480,7 @@ ABCPlayer.prototype.load = function() {
       this.domBinding.audio.innerHTML = "<div class='audio-error'>Audio is not supported in this browser.</div>";
     }
     
-    this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
+    this.instrument = new this.ioc.Instrument(this.instrumentOptions);
     this.noteScroller = new this.ioc.HPS(this.hpsOptions.wrapperName, this.hpsOptions);
     this.songs.setPlayerInstance(this);
     //@TODO ensure this is not needed here
@@ -642,24 +642,24 @@ ABCPlayer.prototype.reloadWindow = function(appendingObject) {
   }
 }
 
-ABCPlayer.prototype.sackpipaReload = function(options = {}) {
-  this.sackpipaOptions = _.merge(this.sackpipaOptions,options);
-  const { isFirstGroupPlugged, isSecondGroupPlugged } = this.sackpipaOptions;
-  this.sackpipa = new this.ioc.Sackpipa(this.sackpipaOptions);
-  if (!this.sackpipa.isFirstGroupPlugged) {
+ABCPlayer.prototype.instrumentReload = function(options = {}) {
+  this.instrumentOptions = _.merge(this.instrumentOptions,options);
+  const { isFirstGroupPlugged, isSecondGroupPlugged } = this.instrumentOptions;
+  this.instrument = new this.ioc.Instrument(this.instrumentOptions);
+  if (!this.instrument.isFirstGroupPlugged) {
     this.domBinding.firstGroup.classList.remove("plugged");
   } 
   else {
     updateClasses(this.domBinding, "firstGroup", ["plugged"]);
   }
-  if (!this.sackpipa.isSecondGroupPlugged) {
+  if (!this.instrument.isSecondGroupPlugged) {
     this.domBinding.secondGroup.classList.remove("plugged");
   }
   else {
     updateClasses(this.domBinding, "secondGroup", ["plugged"]);
   }
   if (options.skipUpdate) return;
-  this._updateChanter();
+  this._updateTuning();
   this.updateState();
 }
 
@@ -714,12 +714,12 @@ ABCPlayer.prototype.evaluateClientParams = function() {
 
   clientParam = parseInt(this.clientParams["fgp"]);
   if (isNumber(clientParam)) {
-    toSet["sackpipaOptions.isFirstGroupPlugged"] = !(clientParam === 0);
+    toSet["instrumentOptions.isFirstGroupPlugged"] = !(clientParam === 0);
   }
 
   clientParam = parseInt(this.clientParams["sgp"]);
   if (clientParam === 1) {
-    toSet["sackpipaOptions.isSecondGroupPlugged"] = !(clientParam === 0);
+    toSet["instrumentOptions.isSecondGroupPlugged"] = !(clientParam === 0);
   }
 
   clientParam = parseInt(this.clientParams["erc"]);
@@ -734,14 +734,14 @@ ABCPlayer.prototype.evaluateClientParams = function() {
 
   clientParam = parseInt(this.clientParams["cci"]);
   if (isNumber(clientParam)) {
-    const currentChanterIndex = this.getCurrentChanterIndex();
-    const urlChanterIndex = clientParam;
-    debug("URL CHANTER", currentChanterIndex, urlChanterIndex);
-    if (currentChanterIndex !== urlChanterIndex && urlChanterIndex !== 0) {
-      toSet.chanterIndex = urlChanterIndex;
-      toSet.from_chanterIndex = currentChanterIndex;
-      const tuning = this.sackpipa.getChanterKeyByIndex(urlChanterIndex);
-      toSet["sackpipa.tuning"] = tuning;
+    const currentTuningIndex = this.getCurrentTuningIndex();
+    const urlTuningIndex = clientParam;
+    debug("URL CHANTER", currentTuningIndex, urlTuningIndex);
+    if (currentTuningIndex !== urlTuningIndex && urlTuningIndex !== 0) {
+      toSet.tuningIndex = urlTuningIndex;
+      toSet.from_tuningIndex = currentTuningIndex;
+      const tuning = this.instrument.getTuningKeyByIndex(urlTuningIndex);
+      toSet["instrument.tuning"] = tuning;
     }
   }
 
@@ -780,31 +780,31 @@ ABCPlayer.prototype.evaluateClientParams = function() {
 
 ABCPlayer.prototype.processClientParams = function(toSet) {
   
-  if(toSet["sackpipaOptions.isFirstGroupPlugged"]) {
-    this.sackpipaOptions.isFirstGroupPlugged = toSet["sackpipaOptions.isFirstGroupPlugged"];
+  if(toSet["instrumentOptions.isFirstGroupPlugged"]) {
+    this.instrumentOptions.isFirstGroupPlugged = toSet["instrumentOptions.isFirstGroupPlugged"];
   }
-  if (toSet["sackpipaOptions.isSecondGroupPlugged"]) {
-    this.sackpipaOptions.isSecondGroupPlugged = toSet["sackpipaOptions.isSecondGroupPlugged"];
+  if (toSet["instrumentOptions.isSecondGroupPlugged"]) {
+    this.instrumentOptions.isSecondGroupPlugged = toSet["instrumentOptions.isSecondGroupPlugged"];
   }
   if (toSet["errorReloadCount"]) {
     this.errorReloadCount = toSet["errorReloadCount"];
   }
 
-  if (toSet["sackpipa.tuning"]) {
-    this.sackpipaReload({tuning: toSet["sackpipa.tuning"]});
+  if (toSet["instrument.tuning"]) {
+    this.instrumentReload({tuning: toSet["instrument.tuning"]});
   }
   else {
-    this.sackpipaReload();
+    this.instrumentReload();
   }
  
   this.setCurrentSongFromClientParam();
 
   const queueCallbacks = [];
   queueCallbacks.push(() => {
-    if (isNumber(toSet.chanterIndex)) {
+    if (isNumber(toSet.tuningIndex)) {
       //this needs to execute later in the stack due to some race condition
       setTimeout(() => {
-        this._updateChanter(toSet.chanterIndex, {from: toSet.from_chanterIndex});
+        this._updateTuning(toSet.tuningIndex, {from: toSet.from_tuningIndex});
       });
     }
     if (isNumber(toSet.tempo)) {
@@ -843,13 +843,13 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   if (!currentNote) {
     currentNote = this.abcjs.synth.pitchToNoteName[pitchIndex];
   }
-  const chanterKey = this.sackpipa.getChanterKeyAbbr();
+  const tuningKey = this.instrument.getTuningKeyAbbr();
   if ((pitchIndex < this.currentSong?.compatibility?.pitchReached.min ||
     (pitchIndex > this.currentSong?.compatibility?.pitchReached.max))) {
-    this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} unplayable-note"><h1>${currentNote}</h1></div>`;
+    this.domBinding.noteDiagram.innerHTML = `<div class="playable_tuning-${tuningKey} unplayable-note"><h1>${currentNote}</h1></div>`;
   }
   else {
-    this.domBinding.noteDiagram.innerHTML = `<div class="playable_chanter-${chanterKey} playable_pitch-${pitchIndex}"><h1>${currentNote}</h1></div>`;
+    this.domBinding.noteDiagram.innerHTML = `<div class="playable_tuning-${tuningKey} playable_pitch-${pitchIndex}"><h1>${currentNote}</h1></div>`;
   }
 }
 
@@ -921,7 +921,7 @@ ABCPlayer.prototype.stop = function(args = {}) {
   this.synthControl?.destroy?.();
   this.synthControl?.stop?.();
   if (args.changeSong) {
-    this.sackpipaReload({
+    this.instrumentReload({
       isFirstGroupPlugged: false,
       isSecondGroupPlugged: false,
       skipUpdate: true,
@@ -959,7 +959,7 @@ ABCPlayer.prototype.changeSong = function(args) {
   this.synthControl?.stop?.();
   this.unsetUrlTransposition();
   this.unsetUrlTempo();
-  this.unsetUrlChanter();
+  this.unsetUrlTuning();
   this.stop({changeSong: true, ...args});
   this.songSelector.selectByIndex(this.currentTuneIndex);
   this.onChangeSong();
@@ -1016,44 +1016,44 @@ ABCPlayer.prototype.tempoDown = function(by = 1) {
   }
 }
 
-ABCPlayer.prototype.chanterDown = function() {
+ABCPlayer.prototype.tuningDown = function() {
   if (this.isSettingTune()) return;
-  const { chanterKey, possibleChanters } = this.sackpipa;
-  const currentIndex = this.getCurrentChanterIndex();
+  const { tuningKey, possibleTunings } = this.instrument;
+  const currentIndex = this.getCurrentTuningIndex();
   let nextIndex;
-  if (currentIndex >= possibleChanters.length) {
+  if (currentIndex >= possibleTunings.length) {
     nextIndex = 0;
   }
   else if (currentIndex === 0 || currentIndex) {
     nextIndex = currentIndex + 1;
   }
-  this._updateChanter(nextIndex, {from: currentIndex});
+  this._updateTuning(nextIndex, {from: currentIndex});
 }
 
-ABCPlayer.prototype.chanterUp = function() {
+ABCPlayer.prototype.tuningUp = function() {
   if (this.isSettingTune()) return;
-  const { chanterKey, possibleChanters } = this.sackpipa;
-  const currentIndex = this.getCurrentChanterIndex();
+  const { tuningKey, possibleTunings } = this.instrument;
+  const currentIndex = this.getCurrentTuningIndex();
   let nextIndex;
   if (currentIndex <= 0) {
-    nextIndex = possibleChanters.length - 1;
+    nextIndex = possibleTunings.length - 1;
   }
   else if (currentIndex)  {
     nextIndex = currentIndex - 1;
   }
-  this._updateChanter(nextIndex, {from: currentIndex});
+  this._updateTuning(nextIndex, {from: currentIndex});
 }
 
-ABCPlayer.prototype.getCurrentChanterIndex = function() {
-  if (!this.sackpipa) return 0;
-  const { chanterKey, possibleChanters } = this.sackpipa;
-  return _.indexOf(possibleChanters, chanterKey);
+ABCPlayer.prototype.getCurrentTuningIndex = function() {
+  if (!this.instrument) return 0;
+  const { tuningKey, possibleTunings } = this.instrument;
+  return _.indexOf(possibleTunings, tuningKey);
 }
 
-ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0, {from} = {}) {
-  const { possibleChanters } = this.sackpipa;
-  if (chanterKeyIndex < 0 || !isNumber(chanterKeyIndex)) chanterKeyIndex = 0;
-  this.sackpipa.setChanterKey(possibleChanters[chanterKeyIndex]);
+ABCPlayer.prototype._updateTuning = function updateTuning(tuningKeyIndex = 0, {from} = {}) {
+  const { possibleTunings } = this.instrument;
+  if (tuningKeyIndex < 0 || !isNumber(tuningKeyIndex)) tuningKeyIndex = 0;
+  this.instrument.setTuningKey(possibleTunings[tuningKeyIndex]);
   this.setTune({
     userAction: true,
     isSameSong: true,
@@ -1062,8 +1062,8 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
       visualTranspose: this.transposition
     },
     onSuccess: () => {
-      debug(`Updated the chanter to ${chanterKeyIndex}`);
-      if ((chanterKeyIndex % possibleChanters.length) === 0) {
+      debug(`Updated the tuning to ${tuningKeyIndex}`);
+      if ((tuningKeyIndex % possibleTunings.length) === 0) {
         this.domBinding.secondGroup.hide();
 
         //@TODO get plugged holes working
@@ -1074,18 +1074,18 @@ ABCPlayer.prototype._updateChanter = function updateChanter(chanterKeyIndex = 0,
         this.domBinding.firstGroup.hide();
         this.domBinding.secondGroup.hide();
       }
-      if (isNumber(chanterKeyIndex) && chanterKeyIndex === this.currentSong?.original?.tuning) {
-        delete this.onUnsetClientParamChanter;
-        this.domBinding.unsetUrlChanter.hide();
+      if (isNumber(tuningKeyIndex) && tuningKeyIndex === this.currentSong?.original?.tuning) {
+        delete this.onUnsetClientParamTuning;
+        this.domBinding.unsetUrlTuning.hide();
       }
-      else if (!this.onUnsetClientParamChanter && isNumber(from) && chanterKeyIndex !== from) {
-        this.onUnsetClientParamChanter = () => {
-          this._updateChanter(from);
+      else if (!this.onUnsetClientParamTuning && isNumber(from) && tuningKeyIndex !== from) {
+        this.onUnsetClientParamTuning = () => {
+          this._updateTuning(from);
         }
-        this.domBinding.unsetUrlChanter.show();
+        this.domBinding.unsetUrlTuning.show();
       }
     },
-    calledFrom: "chanter",
+    calledFrom: "tuning",
   });
 }
 
@@ -1103,22 +1103,22 @@ ABCPlayer.prototype.unsetUrlTransposition = function() {
   delete this.onUnsetClientParamTransposition;
 }
 
-ABCPlayer.prototype.unsetUrlChanter = function() {
-  this.onUnsetClientParamChanter?.();
-  this.domBinding.unsetUrlChanter.hide();
+ABCPlayer.prototype.unsetUrlTuning = function() {
+  this.onUnsetClientParamTuning?.();
+  this.domBinding.unsetUrlTuning.hide();
   this.updateState();
-  delete this.onUnsetClientParamChanter;
+  delete this.onUnsetClientParamTuning;
 }
 
 ABCPlayer.prototype.firstGroup = function() {
-  this.sackpipaReload({
-    isFirstGroupPlugged: !this.sackpipa.isFirstGroupPlugged
+  this.instrumentReload({
+    isFirstGroupPlugged: !this.instrument.isFirstGroupPlugged
   });
 }
 
 ABCPlayer.prototype.secondGroup = function() {
-  this.sackpipaReload({
-    isSecondGroupPlugged: !this.sackpipa.isSecondGroupPlugged
+  this.instrumentReload({
+    isSecondGroupPlugged: !this.instrument.isSecondGroupPlugged
   });
 }
 
@@ -1126,7 +1126,7 @@ ABCPlayer.prototype.updateControlStats = function updateControlStats() {
   this.domBinding.currentTransposition.innerText = this.transposition;
   this.domBinding.currentTempo.innerText = this.tempo;
   //this.domBinding.currentSong.innerText = this.currentSong.name;
-  this.domBinding.currentChanter.innerText = _.get(this.sackpipa, "chanterKey", "");
+  this.domBinding.currentTuning.innerText = _.get(this.instrument, "tuningKey", "");
   if (this.audioParams.visualObj) {
     const keySig = this.audioParams.visualObj.getKeySignature();
     if (keySig) {
@@ -1287,10 +1287,10 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
       this.noteScroller?.setScrollerXPos({xpos: 0});
       const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
       //the shouldSetTune flag ensures that it will not call setTune, were already here!
-      if (isNumber(fgp) && !!fgp !== this.sackpipaOptions.isFirstGroupPlugged) {
+      if (isNumber(fgp) && !!fgp !== this.instrumentOptions.isFirstGroupPlugged) {
         this.firstGroup();
       }
-      if (isNumber(sgp) && !!sgp !== this.sackpipaOptions.isSecondGroupPlugged) {
+      if (isNumber(sgp) && !!sgp !== this.instrumentOptions.isSecondGroupPlugged) {
         this.secondGroup();
       }
       if (tempo) {
@@ -1311,9 +1311,9 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         });
       }
       //this will override URLPARAMS
-      if (isNumber(tuning) && !this.onUnsetClientParamChanter) {
+      if (isNumber(tuning) && !this.onUnsetClientParamTuning) {
         prepareOnSuccess(() => {
-          this._updateChanter(tuning);
+          this._updateTuning(tuning);
         });
       }
       //_.set(this.domBinding, "currentSong.innerText", this.currentSong.name);
@@ -1354,7 +1354,7 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
         callEvery(onSuccess, {callbackArgs: this});
       });
     }
-    //only reuse if the chanter chnaged
+    //only reuse if the tuning chnaged
     if (shouldReuseInstances(calledFrom) && this.midiBuffer) { 
       debug(`resuing midiBuffer instance`);
       this._setTune({...tuneArgs, resolve, reject}); 
@@ -1375,12 +1375,12 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
     //if its called by anything other than  tempo
     this.setCurrentSongNoteSequence({visualObj: this.audioParams.visualObj, onFinish: (result) => {
       debug(`Set current note sequence ${result}`);
-      const compatiblePitches = this.sackpipa?.getCompatiblePitches({abcSong: this.currentSong});
+      const compatiblePitches = this.instrument?.getCompatiblePitches({abcSong: this.currentSong});
       const pitches = this.currentSong.getDistinctPitches();
       this.currentSong.compatibility = {
         playableNotes: this.currentSong.getDistinctNotes(),
         playablePitches: this.currentSong.getDistinctPitches(),
-        compatibleNotes: this.sackpipa?.getCompatibleNotes({abcSong: this.currentSong}),
+        compatibleNotes: this.instrument?.getCompatibleNotes({abcSong: this.currentSong}),
         compatiblePitches,
         pitchReached: {
           min: _.min(compatiblePitches.compatible),
@@ -1405,10 +1405,10 @@ ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSucc
 ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
   return new Promise((resolve, reject) => {
     if (!["tempo"].includes(calledFrom)) {
-      //set the current scrolling chanter css and html element if eniteNoteSequence 
+      //set the current scrolling tuning css and html element if eniteNoteSequence 
       if (_.get(this.domBinding, "scrollingNotesWrapper") && _.get(this.currentSong, "entireNoteSequence")) {
-        const cK = this.sackpipa.getChanterKeyAbbr();
-        updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_chanter-${cK}`]);
+        const cK = this.instrument.getTuningKeyAbbr();
+        updateClasses(this.domBinding, "scrollingNotesWrapper", [`scrolling_notes-playable_tuning-${cK}`]);
         this.noteScrollerClear({
           onFinish: () => {
             debug("clear onFinish");
@@ -1432,7 +1432,7 @@ ABCPlayer.prototype.setNoteScroller = function setNoteScoller({calledFrom}) {
   });
 }
 
-function shouldReuseInstances(calledFrom, from = ["chanter"]) {
+function shouldReuseInstances(calledFrom, from = ["tuning"]) {
   return from.includes(calledFrom);
 }
 
@@ -1455,8 +1455,8 @@ function scrollingNoteItemIterator({section, item}) {
   } = item;
   const dur = _.ceil(duration * 100);
   const durr = _.ceil(duration, 4);
-  if (((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") && pitchIndex < this.sackpipa.getLowestPlayablePitch()) || 
-  (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max") && pitchIndex > this.sackpipa.getHighestPlayablePitch()))) {
+  if (((pitchIndex < _.get(this.currentSong, "compatibility.pitchReached.min") && pitchIndex < this.instrument.getLowestPlayablePitch()) || 
+  (pitchIndex > _.get(this.currentSong, "compatibility.pitchReached.max") && pitchIndex > this.instrument.getHighestPlayablePitch()))) {
     section.classList.add(`unplayable_note`);
     section.classList.add(`exceeds_pitch_range`);
     section.classList.add(`exceeded-pitch-${pitchIndex}`);

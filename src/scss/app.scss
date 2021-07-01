@@ -354,8 +354,8 @@ select {
     }
   }
 
-  .chanterControls {
-    span.currentChanter {
+  .tuningControls {
+    span.currentTuning {
       font-size: 64px;
       text-align: right;
     }
@@ -434,11 +434,11 @@ select {
 
 span.transposeDown,
 span.tempoDown,
-span.chanterDown,
+span.tuningDown,
 span.keySigDown,
 span.transposeUp,
 span.tempoUp,
-span.chanterUp,
+span.tuningUp,
 span.keySigUp {
   width: 32px;
   height: 38px;
@@ -447,7 +447,7 @@ span.keySigUp {
 
 span.transposeDown,
 span.tempoDown,
-span.chanterDown,
+span.tuningDown,
 span.keySigDown {
   background: url("../images/content/up-arrow.svg") no-repeat;
   &:hover {
@@ -458,7 +458,7 @@ span.keySigDown {
 
 span.transposeUp,
 span.tempoUp,
-span.chanterUp,
+span.tuningUp,
 span.keySigUp {
   background: url("../images/content/up-arrow.svg") no-repeat;
   &:hover {
@@ -466,7 +466,7 @@ span.keySigUp {
   }
 }
 
-.playable_chanter-ea {
+.playable_tuning-ea {
   @mixin playable-note {
     background-image: url("../images/content/onescalloped.png");
     color: #000;
@@ -557,7 +557,7 @@ span.keySigUp {
 }
 
 
-.playable_chanter-dg {
+.playable_tuning-dg {
   @mixin playable-note {
     background-image: url("../images/content/twoscalloped.png");
     color: #000;
@@ -627,7 +627,7 @@ span.keySigUp {
   }
 }
 
-.playable_chanter-cf {
+.playable_tuning-cf {
   @mixin playable-note {
     background-image: url("../images/content/twoscalloped.png");
     color: #000;

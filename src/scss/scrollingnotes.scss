@@ -164,7 +164,7 @@ main.mobile {
   }
 }
 
-.scrolling_notes-playable_chanter-ea {
+.scrolling_notes-playable_tuning-ea {
   @mixin playable-note {
     background-image: url("../images/content/onescalloped.png");
     @include pn;
@@ -276,7 +276,7 @@ main.mobile {
 }
 
 
-.scrolling_notes-playable_chanter-dg {
+.scrolling_notes-playable_tuning-dg {
 
   @mixin playable-note {
     background-image: url("../images/content/twoscalloped.png");
@@ -358,7 +358,7 @@ main.mobile {
   }
 }
 
-.scrolling_notes-playable_chanter-cf {
+.scrolling_notes-playable_tuning-cf {
   @mixin playable-note {
     background-image: url("../images/content/twoscalloped.png");
     @include pn;

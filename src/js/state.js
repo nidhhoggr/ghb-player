@@ -29,10 +29,10 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     transposition, 
     currentTuneIndex, 
     currentNoteIndex,
-    getCurrentChanterIndex,
+    getCurrentTuningIndex,
     enableScrolling,
     isScrollingEnabled,
-    sackpipaOptions,
+    instrumentOptions,
     errorReloadCount,
     isSettingTune,
     isEnabled,
@@ -63,12 +63,12 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
   }
   else {
     const stateArray = [];
-    const currentChanterIndex = getCurrentChanterIndex?.call(playerInstance, undefined);
+    const currentTuningIndex = getCurrentTuningIndex?.call(playerInstance, undefined);
     isNumber(tempo) && stateArray.push(["ct", tempo]);//contains zero to reset for next initialization
     isNumber(transposition) && stateArray.push(["ctp", transposition]);//contains zero
     isNumber(currentTuneIndex) && stateArray.push(["cti", currentTuneIndex]);//contain zero
     isNumber(currentNoteIndex) && stateArray.push(["cni", currentNoteIndex]);
-    isNumber(currentChanterIndex) && stateArray.push(["cci", currentChanterIndex]);//contains zero
+    isNumber(currentTuningIndex) && stateArray.push(["cci", currentTuningIndex]);//contains zero
     stateArray.push(["pve", isEnabled?.pageView  ? 1 : 0]);
 
     //sometimes the scroller is disabled when it shouldn't be
@@ -77,8 +77,8 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     }
 
     stateArray.push(["drs", isEnabled?.disableRepeatingSegments ? 1 : 0]);
-    stateArray.push(["fgp",sackpipaOptions?.isFirstGroupPlugged ? 1 : 0]);
-    stateArray.push(["sgp",sackpipaOptions?.isSecondGroupPlugged ? 1 : 0]);
+    stateArray.push(["fgp",instrumentOptions?.isFirstGroupPlugged ? 1 : 0]);
+    stateArray.push(["sgp",instrumentOptions?.isSecondGroupPlugged ? 1 : 0]);
     if (isPositiveNumber(errorReloadCount)) {
       const errReload = parseInt(errorReloadCount);
       if (errReload < config.errorReloadLimit) {
