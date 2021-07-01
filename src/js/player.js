@@ -62,7 +62,7 @@ function ABCPlayer({
     scrolling: false,//overflow scroll is disabled by default for HPS
     pageView: false,
     disableRepeatingSegments: false,
-    disableDuationalMargings: false,
+    disableDurationalMargins: false,
   };
 
   //stores how many times the player was reloaded due to an error
@@ -725,6 +725,7 @@ ABCPlayer.prototype.instrumentReload = function(options = {}) {
 ABCPlayer.prototype.setCurrentSongFromClientParam = function() {
   this.enablePageViewFromClientParam();
   this.disableRepeatingSegmentsFromClientParam();
+  this.disableDurationalMarginsFromClientParam();
   const clientParam = parseInt(this.clientParams["cti"]);
   if (isNumber(clientParam)) {
     this.currentTuneIndex = clientParam;
@@ -749,6 +750,16 @@ ABCPlayer.prototype.disableRepeatingSegmentsFromClientParam = function() {
     this.domBinding.enableRepeatingSegments.show("inline-flex");
   }
 }
+
+ABCPlayer.prototype.disableDurationalMarginsFromClientParam = function() {
+  const clientParam = parseInt(this.clientParams["drs"]);
+  if (clientParam === 1) {
+    this.isEnabled.disableDurationalMargins = true;
+    this.domBinding.disableDurationalMargins.hide();
+    this.domBinding.enableRepeatingSegments.show("inline-flex");
+  }
+}
+
 
 ABCPlayer.prototype.enablePageViewFromClientParam = function() {
   const clientParam = parseInt(this.clientParams["pve"]);
@@ -1307,8 +1318,7 @@ ABCPlayer.prototype.settingTuneStart = function settingTuneStart(tuneIndex) {
 
 ABCPlayer.prototype.settingTuneFinish = function settingTuneFinish() {
   this.isSettingTuneByIndex = undefined;
-  //@TODO only enable if settings allow in isEnabled.disableDurationalMargins
-  this.enableDurationalMargins();
+  if (!this.isEnabled.disableDurationalMargins) this.enableDurationalMargins();
   fadeEffect();
 }
 
