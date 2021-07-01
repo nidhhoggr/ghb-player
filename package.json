@@ -13,7 +13,7 @@
     "lint-sass": "sass-lint -v -q --format=compact",
     "lint-js": "eslint --ext .js src/js/",
     "uml": "madge --exclude '^abcjs|(scss/base)|(scss/dirty)' --image graph.svg src/js/app.js",
-    "gen-bundle": "gen-bundle -dir dist -baseURL https://www.folktabs.com/ -primaryURL https://www.folktabs.com/ -o folktabs.wbn"
+    "gen-bundle": "gen-bundle -dir dist -baseURL https://sackpipa.folktabs.com/ -primaryURL https://sackpipa.folktabs.com/ -o folktabs.wbn"
   },
   "keywords": [
     "sackpipa",
