@@ -255,18 +255,20 @@ ABCSong.prototype.insertInformationField = function({line}) {
 //@TODO MEmoize as an instance of currentSong
 ABCSong.prototype.getDistinctNotes = function() {
   if (!this.entireNoteSequence) return;
-  return _.uniq(this.entireNoteSequence.map(({noteName}) => {
+  return _.reject(_.uniq(this.entireNoteSequence.map(({noteName}) => {
+    if (!noteName) return;
     const strippedPitchNote = noteName.match(/^[A-Za-z]+/);
     return strippedPitchNote[0];
-  }));
+  })), _.isUndefined);
 }
 
 //@TODO MEmoize as an instance of currentSong
 ABCSong.prototype.getDistinctPitches = function() {
   if (!this.entireNoteSequence) return;
-  return _.uniq(this.entireNoteSequence.map(({pitchIndex}) => {
+  return _.reject(_.uniq(this.entireNoteSequence.map(({pitchIndex}) => {
+    if (!pitchIndex) return;
     return pitchIndex
-  }));
+  })), _.isUndefined);
 }
 
 ABCSong.prototype.getInformationByFieldName = function({fieldName, flatten = true}) {
@@ -320,7 +322,8 @@ ABCSong.prototype.setTransposition = function(semitones, cb) {
       }
       else {//transpoisition doesnt exist so we simply add it
         debug(`Transposition doesnt exist so well add it to ${line}`);
-        this.abc = this.abc.replace(line, `${line} ${stringReplacement}`);
+        const stripped  = line.replace(/(\r\n|\n|\r)/gm, "");
+        this.abc = this.abc.replace(line, `${stripped} ${stringReplacement}`);
         isSet = true;
       }
     }

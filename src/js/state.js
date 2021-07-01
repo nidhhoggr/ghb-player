@@ -77,6 +77,7 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     }
 
     stateArray.push(["drs", isEnabled?.disableRepeatingSegments ? 1 : 0]);
+    stateArray.push(["ddm", isEnabled?.disableDurationalMargins ? 1 : 0]);
     stateArray.push(["fgp",instrumentOptions?.isFirstGroupPlugged ? 1 : 0]);
     stateArray.push(["sgp",instrumentOptions?.isSecondGroupPlugged ? 1 : 0]);
     if (isPositiveNumber(errorReloadCount)) {
