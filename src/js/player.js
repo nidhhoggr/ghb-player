@@ -23,29 +23,23 @@ const {
 
 function ABCPlayer({
   abcjs,
+  abcTransposer,
   songs,
   ioc,
   stateMgr,
   options
 }) {
 
-  this.abcjs = abcjs;
-
-  this.songs = songs;
-
-  this.ioc = ioc;
+  _.assign(this, arguments[0]);
 
   this.ldCover = new ioc.ldCover({root: ".ldcv"});
 
   this.storage = new ioc.Storage({namespace: "player"});
 
-  this.stateMgr = stateMgr;
-
-  //stores and instance to vaniallljsdropdown
+  //stores an instance to vanillajsdropdown
   //available after player is loaded
   this.songSelector = null;
 
-  this.options = options;
   this.playerOptions = options.player;
   this.instrumentOptions = options.instrument;
   this.instrumentOptions.pitchToNoteName = abcjs.synth.pitchToNoteName;
@@ -103,6 +97,8 @@ function ABCPlayer({
     "compatibility",
     "createSong",
     "editSong",
+    "ldcvTransposeUp",
+    "ldcvTransposeDown",
   ];
 
   this.domBindingKeys = [
@@ -369,6 +365,14 @@ ABCPlayer.prototype.editSong = function editSong() {
       this.songs.editSong({song: editedSong, songIndex, changeSong: true});
     }
   }).catch(debugErr);
+}
+
+ABCPlayer.prototype.ldcvTransposeUp = function() {
+  dQ("textarea.createSongTextarea").value = this.abcTransposer.transposeUp({toProcess: dQ("textarea.createSongTextarea").value});
+}
+
+ABCPlayer.prototype.ldcvTransposeDown = function() {
+  dQ("textarea.createSongTextarea").value = this.abcTransposer.transposeDown({toProcess: dQ("textarea.createSongTextarea").value});
 }
 
 ABCPlayer.prototype.setSongSelector = function(songSelector) {
