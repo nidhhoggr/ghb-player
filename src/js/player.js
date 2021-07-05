@@ -760,7 +760,7 @@ ABCPlayer.prototype.disableDurationalMarginsFromClientParam = function() {
   if (clientParam === 1) {
     this.isEnabled.disableDurationalMargins = true;
     this.domBinding.disableDurationalMargins.hide();
-    this.domBinding.enableRepeatingSegments.show("inline-flex");
+    this.domBinding.enableDurationalMargins.show("inline-flex");
   }
 }
 
