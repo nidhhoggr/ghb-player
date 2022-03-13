@@ -50,6 +50,12 @@ function ABCPlayer({
   this.currentTuneIndex = 0;
   this.transposition = 0;
   this.tempo = 0;
+  //prevent infinite setTune
+  this.haltSetTuneEnabled = true;
+  this.tuneSetCalled = 0;
+  this.shouldHaltSetTune = false;
+  this.tuneSetStart = 0;
+  this.tuneSetFinish = 0;
 
   //stores boolean flags of whether things are enabled
   this.isEnabled = {
@@ -678,6 +684,22 @@ ABCPlayer.prototype.load = function() {
       }
     };
 
+    if (this.haltSetTuneEnabled) {
+      setInterval(() => {
+        debug("CHECKING SETTUNE", this.tuneSetCalled);
+        if (this.tuneSetCalled > 5) {
+          this.shouldHaltSetTune = true; 
+          setTimeout(() => {
+            debug("CHECKING SETTUNE","CALLING HALT");
+            this.tuneSetCalled = 0;
+            this.shouldHaltSetTune = false;
+          }, 3000);
+        }
+        else {
+          this.shouldHaltSetTune = false;
+        }
+      }, 2000);
+    }
     resolve({player: this});
   });
 }
@@ -1316,11 +1338,16 @@ const fadeEffect = ({fadeIn} = {}) => {
 };
 
 ABCPlayer.prototype.settingTuneStart = function settingTuneStart(tuneIndex) {
+  this.tuneSetStart++;
+  this.tuneSetCalled++;
+  debug("SETTUNE START", this.tuneSetCalled);
   this.isSettingTuneByIndex = tuneIndex;
   fadeEffect({fadeIn: true});
 }
 
 ABCPlayer.prototype.settingTuneFinish = function settingTuneFinish() {
+  this.tuneSetFinish++;
+  debug("SETTUNE FINISH", this.tuneSetCalled); 
   this.isSettingTuneByIndex = undefined;
   if (!this.isEnabled.disableDurationalMargins) this.enableDurationalMargins();
   fadeEffect();
@@ -1333,6 +1360,15 @@ ABCPlayer.prototype.isSettingTune = function isSettingTune() {
 ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOptions, currentSong, isSameSong, calledFrom = null}) {
   return new Promise((resolve, reject) => {
     this.settingTuneStart(this.currentTuneIndex);
+    if (this.shouldHaltSetTune) {
+      this.settingTuneFinish();
+      return resolve();
+    }
+    //else if(this.tuneSetStart > this.tuneSetFinish + 1) {
+      //debug("TUNE SET OUT OF COUNT", this.tuneSetStart, this.tuneSetFinish);
+      //this.settingTuneFinish();
+      //return resolve();
+    //}
     if (!currentSong) {
       this.currentSong = this.songs.loadSong({songIndex: this.currentTuneIndex});
     }
@@ -1445,6 +1481,10 @@ ABCPlayer.prototype.setTune = function setTune({userAction, onSuccess, abcOption
 
 ABCPlayer.prototype._setTune = function _setTune({calledFrom, userAction, onSuccess, onError, resolve, reject} = {}) {
   this.settingTuneStart(this.currentTuneIndex);
+  if (this.shouldHaltSetTune) {
+    this.settingTuneFinish();
+    return resolve();
+  }
   this.synthControl?.setTune?.(this.audioParams.visualObj, userAction, this.audioParams.options).then((response) => {
     debug("setTune 1:", response);
     //if its called by anything other than  tempo
