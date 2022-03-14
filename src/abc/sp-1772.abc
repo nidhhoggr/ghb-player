@@ -1,0 +1,20 @@
+%%abc-charset utf-8
+
+X: 29
+T: Polonäs efter Abraham Hagholm (nr 29)
+S: efter Abraham Hagholm
+R: Polonäs
+O: Östergötland
+B: Abraham Hagholms notbok, nr 29
+B: FMK - katalog M26 bild 10
+Z: Nils L
+N: Jämför med +
+M: 3/4
+L: 1/16
+%%dreGBslurs 0
+K: G
+d4 c2Bc d2e2 | e2d2 d2c2 c2Bc | d4 B2GB d2ed | (cB)cd B4 (GF)GB |
+d4 c2Bc d2e2 | e2d2 d2c2 c2Bc | d4 B2GB d2ed | c2ec B8 ::
+{A2F2}G2F2 D2G2 B4 | A2G2 (FG)AB c4 | c2B2 G2B2 d2>c2 | A2c2 B2GB A2FA |
+{A2F2}G2F2 D2G2 B4 | A2G2 (FG)AB c4 | {d}c2B2 G2B2 d2c2 | A2B2 G8 :|
+

@@ -1,0 +1,24 @@
+%%abc-charset utf-8
+
+X:1
+T:Anglais "Björndansen"
+S:Svenska Låtar Skåne 559/589
+O:Skåne 
+R:Engelska
+R:Anglais
+N:Låten förekommer i två versioner i Svenska Låtar. En med G och en med G#. I Enningers originalnot verkar det vara G# konsekvent: https://katalog.visarkiv.se/lib/views/fmk/ShowRecord.aspx?id=1441206
+M:2/4
+L:1/8
+K:Am treble
+V:1 
+|:EE/E/ AA/A/ | EE/E/ cc/c/| EE/E/ AA/A/ | GG A2 :|
+|:c2 cB/c/| A3 c| BB GE| ef ed |
+c2 cB/c/| A3 c| BB GE| AA A2:|
+V:2 
+|:EE/E/ EE/E/|EE/E/ EE/E/|EE/E/ EE/E/|DD E2:|
+w: Här ko-mer björ-nen som | bor ut-i sko-gen han | hop-par och dan-sar så | ak-ta dig!
+|: A,A,/A,/ A,A,/A,/| A,A,/A,/ A,A,/A,/|G,G,/G,/ G,G,/G,/ |A,A, A,2 |
+w: Blå-bär och ho-nung det | ä-ter han opp det är | mat som gör gott i hans | star-ka kropp.
+A,A,/A,/ A,A,/A,/| A,A,/A,/ A,A,/A,/|G,G,/G,/ G,G,/G,/ |A,A, A,2:|
+w: Blå-bär och ho-nung det | ä-ter han opp det är | mat som gör gott i hans | star-ka kropp.
+

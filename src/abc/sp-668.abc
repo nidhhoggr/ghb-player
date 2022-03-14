@@ -1,0 +1,24 @@
+%%abc-charset utf-8
+
+X:1
+T:Vårtecken
+T:Schottis
+C:Lennart Thörn
+R:Schottis
+O:Röke, Skåne
+%%score 1 2
+L:1/4
+M:4/4
+I:linebreak 
+K:G
+V:1 treble nm="Violin 1" snm="Vln1."
+V:2 treble nm="Violin 2" snm="Vln2."
+V:1
+D |: B G (A/G/)F/G/ | E D D G/A/ | B G (A/G/)F/G/ | A3 D | B G (A/G/)F/G/ | F E E (d/c/) | 
+B G c/B/ A |1 G3 D :|2 G3 G/B/ [|: d d d d | (e/d/)c/B/ A A/B/ | c (B/c/) c/B/A/G/ | .F2 D d/c/ | 
+B G A/G/F/G/ | F E E (d/c/) | B G c/B/ A |1 G3 G/B/ :| G3 z |] 
+V:2
+D |:"G" D B, C A, | B,2 B, B,/C/ | "Em" D B, "A7" C ^C |"D" D E "D7" F C | D B, C (A,/B,/) |"Am" C E A (B/A/) | "Em"
+G B, "D7" (F/E/)D/C/ |"G" 1 B, C B, D :| "G" 2 B, C B, "D7" D [|: B B/A/ G F | (c/B/)A/G/ F D | A G/A/ B "A7" ^c | "D" 
+.d2 "D7" D B,/C/ | D B, C A,/B,/ |"Am" C E A B/A/ |"Em" A B, "D7" F/E/D/C/ | "G" 1 B, C B, D :| "G" B, C B, z |] 
+

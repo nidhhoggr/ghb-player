@@ -1,0 +1,28 @@
+%%abc-charset utf-8
+
+X:238
+T:Polska efter Olof Andersson
+S:efter Olof Andersson i Hulteberg
+O:Hulteberg, Eda sn, Värmland
+B:EÖ nr 238
+R:Polska
+Z:Nils L
+D:Har bland annat spelats in av Magnus Stinnerbom och Daniel Sanden-Varg på deras skiva Harv (1997) under titeln A-duringen. Inspelningen finns på Spotify: https://open.spotify.com/track/38tsXBhJLmYNF0VZdsr5PR
+N:I en annan renskrift har enligt Märta Ramsten stämningen "a1 e1 a e" angivits.
+M:3/4
+L:1/8 
+V:1
+V:2
+%%sForA (1 2)
+%%tuplAts 0 0 1
+K:D
+V:1 stem=auto
+D2 {/c}d2 B>c | AB/c/ d>B e>c | A2 {/c}d2 B>c | AB/c/ d2 F>A |
+D2 {/c}d2 Bc | (3ABc dB ec | A2 {/c}d2 B>c | (3ABc [Fd]3z ::
+D2- (3DEF (3GEG | (GF) F>D (3FDF | (FE) E>F (3GEG | (GF) FD (3FDF |
+V:1 stem=down
+(FE) E>D D>C | (3DEF A4- | A3 x/(A/ G)E/G/ | (G>F) F>D FD/F/ |
+(F>E) E>F (3GEG | (G>F) F>D FD/F/ | (FE) E>D C>D | ((3EDC) D2z2 :|
+V:2 stem=up
+Z8 :: Z5 | x2 A4- | A6- | A6- | A6- | A6- | A4 x2 | x2 D2 x2 :|
+

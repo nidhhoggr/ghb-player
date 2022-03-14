@@ -1,0 +1,16 @@
+%%abc-charset utf-8
+
+X:5
+T:Polska 
+S:efter Anders Peter Roos
+O:Hägerstad, Östergötland 
+R:Polska
+B:Ög 17
+B:FMK - katalog Ög17 bild 7
+M:3/4
+L:1/8
+K:G
+.d(d/2e/2) .d(d/2e/2) .d(d/2e/2) | .d(B c).A .G2 | AG FG AB | cd e2 d2 ::
+(AF) (DF) .A.c | (BG) (DG) .B.d | (AF) (DF) .A.c | (BG) (DG) .B.d | "*".c(c/2B/2) .c.A .e.c | AF F2 G2 :|]
+|"* Ossid".d(^c/2d/2) .e.d .=c.B | .d.c/2.B/2 A2 G2 |]
+

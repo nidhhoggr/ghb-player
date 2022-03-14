@@ -1,0 +1,23 @@
+%%abc-charset utf-8
+
+X:1
+T:Serra
+C:Stadsmusikant Höök
+R:Serra
+Z:David Rönnlund, 09-02-20
+O:Jönköping,Småland
+N:Stadsmusikant Höök, 1718
+S:Efter Andreas Höök
+B: Andreas Hööks notbok
+M:3/4
+L:1/8
+K:G treble
+V:1 
+|:B2 cBAG|e2e4|d2 edcB|c2 dcBA|BcB2G2:|
+M:3/4
+|:B2 cBAG|A2A4|G2AGFE|F2F4|B2cBAG|A2BAGF|G2G4:|
+V:2 
+|:G,2E,4|C2cBAG|B2G2E2|A,2F2D2|G2G,4:|
+M:3/4
+|:G,2G,4|D,2 DEFD|E2^C4|D,2DCB,A,|G,2E,4|F,2D,4|G,2G,,4:|
+

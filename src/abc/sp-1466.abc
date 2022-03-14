@@ -1,0 +1,27 @@
+%%abc-charset utf-8
+
+X:204
+T:Polska efter Spel Jöns
+R:Polska
+N:Uppt. efter Ante Sundin
+N:Svenska Låtar Medelpad 204
+B:Svenska Låtar Medelpad
+O:Borgsjö, Medelpad
+S:Uppt. efter Ante Sundin, Attmar
+Z:abc-transkr. av Lennart Sohlman
+N:förslag till arr. Lennart Sohlman
+M:3/4
+L:1/16
+Q:1/4=100
+K:Am
+V:1
+(E2|A2)A(^G E2)E2 G2A2|B2cB A2^GA (Bc)BG|A2B2 c2ec (Bc)B^G|A2^GA (Bc)BG [E4E4]|!
+A2A(^G E2)E2 G2A2|B2cB A2^GA (Bc)BG|A2B2 c2ec (Bc)B^G|[1(E^G)BGA4z2:|[2(E^G)BGA6z2|:!
+e2c2 c2e2 e2fe|(df)dB (GE)GB d2fd|(cd)cB (A^G)AB (cB)cd|(Bd)B^G (EG)BG [E4E4]|!
+e2c2- c2e2 e2fe|(df)dB (GE)GB d2fd|(cd)cB (A^G)AB (cB)cd|[1(E^G)BG A6z2:|[2(E^G)BG A6|]
+V:2
+(B,2|C2)CB, ^G,2G,2 B,2C2|D4 C2B,C D2D2|E2^G2 A2cA (GA)GE|C2B,C D2B,2 [^G,4B,4]|!
+C2CB, ^G,2G,2 B,2C2|D4 C2B,C D2D2|E2^G2 A2cA (GA)GE|[1D2B,D [C4E4]z2:|[2D2B,D [C6E6]z2|:!
+G2E2 E2G2 G2AG|F3D B,2B,D F2F2|E2E^G E2EG (AG)AB|^G2GE B,2E2 [G4B4]|!
+=G2E2- E2G2 G2AG|F3D B,2B,D F2F2|E2E^G E2EG (AG)AF|[1E2DB, [C6E6]z2:|[2E2DB, [C6E6]|]
+

@@ -1,0 +1,27 @@
+%%abc-charset utf-8
+
+X:1
+T:Farfarspolskan 
+S:efter August Larsson
+R:Polska
+M:3/4
+L:1/8
+K:Am
+R:Polska
+Z:Transcribed by Robert Boström 2007-05-20
+D:Boot - Virvla
+Q:1/4=110
+%%sGorB (T1) (F1)
+V:T1  clef=treble
+V:B1 clef=treble % clef=bass   %octave=+2 %middle=d %octave=-2
+%%MIA,I prodrem 1 57 %   53=G,hoir Oohs  19 = G,hurGh Orden 56=trumpBt
+%%MIA,I prodrem 2 53
+[V:T1]|:"Am"ee c2e2|d/2c/2B/2c/2 de/2d/2 cA|cc A2 Bc|"D"c/2B/2A "E7"B3E|
+[V:F1]|:cc A2c2|B/2A/2^G/2A/2 Bc/2B/2 AE|AA E2 A2|=FF E2 z2|
+[V:T1]"Am"ec ed Bc|"Dm"^GA Bd cB|"Am"A^G/2B/2 A2 z2:||:"Am"AB c2 B/2A/2^G/2A/2|
+[V:F1]cA cB ^GA|DE FF ED|CB,A,2z2:||:E^G A2 G/2=F/2E/2F/2 |
+[V:T1]"E7"Bd/2c/2 A^G EE|"Am"AB c2 ec|"D"e/2c/2B/2A/2 "E"e3 E|"Am"ec A2Bc|
+[V:F1]^GB/2A/2 E2CB,|CDE2AA|=FF ^G2z2|cAE2 ^GA|
+[V:T1]"Am"Ae/2c/2 AB/2A/2 "E7"^GE|"Am"AB c3/2c/2 "E7"B/2A/2^G/2A/2|Bd/2c/2 "Am"A2z2:|
+[V:F1]Ac/2A/2 E^G/2E/2 B,B,|CD E2 D/2C/2B,/2C/2|DD/2C/2 A,2z2:|
+

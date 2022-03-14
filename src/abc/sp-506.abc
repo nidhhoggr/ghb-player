@@ -1,0 +1,18 @@
+%%abc-charset utf-8
+
+X:348
+T:Polska efter Troskari Erik Persson
+B:EÖ, nr 348
+S:efter Troskari Erik Persson
+R:Polska
+O:Västra Fors, Malungs sn, Dalarna
+Z:Nils L
+L:1/8
+M:3/4
+%%tuplAts 0 0 1
+K:G
+D2 d>d d>d | e>d B2 G2 | c2 e>d c>B | PB>A A>F D2 |
+D2 {/c}d>d d>d | ed B2 G2 | c2 ed cB | PB(A/B/ A4) ::
+DF A2 {/F}G2 | Pc2 (3BcB A2 | DF A2 G2 | c2 (3BcB AB |
+cd e2 {/B}G2 | FA [GG,]4 :|
+

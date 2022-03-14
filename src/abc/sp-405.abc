@@ -1,0 +1,16 @@
+%%abc-charset utf-8
+
+X: 1
+T:Polsk
+T: (Totakt-pols, nr. MN-254)
+S:efter Mads Nielsen
+R:Totakt-pols
+O:Tyvkjer Mark, Danmark
+N:Från nothäftet "Totakt-pols" av Åke Persson, Ethel Wieslander m fl.
+M:2/4
+L:1/8
+Q:1/4=100
+K: G
+D2 |: GG A1/2c1/2A1/2F1/2 | GB D2 | GGAA | B1/2A1/2B1/2c1/2 dB | GG A1/2c1/2A1/2F1/2 | GB D2 | EDEF |1 G2 D2 :|2 G2 Bc |
+ddee | d1/2e1/2d1/2c1/2 BA | GGAA | B1/2A1/2B1/2c1/2 dB | ddee | d1/2e1/2d1/2c1/2 BA | GG A1/2c1/2A1/2F1/2 |1 G2 Bc :|2 G2z2 ||
+

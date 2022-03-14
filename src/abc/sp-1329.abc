@@ -1,0 +1,18 @@
+%%abc-charset utf-8
+
+X:55
+T:Pollonesse 1832-55
+O:Södermanland
+R:Slängpolska
+B:Notbok 1832 från Sörmlands museum
+N:[[http://www.sormlandsmusikarkiv.se/noter/1832/1832.html]]
+Z:Jonas Brunskog (via midi)
+M: 3/4
+M: 3/4
+L: 1/16
+K: G
+|:D4 G4 A2B2 | A2G2 A2B2 c4 | c4 B2A2 G2B2 | B4 A2>F2 D4 |
+D4 G2>A2 B4 | A2G2 A2B2 c4 | c4 B2A2 G2G2 | A2FA G8:|
+|:G2D2 G2B2 B2d2 | d2c2 e2d2 d4 | B2G2 c2A2 F2A2 | A2G2 E2E2 D4 |
+G2D2 G2B2 B2d2 | d2c2 e2d2 d4 | B2G2 c2A2 F2A2 | A2G2 G8 :|
+

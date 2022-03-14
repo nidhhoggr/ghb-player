@@ -1,0 +1,18 @@
+%%abc-charset utf-8
+
+X:317
+T:Springlek efter Lissmyr Erik Persson
+B:EÖ, nr 317
+S:efter Lissmyr Erik Persson
+R:Springlek
+O:Västra Fors, Malungs sn, Dalarna
+Z:Nils L
+L:1/8
+M:3/4
+%%tuplAts 0 0 1
+K:D
+D>F A>F  A>F | G>A B>G  B>G | A>c e>d c>B  | (3ABc d>A    F>A |
+D>F PA>F A>F | G>A PB>G B>G | A>c e>d Pc>B | AB/c/ [D4d4]     ::
+{A}d>(F A>)(D F2) | ((3EFE) D2 PB2 | GG  (EF/E/) CE  | TE3/2D/ D>F A2 |
+   d>(F A>)(D F2) | ((3EFE) D2 TB2 | G>G (EF/E/) C>E | T(ED) D4 :|
+

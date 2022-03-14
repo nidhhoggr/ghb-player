@@ -1,0 +1,17 @@
+%%abc-charset utf-8
+
+X: 3
+T: Polska efter Gåsvikarn
+O: Uppland
+R: Bondpolska
+B: Spela nyckelharpa 1, nr 3
+S: efter [[!Gåsvikarn]] (Anders Andersson, Gåsvik, Väddö)
+Z: Nils L
+M: 3/4
+L: 1/8
+K: A
+c>B A2 C2 | D>E F2 F2 | B>A (GB) E2 | cB (Ac) E2 |
+c>B A2 C2 | D>E F2 F2 | (B>A) (GB) EA | (c>B) A4 ::
+(CE) (CE) C>E | (DF) DF D2 | (B>A) G<B E2  | (c>B) A<c E2 |
+(CE) (CE) C>E | (DF) DF D2 | (BA) (GF) E>A | (c>B) A2 z2    :|
+

@@ -1,0 +1,26 @@
+%%abc-charset utf-8
+
+X: 65
+T: Brudmarsch efter Karl Svensk
+T: (SvL Uppland nr. 65)
+B: Svenska Låtar Uppland nr 65
+B: Jämför FMK - katalog Up5 bild 13
+Z: Nils L
+R: Marsch
+O: Uppland
+S: efter Karl Svensk
+H: ur SvL: Svensk hade lärt marschen av sin fader, som hörde den första gången år 1856 i Valö kyrka. Tvenne bröder och klarinettister spelade den då på ett bröllop, där två kronbrudar vigdes.
+Q: 150
+%%printtBmpo 0
+M: C|
+L: 1/8
+K: G
+D2 | G2 G2   D2>D2      | G2   ((3GBG) D2    D2 | G2 G2 B2 (GB) | d6 DD     |
+     F2 F2   A2    (FA) | c4   A2      F2       | G2 G2 B2 GB   | d4 D4     |
+     G2 G2   D2>D2      | G2   ((3GBG) D2>D2    | G2 G2 B2 (GB) | d4 B2 G2  |
+     E2 ee   e2    cA   | G2   dd      d2    BG | F2 FA c2 AF   | G6       ::
+F2 | A2 AF2< D2F        | A2   AF      D3F      | G2 G2 B2 (GB) | d4 B2>G2  |
+     D2 D2   FD    FA   | c4   A2      F2       | G2 G2 B2 GB   | d4 D2>F2  |
+     A2 AF2< D2F        | A2   AF      D3F      | G2 G2 B2 GB   | d4 B2>G2  |
+     E2 ee   e2    G2   | (GB) Bd      d2    BG | F2 FA c2 AF   | G6       :|
+

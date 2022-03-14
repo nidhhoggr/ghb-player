@@ -1,0 +1,27 @@
+%%abc-charset utf-8
+
+X:3137
+T:Sydjämtsk slängpolska efter John-Erik Mattsson
+T:"Tvillingpolskorna 1"
+S:John-Erik Mattsson
+O:Digerberget, Rätansbyn
+R:Slängpolska (nordlig)
+Z:Lennart Sohlman
+N:Uppt. och arr. Lennart Sohlman
+N:Dessa två låtar kopplades ofta ihop och spelades i rak följd efter varandra. De var de första två polskor John-Erik Mattsson lärde av sin far, Matts Ersson.
+N:Obs. att musiken (och dansen) inte ska förväxlas med den sydsvenska slängpolskan
+M:3/4
+L:1/8
+Q:1/4=150
+K:G
+V:1
+"G"d^c/d/ ed (BG)|"D"(3BcB (AG) AB|"D"(3cBc (dc) AF|"G"(FG) Ge d2|!
+"G"d^c/d/ ed (BG)|"D"(3BcB (AG) AB|"D"(3cBc (dc) AF|"G"(FG) G4::!
+"G"B2 DB DB|"D"{c}B>A (AG) AB|"C"c2 Ec Ec|"G"(ce) d^c (d2|!
+"G"B2) DB DB|"D"{c}B>A (AG) AB|"D"(3cBc (dc) AF|"G"(FG) G4:|]
+V:2
+G,>B, [B,2D2] [B,2D2]|D2 A,2 A,>F,|D,>F, [F,2A,2] [F,2A,2]|G,2 (DB,) [B,3/2D3/2]D/|!
+G,>B, [B,2D2] [B,2D2]|D2 A,2 A,>F,|D,>F, [A,2D2] [A,2D2]|[B,2D2] [B,4D4]::!
+{G,}[B,2D2] [B,2D2] B,D|D>A, [F,2A,2] [A,2D2]|E2 G,E G,E|D2 B,D B,D|!
+D2 [B,2D2] B,D|D>A, [F,2A,2] [A,2D2]|D2 A,2A,>C|[B,2D2] [B,4D4]:|]
+

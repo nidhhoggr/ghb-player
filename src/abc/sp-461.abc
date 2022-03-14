@@ -1,0 +1,18 @@
+%%abc-charset utf-8
+
+X:49
+T:Polska efter Ida i Rye
+T:(SvL Småland 49)
+O:Bäckebo, Småland
+R:Slängpolska
+B:Svenska Låtar Småland
+S:Efter Ida-Sofia Jonsson-Erlandsson
+S:Efter Olof Knut-Ekvall
+N: Spelbar på säckpipa i A
+M:3/4
+L:1/16
+K:G
+(vD2 | !Bz!LG2).G.B .A.G.F.E D2(D2 | G2).G.B .A.G.F.E D2(D2 | G2)(GA) .=B.A.B.c d2(G2 | ^B2).A.F (A2G2) G2 :|
+|: D2 | {[AD]}!Bz![=B2D2].B.d .B.G.B.d (d2cB) | [A2D2].A.c .A.F.A.c (c2=BA) |{[AD]}!Bz![=B2D2].B.d .B.G.B.d (d2cB) |
+ [A2D2].A.c .A.F.A.c (c2=BA) |.G.F.G.A .=B.A.B.c d2(G2 | !Bz!^B2).A.F (A2G2) G2 :|
+

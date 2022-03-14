@@ -1,0 +1,23 @@
+%%abc-charset utf-8
+
+X:1
+T:Poloness ur Andreas Hööks notbok
+C:Stadsmusikant Höök
+R:Slängpolska
+Z:David Rönnlund, 09-02-19
+O:Jönköping,Småland
+N:Stadsmusikant Höök, 1718
+S:Efter Andreas Höök
+B:Andreas Hööks notbok
+M:C|
+L:1/8
+K:G treble
+V:1 
+|:B3d G2 e2|A3G (FE) D2|d3 (c/B/) eFGA|(A3 G) G4:|
+M:C|
+|:F3 B =D2 E2| F2 GA (GF) E2| c3 E FdcB| (A3 G)G4:|
+V:2 
+|:G2B2E2C2|^C4 D2 d=c|B2 B,2 C2 ^C2|D2D,2G,2G,,2:|
+M:C|
+|:A,4 B,A, G,2| F,2 B,2E,2CB,|A,B,(C2C)B,A,G,|D,4G,,2G,2:|
+

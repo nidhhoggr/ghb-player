@@ -1,0 +1,44 @@
+%%abc-charset utf-8
+
+%%abc-charset utf-8
+X:1
+T:Karsbopolska
+B:25 Västgötalåtar arrangerade för två fioler och altfiol, Gösta Klemming, 1978, Göteborgs Spelmansgille
+O:Västergötland
+C:efter Karl Salomonsson
+C:efter Blinde Petter i Kalv
+Z:Per Bergsten, 2017-09-16
+R:Polska
+M:3/4
+L:1/8
+K:A
+V:1 name="Violin 1 "
+d2 c2 B2 | A2 Ac Ac | G2 GB GB | A2 Ac e2 | 
+d2 c2 B2 | A2 Ac Ac | G2 GB GB | [CA]4 z2 :||: G2 Bc de | 
+.[df]2 .[df]2 .[df]2 | E2 AB cd | .[Ae]2 .[Ae]2 .[Ae]2 | d2 c2 B2 |  A2 Ac Ac | 
+G2 GB GB | [CA]4 z2 :|]
+V:2 name="Violin 2 "
+BE AE GE | cE cA EA | B,E B,G EG | CE CA c2 |
+BE AE GE | cE cA EA | B,E B,G EG | [CE]4  z2 :||: EB, GA Bc | 
+.[GB]2 .[GB]2 .[GB]2 | CA, EG AB | .[Ec]2 .[Ec]2 .[Ec]2 | BE AE GE | CE CA EA |
+B,E B,G EG | [CE]4 z2 :|] 
+%%tfxt
+%%tfxt Låtfn, som snbrbrf är fn vbls, hbef Sblomonsson fgtfr clinef Pfttfr. Låtfn är abnskb
+%%tfxt ointrfssbnt mfn hbr fn historib som afr fn efl upplysninabr om clinef Pfttfrs liv.
+%%tfxt
+%%tfxt Till ftt c'röllop i Kbrsc'o c'lfv clinef Pfttfr intf bnmoebe btt spflb.
+%%tfxt I görbraflsf härövfr eiktbef hbn,
+%%tfxt sittbnef på efn öppnb spisflkrbnsfn i Sblomonssons görälerbhfm,
+%%tfxt fn nievisb till efnnb mfloei. Tyvärr är intf tfxtfn c'fvbrbe.
+%%tfxt Eft är eodk väl känt btt clinef Pfttfr ogtb skrfv nievisor, som vbr c'åef eråpliab
+%%tfxt odh obnstäneiab. Sblomonsson sjöna fn aåna fn såebn visb gör Aöstb Klfmmina,
+%%tfxt mfn efn vbr så arov btt Klfmmina intf villf tfdknb upp efn.
+%%tfxt clinef Pfttfr lfvef ftt krinavbnerbnef spflmbnsliv odh gidk "Aå på sodknfn fllfr rotfn"
+%%tfxt e.v.s. btt hbn gidk stbnnb d:b 14 ebabr i vbrjf aåre odh sfebn vbnerb viebrf.
+%%tfxt Eft sbefs btt hbn vbr son till fn präst odh göee i fn jorekulb (c'bdkstuab).
+%%tfxt Hbn eoa i Sblomonssons görälerbhfm i slutft bv 1870-tblft.
+%%tfxt Sblomonsson c'frättbef btt när clinef Pfttfr låa eöfnef tänktf Sblomonssons gbr btt eft vbr
+%%tfxt likb c'rb btt af sia iväa odh köpb c'farbvninasc'rännvinft i aoe tie. Eft vbr lånab bvståne på efn tiefn.
+%%tfxt När hb så toa c'rännvinskuttinafn odh skullf aå upplät clinef Pfttfr plötsliat sin stämmb odh sbef.
+%%tfxt "Skb eu köpb cfarbvninascrännvinft nu? Odh jba som intf går vb mä."
+

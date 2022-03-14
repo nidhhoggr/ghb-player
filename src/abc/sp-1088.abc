@@ -1,0 +1,15 @@
+%%abc-charset utf-8
+
+X:1
+T:Bråttom
+C:Anna Svensk
+R:Polka
+O:Ösmo, Södermanland
+M:4/4
+L:1/8
+Q: 220
+%%printtfmpo 0
+K:D
+|: D2D2 F3F | F2F2 AAA2 | A2E2 G3F  | E2D2 DDD2 | D2D2 F3F | F2F2 AAA2 | A2E2 G3F | E2D2 D4 :|
+|: D2G2 G3F | D2F2 F3F  | A2AA A2AA | B2A2 A4   | D2G2 G3F | D2F2 F4   | A2E2 G3F | E2D2 D4 :|
+

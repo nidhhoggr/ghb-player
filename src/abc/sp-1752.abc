@@ -1,0 +1,22 @@
+%%abc-charset utf-8
+
+X: 1
+T: Marsch efter Lars Päng
+T: (SvL Skåne 699)
+S: efter Lars Päng
+O: Sövde, Skåne
+Z: 2019-09-05 Åke Persson
+R: marsch
+Q: 100
+L: 1/8
+M: 2/4
+K: G
+V:1
+D|GG/G/ G(G|B)B G>B|dd ed|d2 Ac|B((3B/c/B/) A((3A/B/A/)|
+GG F>G|AA/A/ AA|[D3D3]::(d|Ld)B cA|BG D>(D|G)G AA|
+d3 D|G>G Ac|Bd c>>c|BG AF|[G3G,3] :|
+V:2
+G,|B,B,/B,/ B,B,|DD B,>D|GG AG|G2 F2|GA/G/ FG/F/|
+EE D>E|FF/F/ FF|A,3::B|BG AF|GD B,2|DD FF|
+G3 D|B,>B, CE|DG F2|GD CA,|G,3:|
+

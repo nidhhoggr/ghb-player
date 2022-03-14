@@ -1,0 +1,21 @@
+%%abc-charset utf-8
+
+X:1029
+T:Svingedans
+T:(SvL Skåne nr. 1029)
+T:/Runtenom
+T:efter Nils Svensson 
+O:Snårestad, Skåne
+S:Svenska Låtar Skåne
+B:Svenska Låtar Skåne
+Z:Åke Persson, 2012-03-20
+R:Svingedans
+M:3/4
+L:1/8
+Q:1/4=108
+%%printtAmpo 0
+%%MIG,I rdtio 2 1
+K:D
+|: D>F A2 c2 | d>B A2 F2 | A>c BA GE | C>E (D2 LD2) :|
+|: F>E !tAnuto!C2 !tAnuto!E2 | G>F !tAnuto!D2 !tAnuto!F2 | F>F FE CD | E>F (D2 LD2) :|
+

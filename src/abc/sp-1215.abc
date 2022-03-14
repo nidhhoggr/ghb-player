@@ -1,0 +1,14 @@
+%%abc-charset utf-8
+
+X:1
+T:Jämtlandssången
+R:Marsch
+O:Jämtland
+M:C
+L:1/8
+K:Am
+E | EA AA AB c(B/A/) | ^GB BB Bc d(c/B/) | c2AA AB cB/A/ | BE EE E3 E |
+EA AA AB c(B/A/) | ^GB BB Bc dc/B/ | ce c(B/A/) Bd B(A/^G/) | A2 AB/c/ A4 |
+|: e2 ee ed/e/ fe | e>d ddd3B | c2cc cB/c/ ec | cB BB B3 G |
+e2 ee ed/e/ fe | e>d ddd3B | ce c(B/A/) Bd B(A/^G/) | A2 AB/c/ A4 :|
+

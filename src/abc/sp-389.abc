@@ -1,0 +1,24 @@
+%%abc-charset utf-8
+
+X:1
+T:Polkett från Loshult
+R:Polkett
+Z:2009-01-10
+O:Loshult, Skåne
+S:efter Per Mjörnemark
+M:2/4
+L:1/8
+K:D
+V:1
+A |: "D"dd "D/A"cB | "D"AF "D/A"A2 | "A/E"GE "A"G2 | "D"FD "D/A"FA  | "D"dd "D/A"cB |
+"D"AF "D/A"A2 | "A/E"Ec "A"Ec | "D"dd "D/A"d A :: "D"F>G AA | "A"E>F "A/E"GG |
+"A"Ec Ec | "D"d1/2c1/2B "D/A"A2 | "D"F>G AA | "A"E>F "A/E"GG | "A"Ec Ec | "D"dd "D/A"d A:|
+V:2
+A |: FA AF | FD F2 | EC E2 | DA, DF | FA AF |
+FD F2 | EE EG | FF F A :: D>E FF | C>D EE |
+CE CE | AG F2 | D>E FF | C>D EE | CE EG | FF F A :|
+V:3
+A, |: A,F, A,D | D2 D2 | A,A, B,C | DD DA, | A,F, A,D |
+D2 D2 | CA, CA, | DD D A, :: A,1/2B,1/2A, D,A, |A,E, A,2 |
+A,1/2B,1/2A, G,G, | F,G, A,D | A,1/2B,1/2A, D,A, | A,E, A,2 | A,1/2B,1/2A, CA, | DD D A, :|
+

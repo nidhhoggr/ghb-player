@@ -1,0 +1,22 @@
+%%abc-charset utf-8
+
+X:235
+T:Visa från Markaryd
+T:(Sv. L. Sm. 235)
+R:Visa
+O:Markaryd, Småland
+S:efter Nils Gustaf Lavin
+B:Svenska Låtar Småland nr 235
+N:Lavin hade låten efter en blind, kringvandrande spelman. Han sjöng första avdelningen och spelade därefter på fiolen den följande.
+Z:Jonas Brunskog
+M:C
+L:1/8
+Q:1/4=72
+K:A
+E|A>GA>B {cd}c>Bc>e|d>cB>A {cd}c3 e|d>Fdd c>Ecc|
+{cd}c>Bc>d e3e|d>Fdd {cd}c>Ecc|c>Be>G A2 z2||
+Q:1/4=112
+M:2/4
+E>A [Ec][Ec]|(d/c/)B/A/ [BG][BG]|(E/G/)B/c/ dd|(e/d/)c/B/ [Ac][Ac]|
+E>A [Ac][Ac]|(d/c/)B/A/ [BG][BG]|(E/G/)B/c/ dd|(e/d/)c/B/ [Ac]z||
+
