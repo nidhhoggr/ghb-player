@@ -787,7 +787,8 @@ ABCPlayer.prototype.setCurrentSongFromClientParam = function() {
           debug("FETCH RESULT", data);
           this.filename = filename;
           debug("ADD SONG FROM", filename);
-          this.songs.addSong({filename, song: data, changeSong: true});
+          const {index} = this.songs.addSong({filename, song: data, changeSong: true});
+          this.currentTuneIndex = index;
         }
       });
   }
