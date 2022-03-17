@@ -703,7 +703,7 @@ ABCPlayer.prototype.load = function() {
       }
       setInterval(() => {
         debug("CHECKING SETTUNE", this.tuneSetCalled);
-        if (this.tuneSetCalled > 10) {
+        if (this.tuneSetCalled > 15) {
           resetHaltTuneChecks();
         }
         else if (this.tuneSetCalled > 0) {
@@ -787,8 +787,12 @@ ABCPlayer.prototype.setCurrentSongFromClientParam = function() {
           debug("FETCH RESULT", data);
           this.filename = filename;
           debug("ADD SONG FROM", filename);
-          const {index} = this.songs.addSong({filename, song: data, changeSong: true});
+          const {index} = this.songs.addSong({filename, song: data});
           this.currentTuneIndex = index;
+          let song = this.songs.loadSong({songIndex: index});
+          if (song) {
+            this.currentSong = song;
+          }
         }
       });
   }
