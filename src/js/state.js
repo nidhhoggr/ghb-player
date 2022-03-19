@@ -34,12 +34,9 @@ StateManagement.prototype.onAssessState = function onAssessState({playerInstance
     isScrollingEnabled,
     instrumentOptions,
     errorReloadCount,
-    isSettingTune,
     isEnabled,
     storage
   } = playerInstance;
-
-  if (isSettingTune?.call(playerInstance)) return debugAll(`Cannot modify state when setting tune`);
 
   if (changeSong && isNumber(currentTuneIndex)) {
     if (this.options?.player?.refreshWhenPossible) {

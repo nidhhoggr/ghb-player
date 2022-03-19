@@ -65,9 +65,37 @@ export const instrument = {
   dronesSynth: null,//should be an instance of the instrumentDroneSynth above,
   playableExtraNotes: {
     0: {//for the E/A tuning
-      "Db": [63, 75],
-      "F": 65,
-      "Bb": [70]
+      "F": [77],//[65, 77],
+      //"Db": [63, 75],
+      //"Bb": [70]
+    },
+  },
+  playableExtraNotesOptions: {
+    0: {
+      "61": {
+        "note_name": "Db",
+        "description": "This is possible on chanter with two holes in the bottom pinky scallop, both of which need covered to play D.",
+      },
+      "63": {
+        "note_name": "Eb",
+        "description": "Half cover the first bottom scallop with your pinky (E).",
+      },
+      "65": {
+        "note_name": "F",
+        "description": "Half cover the second bottom scallop with your pinky (Gb).",
+      },
+      "70": {
+        "note_name": "Bb",
+        "description": "Half cover the top ring finger scallop when playing A.",
+      },
+      "75": {
+        "note_name": "Eb",
+        "description": "Half cover the top thump scallop with your thumb (E).",
+      },
+      "77": {
+        "note_name": "F",
+        "description": "Squeeze the bag on high E."
+      }
     },
   }
 }

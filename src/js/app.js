@@ -36,17 +36,12 @@ const abcPlayer = new ABCPlayer({
     HPS, 
     CustomSelect,
     ldCover,
-    Storage
+    Storage,
+    tippy,
   },
   stateMgr, 
   options: config
 });
 abcPlayer.load().then(({player}) => {
-  if (!player.options.isMobileBuild) tippy('[data-tooltip]', {
-    onShow(instance) {
-      const tooltip = _.get(instance, "reference.dataset.tooltip");
-      tooltip && instance.setContent(tooltip);
-      return !!tooltip;
-    }
-  });
+  player.tooltipify();
 });

@@ -341,6 +341,9 @@ select {
     span.editSong {
       background: url("../images/content/player/edit.svg") no-repeat;
     }
+    span.comp-incompatible {
+      background-color: rgb(255 0 0 / 33%);
+    }
   }
 
   .transposition {
@@ -484,6 +487,10 @@ span.keySigUp {
     color: #000;
   }
 
+  @mixin semi-playable-note-alt {
+    background-color: #ffefc2 !important;
+    background-blend-mode: darken;
+  }
 
   background-image: none;
   background-repeat: no-repeat;
@@ -544,23 +551,32 @@ span.keySigUp {
     background-position: -1098px 65px;
   }
 
+
   &.playable_pitch-63 {
     @include playable-note-alt;
+    @include semi-playable-note-alt;
     background-position: -154px 65px;
   }
   &.playable_pitch-65 {
     @include playable-note-alt;
+    @include semi-playable-note-alt;
     background-position: -289px 65px;
   }
   &.playable_pitch-70 {
     @include playable-note-alt;
+    @include semi-playable-note-alt;
     background-position: -830px 65px;
   }
   &.playable_pitch-75 {
     @include playable-note-alt;
+    @include semi-playable-note-alt;
     background-position: -1366px 65px;
   }
-
+  &.playable_pitch-77 {
+    @include playable-note;
+    @include semi-playable-note-alt;
+    background-position: -1366px 65px;
+  }
 }
 
 

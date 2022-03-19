@@ -6,7 +6,8 @@ export const possibleTunings = ["E/A","D/G","C/F"];
 function Instrument({
   tuningKeyIndex = 0,//the key of the tuning, EA, DG, 
   dronesSynth,//an instance of CreateSynth that plays the drone
-  playableExtraNotes = {},//an array of playable notes because some instruments can play more notes,
+  playableExtraNotes = {},//an object of playable notes because some instruments can play more notes,
+  playableExtraNotesOptions = {},//an object of playable note descriptions
   dronesEnabled = [],//an array of notes for the drones enabled, uses ABC for pitches
   canPlayUnpluggedGroupsIndividually = false,//an advanced technique that we disable by default
   isFirstGroupPlugged = true,
@@ -16,6 +17,7 @@ function Instrument({
   this.dronesSynth = dronesSynth;
   this.possibleTunings = possibleTunings;
   this.playableExtraNotes = playableExtraNotes[tuningKeyIndex];
+  this.playableExtraNotesOptions = playableExtraNotesOptions[tuningKeyIndex];
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
   this.isFirstGroupPlugged = isFirstGroupPlugged;
@@ -23,6 +25,7 @@ function Instrument({
   this.tuningKeyIndex = tuningKeyIndex;
   this.tuningKey = this.possibleTunings[tuningKeyIndex];
   this.pitchToNoteName = pitchToNoteName;
+  this.setPitchRange();
 }
 
 export default Instrument;
@@ -160,10 +163,10 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       ]
     }
     else if (pitchesOnly) {
-      notes = [
+      notes = _.uniq([
         ..._.flatten(_.values(notes)),
         ..._.flatten(_.values(this.playableExtraNotes))
-      ]
+      ]);
     }
   }
   else {
@@ -171,7 +174,7 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       notes = _.keys(notes)
     }
     else if (pitchesOnly) {
-      notes = _.flatten(_.values(notes));
+      notes = _.uniq(_.flatten(_.values(notes)));
     }
   }
     
@@ -239,4 +242,23 @@ Instrument.prototype.getTuningKeyByIndex = function getTuningKeyByIndex(tuningKe
 
 Instrument.prototype.getTuningKeyIndex = function getTuningKeyIndex({tuning}) {
   return _.indexOf(this.possibleTunings, tuning);
+}
+
+Instrument.prototype.setPitchRange = function setPitchRange() {
+  const playableNotes = this.getPlayableNotes({pitchesOnly: true});
+  const minPlayableNote = _.min(playableNotes);
+  const maxPlayableNote = _.max(playableNotes);
+  this.pitchRange = {
+    min: minPlayableNote,
+    max: maxPlayableNote,
+    total: maxPlayableNote - minPlayableNote
+  }
+}
+
+Instrument.prototype.isPitchInRange = function isPitchInRange({pitchIndex}) {
+  return _.inRange(pitchIndex, this.pitchRange.min, this.pitchRange.max + 1);
+}
+
+Instrument.prototype.getPeno = function getPeno({pitchIndex}) {
+  return this.playableExtraNotesOptions?.[pitchIndex];
 }
