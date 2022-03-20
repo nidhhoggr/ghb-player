@@ -103,6 +103,7 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       //C, [Db], D, [Eb], E, F, Gb, G, [Ab], A, Bb, B, C, Db, D
       //60 61    62 63    64 65 66  67 68    69 70  71 72 73  74
       //notes = ["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"];
+      /*
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["B"]);
       }
@@ -115,6 +116,7 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
         notes["C"] = _.omit(notes["C"], [72]);
       }
+      */
       break;
     }
     case "C/F": {
@@ -139,7 +141,7 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       //      _B =B C'
       //        
       //notes = ["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"];
-
+      /*
       if (this.isFirstGroupPlugged) {
         notes = _.omit(notes, ["A"]);
       }
@@ -152,6 +154,7 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
       else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
         notes["Bb"] = _.omit(notes["Bb"], [70]);
       }
+      */
       break;
     }
   }
@@ -231,6 +234,7 @@ Instrument.prototype.setTuningKey = function setTuningKey(tuningKey = null) {
   if(this.possibleTunings.includes(tuningKey)) {
     this.tuningKey = tuningKey;
     this.tuningKeyIndex = _.indexOf(this.possibleTunings, tuningKey);
+    this.setPitchRange();
   }
 }
 
@@ -256,6 +260,7 @@ Instrument.prototype.setPitchRange = function setPitchRange() {
 }
 
 Instrument.prototype.isPitchInRange = function isPitchInRange({pitchIndex}) {
+  //debug("isPitchInRange", pitchIndex, this.pitchRange)
   return _.inRange(pitchIndex, this.pitchRange.min, this.pitchRange.max + 1);
 }
 
