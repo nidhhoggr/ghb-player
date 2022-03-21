@@ -1029,7 +1029,18 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   lines.map((line, lKey) => {
     const cmd = _.get(line, "midiPitches[0].cmd");
     if (["rest", "note"].includes(cmd)) {
-      const pitchIndex = line.midiPitches[0].pitch;
+      let mpi = 0;
+      if (line.midiPitches.length > 1) {
+        let i;
+        for (i in line.midiPitches) {
+          const {pitch} = line.midiPitches[i];
+          if (this.instrument.isPitchInRange({pitchIndex: pitch})) {
+            mpi = i;
+            break;
+          }
+        }
+      }
+      const pitchIndex = line.midiPitches[mpi].pitch;
       const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
       const duration = line.duration;
       const percentage = _.round((durationReached * 1000 / totalDuration), 5);
