@@ -198,7 +198,7 @@ function ABCPlayer({
       //qpm,
       //defaultQpm: qpm,
       chordsOff: true,
-      voicesOff: true
+      //voicesOff: true //must be false for gracenotes to be played
     }
   }
 
@@ -403,6 +403,11 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
   if (scrollingNotesWrapper) {
     const index = event.ensIndex;
     if (_.isNaN(index)) return;
+    const scrollingNoteDivs = dQAll(".scrollingNotesWrapper section") || [];
+    Array.from(scrollingNoteDivs).map((snd, i) => {
+      snd.className = snd.className.replace("currentNote","");
+      snd.className = snd.className.replace("currentGraceNote","");
+    });
     this.currentNoteIndex = index;
     const snItem = this.getNoteScrollerItem({currentNoteIndex: index});
     this.updateState();
@@ -419,17 +424,25 @@ ABCPlayer.prototype.onNoteChange = function onNoteChange({event, midiPitch: {
         debugErr(`Could not calculate offset`, err.message);
       }
     }
-    const scrollingNoteDivs = dQAll(".scrollingNotesWrapper section") || [];
-    const currEl = scrollingNoteDivs[index];
-    let i, snd;
-    if (currEl && !currEl.className.includes("currentNote")) {
-      currEl.className = currEl.className.concat(" currentNote");
-    }
-    Array.from(scrollingNoteDivs).map((snd, i) => {
-      if (i !== index && snd.className && snd.className.includes("currentNote")) {
-        snd.className = snd.className.replace("currentNote","");
+    const graceNoteLength = _.get(event, "midiGraceNotePitches.length", 0);
+    if (graceNoteLength > 0) {
+      _.forEach(event?.midiGraceNotePitches, (gNote, gnKey) => {
+        const currEl = scrollingNoteDivs[index - (graceNoteLength - gnKey)];
+        if (currEl && !currEl.className.includes("currentGraceNote")) {
+          currEl.className = currEl.className.concat(" currentGraceNote");
+        }
+      });
+      const currEl = scrollingNoteDivs[index];
+      if (currEl && !currEl.className.includes("currentNote")) {
+        currEl.className = currEl.className.concat(" currentNote");
       }
-    });
+    }
+    else {
+      const currEl = scrollingNoteDivs[index];
+      if (currEl && !currEl.className.includes("currentNote")) {
+        currEl.className = currEl.className.concat(" currentNote");
+      }
+    }
   }
   return this.setNoteDiagram({pitchIndex: pitch, duration});
 }
@@ -1068,12 +1081,34 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   const linesLength = lines.length;
   const totalDuration = _.get(this.midiBuffer, "flattened.totalDuration") * 1000;
   let durationReached = 0;
-  if (lines?.length === 0) return onFinish?.(0)
+  if (lines?.length === 0) return onFinish?.(0);
   lines.map((line, lKey) => {
-    //graceNotesAreFoundHer
     const cmd = _.get(line, "midiPitches[0].cmd");
-    console.log({cmd});
     if (["rest", "note"].includes(cmd)) {
+      let gDurationReached = durationReached;
+      if (_.get(line, "midiGraceNotePitches.length") > 0) {
+        let i;
+        for (i in line.midiGraceNotePitches) {
+          const {pitch, durationInMeasures} = line.midiGraceNotePitches[i];
+          const pitchIndex = pitch;
+          const noteName = this.abcjs.synth.pitchToNoteName[pitchIndex];
+          const percentage = _.round((durationReached * 1000 / totalDuration), 5);
+          const ensIndex = this.currentSong.entireNoteSequence.push({
+            noteName,
+            pitchIndex,
+            duration: durationInMeasures,
+            durationReached: gDurationReached,
+            _percentage: percentage,
+            percentage: percentage.toString().replace(".","_"),
+            measureStart: line.measureStart,
+            isGraceNote: true
+          }) - 1;
+          this.currentSong.entireNoteSequence[ensIndex].noteTimingIndex = lKey;
+          this.currentSong.entireNoteSequence[ensIndex].ensIndex = ensIndex;
+          gDurationReached += durationInMeasures;
+        }
+      }
+
       let mpi = 0;
       if (line.midiPitches.length > 1) {
         let i;
@@ -1093,7 +1128,7 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
         noteName,
         pitchIndex,
         duration,
-        durationReached,
+        durationReached: gDurationReached,
         _percentage: percentage,
         percentage: percentage.toString().replace(".","_"),
         measureStart: line.measureStart
@@ -1108,6 +1143,30 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
         onFinish?.(lKey + 1);
       }
     }
+  });
+}
+
+
+//This doesnt seem to work
+ABCPlayer.prototype.setGraceNoteVolume = function(volume) {
+  return new Promise((resolve) => {
+    _.forEach(this.audioParams.visualObj.noteTimings, (line, lKey) => {
+      _.forEach(line.midiGraceNotePitches, (gNote, gnKey) => {
+        this.audioParams.visualObj.noteTimings[lKey].midiGraceNotePitches[gnKey].volume = volume;
+        this.synthControl.visualObj.noteTimings[lKey].midiGraceNotePitches[gnKey].volume = volume;
+      })
+    });
+    _.forEach(this.audioParams.visualObj.lines, (line, lKey) => {
+      _.forEach(_.get(line,"staff[0].voices[0]"), (voice, vKey) => {
+        _.forEach(voice.midiGraceNotePitches, (gNote, gnKey) => {
+          this.audioParams.visualObj.lines[lKey].staff[0].voices[0][vKey].midiGraceNotePitches[gnKey].volume = volume;
+          this.synthControl.visualObj.lines[lKey].staff[0].voices[0][vKey].midiGraceNotePitches[gnKey].volume = volume;
+        });
+      });
+    });
+    setTimeout(() => {
+      resolve(this.audioParams);
+    },100);
   });
 }
 
@@ -1681,11 +1740,15 @@ function scrollingNoteItemIterator({section, item}) {
     ensIndex, 
     noteTimingIndex, 
     percentage, 
-    measureStart 
+    measureStart,
+    isGraceNote
   } = item;
   if (!pitchIndex) return;
   const dur = _.ceil(duration * 100);
   const durr = _.ceil(duration, 4);
+  if (isGraceNote) {
+    section.classList.add(`gracenote`);
+  }
   if(!this.instrument.isPitchInRange({pitchIndex})) {
     section.classList.add(`unplayable_note`);
     section.classList.add(`exceeds_pitch_range`);

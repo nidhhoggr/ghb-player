@@ -99,11 +99,15 @@ section.incompatible_pitch {
       @include shadowed;
     }
   }
-  section.currentNote {
+  section.currentNote, section.currentGraceNote {
     box-shadow: none;
     & > div {
       box-shadow: none;
     }
+  }
+  section.gracenote > div {
+    background-color: #bce7ff !important;
+    background-blend-mode: multiply;
   }
   section[data-measurestart] > div {
     background-color: #bcffbc;
@@ -201,6 +205,11 @@ main.mobile {
   .currentNote {
     border-left: 5px solid #fbc500;
     border-right: 5px solid #fbc500;
+    width: 57px !important;
+  }
+  .currentGraceNote {
+    border-left: 4px solid #4caf50;
+    border-right: 4px solid #4caf50;
     width: 57px !important;
   }
   //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
