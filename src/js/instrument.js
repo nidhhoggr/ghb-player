@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import utils from "./utils";
 const { isNumber, debug } = utils({from: "instrument"});
-export const possibleTunings = ["E/A","D/G","C/F"];
+export const possibleTunings = ["Bb"];
 
 function Instrument({
   tuningKeyIndex = 0,//the key of the tuning, EA, DG, 
@@ -10,8 +10,6 @@ function Instrument({
   playableExtraNotesOptions = {},//an object of playable note descriptions
   dronesEnabled = [],//an array of notes for the drones enabled, uses ABC for pitches
   canPlayUnpluggedGroupsIndividually = false,//an advanced technique that we disable by default
-  isFirstGroupPlugged = true,
-  isSecondGroupPlugged = true,
   pitchToNoteName,//utility function to do what it says
 }) {
   this.dronesSynth = dronesSynth;
@@ -20,8 +18,6 @@ function Instrument({
   this.playableExtraNotesOptions = playableExtraNotesOptions[tuningKeyIndex];
   this.dronesEnabled = dronesEnabled;
   this.canPlayUnpluggedGroupsIndividually = canPlayUnpluggedGroupsIndividually;
-  this.isFirstGroupPlugged = isFirstGroupPlugged;
-  this.isSecondGroupPlugged = isSecondGroupPlugged;
   this.tuningKeyIndex = tuningKeyIndex;
   this.tuningKey = this.possibleTunings[tuningKeyIndex];
   this.pitchToNoteName = pitchToNoteName;
@@ -32,9 +28,7 @@ export default Instrument;
 
 Instrument.prototype.getTuningKeyAbbr = function getTuningKeyAbbr() {
   switch (this.tuningKey) {
-    case "E/A": 
-    case "D/G": 
-    case "C/F":
+    case "Bb": 
       return _.replace(_.lowerCase(this.tuningKey)," ","");
     default:
       return "invalidTuningKey";
@@ -56,105 +50,24 @@ Instrument.prototype.getPlayableNotes = function getPlayableNotes({tuningKey, no
   let notes = {};
   let pitches = [];
   switch (tuningKey) {
-    case "E/A": {
+    case "Bb": {
             // D    E    ^F    G    ^G    A    B    C'   ^C' 
             // D'   E'
+      //G, [G#], A, [A#], B, [C], C#, D, [D#], E, [F], F#, G, [G#], A
+      //67  68  69   70   71 72   73  74  75   76  77  78  79  80   81
       notes = {
-        "D": [62,74],
-        "E": [64,76],
-        "Gb": 66,
-        "G": 67, 
-        "Ab": 68, 
-        "A": 69,
-        "B": 71,
+        "G": [67, 79],
+        "Ab": 80,
+        "A": [69, 81],
+        "Bb": 70, 
+        "B": 71, 
         "C": 72,
         "Db": 73,
-        //"D": 74,//Cannot have duplicate elements so we use the array above
-        //"E": 76
+        "D": 74,
+        "E": 76,
+        "F": 77,
+        "Gb": 78
       };
-      //E/A Chromaticism reached with the addition of Eb (63), F (65), Bb(70), and Eb (76)
-      //D, [Eb], E, [F], Gb, G, Ab, A, [Bb], B, C, Db, D, [Eb], E
-      //62 63    64 65   66  67 68  69  70   71 72 73  74 75    76
-      //notes = ["D", "E", "Gb", "G", "Ab", "A", "B", "C", "Db"];
-      if (this.isFirstGroupPlugged) {
-        notes = _.omit(notes, ["Db"]);
-      }
-      else if (!this.canPlayUnpluggedGroupsIndividually) {
-        notes = _.omit(notes, ["C"]);
-      }
-      break;
-    }
-    case "D/G": {
-      //      C      D   E    F    ^F    G    A    _B    =B 
-      //      C' ^C' D'
-      notes = {
-        "C": [60, 72],
-        "D": [62, 74],
-        "E": 64,
-        "F": 65,
-        "Gb": 66,
-        "G": 67,
-        "A": 69,
-        "Bb": 70,
-        "B": 71,
-        "Db": 73,
-      };
-      // D/G Chromaticism reached with the addition of Db (61), Eb (63), Ab (68)
-      //C, [Db], D, [Eb], E, F, Gb, G, [Ab], A, Bb, B, C, Db, D
-      //60 61    62 63    64 65 66  67 68    69 70  71 72 73  74
-      //notes = ["C", "D", "E", "F", "Gb", "G", "A", "Bb", "B", "Db"];
-      /*
-      if (this.isFirstGroupPlugged) {
-        notes = _.omit(notes, ["B"]);
-      }
-      else if (!this.isFirstGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
-        notes = _.omit(notes, ["Bb"]);
-      }
-      if (this.isSecondGroupPlugged) {
-        notes = _.omit(notes, ["Db"]);
-      }
-      else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
-        notes["C"] = _.omit(notes["C"], [72]);
-      }
-      */
-      break;
-    }
-    case "C/F": {
-      notes = {
-        "Bb": [58, 70],
-        "C": [60, 72],
-        "D": 62,
-        "Eb": 63, 
-        "E": 64,
-        "F": 65,
-        "G": 67,
-        "Ab": 68,
-        "A": 69,
-        //"Bb": 70,
-        "B": 71
-        //C": 72
-      };
-      // C/F Chromaticism reached with the addition of B (59), Db (61), Gb (66)
-      // Bb, [B], C, [Db], D, Eb, E, F, [Gb], G, Ab, A, Bb, B, C
-      // 58  59   60 61    62 63  64 65 66    67 68  69 70  71 72
-      //      _B    C    D    _E   =E    F    G    _A    =A 
-      //      _B =B C'
-      //        
-      //notes = ["Bb", "C", "D", "Eb", "E", "F", "G", "Ab", "A", "B"];
-      /*
-      if (this.isFirstGroupPlugged) {
-        notes = _.omit(notes, ["A"]);
-      }
-      else if (!this.isFirstGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
-        notes = _.omit(notes, ["Ab"]);
-      }
-      if (this.isSecondGroupPlugged) {
-        notes = _.omit(notes, ["B"]);
-      }
-      else if (!this.isSecondGroupPlugged && !this.canPlayUnpluggedGroupsIndividually) {
-        notes["Bb"] = _.omit(notes["Bb"], [70]);
-      }
-      */
       break;
     }
   }

@@ -1,4 +1,4 @@
-# Sackpipa Player
+# GHB Player
 
 ## Features
 

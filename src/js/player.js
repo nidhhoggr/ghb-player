@@ -93,8 +93,6 @@ function ABCPlayer({
     "unsetUrlTempo",
     "unsetUrlTransposition",
     "unsetUrlTuning",
-    "firstGroup",
-    "secondGroup",
     //playercontrols,
     //"enableMobileView",
     //"disableMobileView",
@@ -135,8 +133,6 @@ function ABCPlayer({
     "ctp",//currentTransposition
     "ct",//currentTempo
     "cni",//currentNoteIndex
-    "fgp",//firstGroupPlugged
-    "sgp",//SecondGroupPlugged,
     "erc",//error reload count,
     "imb",//isMobileBuild,
     "pve",//pageViewEnabled
@@ -767,20 +763,7 @@ ABCPlayer.prototype.reloadWindow = function(appendingObject) {
 
 ABCPlayer.prototype.instrumentReload = function(options = {}) {
   this.instrumentOptions = _.merge(this.instrumentOptions,options);
-  const { isFirstGroupPlugged, isSecondGroupPlugged } = this.instrumentOptions;
   this.instrument = new this.ioc.Instrument(this.instrumentOptions);
-  if (!this.instrument.isFirstGroupPlugged) {
-    this.domBinding.firstGroup.classList.remove("plugged");
-  } 
-  else {
-    updateClasses(this.domBinding, "firstGroup", ["plugged"]);
-  }
-  if (!this.instrument.isSecondGroupPlugged) {
-    this.domBinding.secondGroup.classList.remove("plugged");
-  }
-  else {
-    updateClasses(this.domBinding, "secondGroup", ["plugged"]);
-  }
   if (options.skipUpdate) return;
   this._updateTuning();
   this.updateState();
@@ -868,16 +851,6 @@ ABCPlayer.prototype.evaluateClientParams = function() {
   clientParam = parseInt(this.clientParams["cti"]);
   if (isNumber(clientParam)) {
     toSet["currentTuneIndex"] = clientParam;
-  }
-
-  clientParam = parseInt(this.clientParams["fgp"]);
-  if (isNumber(clientParam)) {
-    toSet["instrumentOptions.isFirstGroupPlugged"] = !(clientParam === 0);
-  }
-
-  clientParam = parseInt(this.clientParams["sgp"]);
-  if (clientParam === 1) {
-    toSet["instrumentOptions.isSecondGroupPlugged"] = !(clientParam === 0);
   }
 
   clientParam = parseInt(this.clientParams["erc"]);
@@ -1018,6 +991,76 @@ ABCPlayer.prototype.setNoteDiagram = function({pitchIndex, currentNote}) {
   }
 }
 
+/**
+ *
+ * Here we need to account for grace notes.
+ *
+	 {
+			"duration": 0.5,
+			"type": "event",
+			"milliseconds": 750,
+			"line": 0,
+			"measureNumber": 0,
+			"top": 115.56058593750002,
+			"height": 95.71249999999999,
+			"left": 417.423,
+			"width": 10.37,
+			"elements": [
+					[
+							{}
+					]
+			],
+			"startChar": 111,
+			"endChar": 118,
+			"startCharArray": [
+					111
+			],
+			"endCharArray": [
+					118
+			],
+			"midiPitches": [
+					{
+							"cmd": "note",
+							"pitch": 74,
+							"volume": true,
+							"start": 0.5,
+							"duration": 0.25,
+							"instrument": 109,
+							"gap": 0,
+							"ensIndexes": [
+									2
+							]
+					}
+			],
+			"midiGraceNotePitches": [
+					{
+							"pitch": 79,
+							"durationInMeasures": 0.08333333333333333,
+							"volume": 1,
+							"instrument": 109
+					},
+					{
+							"pitch": 74,
+							"durationInMeasures": 0.08333333333333333,
+							"volume": 1,
+							"instrument": 109
+					},
+					{
+							"pitch": 67,
+							"durationInMeasures": 0.08333333333333333,
+							"volume": 1,
+							"instrument": 109
+					}
+			],
+			"millisecondsPerMeasure": 2250,
+			"ensIndex": 2
+		}
+ *
+ *
+ *
+ *
+ */
+
 
 ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish}) {
   this.currentSong.entireNoteSequence = [];
@@ -1027,7 +1070,9 @@ ABCPlayer.prototype.setCurrentSongNoteSequence = function({visualObj, onFinish})
   let durationReached = 0;
   if (lines?.length === 0) return onFinish?.(0)
   lines.map((line, lKey) => {
+    //graceNotesAreFoundHer
     const cmd = _.get(line, "midiPitches[0].cmd");
+    console.log({cmd});
     if (["rest", "note"].includes(cmd)) {
       let mpi = 0;
       if (line.midiPitches.length > 1) {
@@ -1231,17 +1276,6 @@ ABCPlayer.prototype._updateTuning = function updateTuning(tuningKeyIndex = 0, {f
     },
     onSuccess: () => {
       debug(`Updated the tuning to ${tuningKeyIndex}`);
-      if ((tuningKeyIndex % possibleTunings.length) === 0) {
-        this.domBinding.secondGroup.hide();
-
-        //@TODO get plugged holes working
-        this.domBinding.firstGroup.show();
-      }
-      else {
-        //@TODO get plugged holes working
-        this.domBinding.firstGroup.hide();
-        this.domBinding.secondGroup.hide();
-      }
       if (isNumber(tuningKeyIndex) && tuningKeyIndex === this.currentSong?.original?.tuning) {
         delete this.onUnsetClientParamTuning;
         this.domBinding.unsetUrlTuning.hide();
@@ -1276,18 +1310,6 @@ ABCPlayer.prototype.unsetUrlTuning = function() {
   this.domBinding.unsetUrlTuning.hide();
   this.updateState();
   delete this.onUnsetClientParamTuning;
-}
-
-ABCPlayer.prototype.firstGroup = function() {
-  this.instrumentReload({
-    isFirstGroupPlugged: !this.instrument.isFirstGroupPlugged
-  });
-}
-
-ABCPlayer.prototype.secondGroup = function() {
-  this.instrumentReload({
-    isSecondGroupPlugged: !this.instrument.isSecondGroupPlugged
-  });
 }
 
 ABCPlayer.prototype.updateControlStats = function updateControlStats() {
@@ -1477,7 +1499,7 @@ ABCPlayer.prototype.setTune = function setTune({
       this.currentSong = currentSong;
     }
    
-    const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
+    const { tempo, transposition, tuning } = this.currentSong;
 
     function prepareOnSuccess(setEm) {
       if (onSuccess && _.isFunction(onSuccess)) {
@@ -1497,14 +1519,8 @@ ABCPlayer.prototype.setTune = function setTune({
 
     if (!isSameSong) {
       this.noteScroller?.setScrollerXPos({xpos: 0});
-      const { tempo, transposition, tuning, fgp, sgp } = this.currentSong;
+      const { tempo, transposition, tuning } = this.currentSong;
       //the shouldSetTune flag ensures that it will not call setTune, were already here!
-      if (isNumber(fgp) && !!fgp !== this.instrumentOptions.isFirstGroupPlugged) {
-        this.firstGroup();
-      }
-      if (isNumber(sgp) && !!sgp !== this.instrumentOptions.isSecondGroupPlugged) {
-        this.secondGroup();
-      }
       if (tempo) {
         this.setTempo(tempo, {shouldSetTune: false});
       }

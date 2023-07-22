@@ -4,7 +4,7 @@ const config = {
   ..._base,
   shouldDebug: false,
   debugDisabledModules: ["state"],//disable debugging in these modules
-  prodDomain: "sackpipa.folktabs.com",
+  prodDomain: "ghb.folktabs.com",
   isMobileBuild: false,
   environment: "prod",
 }

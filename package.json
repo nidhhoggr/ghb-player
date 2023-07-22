@@ -1,7 +1,7 @@
 {
-  "name": "@nidhhoggr/SackpipaPlayer",
+  "name": "@nidhhoggr/GHBPlayer",
   "version": "1.0.0",
-  "description": "A player to load abc files and build and runtime into a sackpipa player",
+  "description": "load abc files to view fingering diagrams for the Great Highland Bagpipe (GHB)",
   "scripts": {
     "build": "webpack --mode=development",
     "watch": "webpack --mode=development --watch",
@@ -13,10 +13,10 @@
     "lint-sass": "sass-lint -v -q --format=compact",
     "lint-js": "eslint --ext .js src/js/",
     "uml": "madge --exclude '^abcjs|(scss/base)|(scss/dirty)' --image graph.svg src/js/app.js",
-    "gen-bundle": "gen-bundle -dir dist -baseURL https://sackpipa.folktabs.com/ -primaryURL https://sackpipa.folktabs.com/ -o folktabs.wbn"
+    "gen-bundle": "gen-bundle -dir dist -baseURL https://ghb.folktabs.com/ -primaryURL https://ghb.folktabs.com/ -o folktabs.wbn"
   },
   "keywords": [
-    "sackpipa",
+    "ghb",
     "säckpipa",
     "dråmba",
     "koppe",
